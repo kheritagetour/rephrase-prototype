@@ -5,392 +5,432 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Re:Phrase</title>
 <style>
+/* ═══════════════════════════════════════
+   RE:PHRASE — High-Fidelity Prototype
+   Slack + KakaoTalk + AI Assistant
+   ═══════════════════════════════════════ */
 *{margin:0;padding:0;box-sizing:border-box}
-:root{--bg:#f5f5f5;--card:#fff;--blue:#4F6CFF;--blue2:#3b5bdb;--bluel:#EEF1FF;--green:#22c55e;--yellow:#eab308;--red:#ef4444;--purple:#7c3aed;--mine:#4F6CFF;--other:#fff;--text:#111;--t2:#777;--t3:#aaa;--border:#ebebeb;--chatbg:#F0EDE8}
-body{font-family:-apple-system,BlinkMacSystemFont,'Pretendard','Noto Sans KR',sans-serif;height:100vh;overflow:hidden;background:var(--bg)}
+:root{
+  --bg:#f8f8f8;--surface:#fff;--surface2:#fafafa;
+  --text:#1a1a1a;--text2:#6b7280;--text3:#9ca3af;
+  --blue:#4f6cff;--blue-soft:#eef1ff;--blue-hover:#3d5ce8;
+  --green:#10b981;--green-soft:#d1fae5;
+  --amber:#f59e0b;--amber-soft:#fef3c7;
+  --red:#ef4444;--red-soft:#fee2e2;
+  --purple:#8b5cf6;
+  --border:#e5e7eb;--border-light:#f3f4f6;
+  --mine:#4f6cff;--other:#fff;
+  --chat-bg:#f5f3f0;
+  --radius:12px;--radius-sm:8px;--radius-lg:16px;
+  --shadow-sm:0 1px 2px rgba(0,0,0,.05);
+  --shadow:0 2px 8px rgba(0,0,0,.08);
+  --shadow-lg:0 8px 30px rgba(0,0,0,.12);
+  --transition:all .15s ease;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Pretendard','Noto Sans KR',system-ui,sans-serif;height:100vh;overflow:hidden;background:var(--bg);color:var(--text);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+
+/* ═══ ANIMATIONS ═══ */
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@keyframes slideDown{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+@keyframes scaleIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
+.anim-fade{animation:fadeIn .2s ease}.anim-up{animation:slideUp .2s ease}.anim-scale{animation:scaleIn .15s ease}
 
 /* ═══ LANDING ═══ */
-.landing{position:fixed;inset:0;z-index:500;background:#fff;display:flex;align-items:center;justify-content:center;transition:opacity .4s}
+.landing{position:fixed;inset:0;z-index:600;background:var(--surface);display:flex;align-items:center;justify-content:center;transition:opacity .4s ease}
 .landing.hide{opacity:0;pointer-events:none}
-.land{text-align:center;padding:40px;max-width:400px}
-.land .logo{font-size:38px;font-weight:900;color:var(--blue);margin-bottom:6px;letter-spacing:-1px}
-.land .logo span{color:var(--red)}
-.land .tagline{font-size:15px;color:var(--t2);line-height:1.5;margin-bottom:36px}
-.land .login{width:100%;padding:14px;border-radius:14px;background:var(--blue);color:#fff;font-size:15px;font-weight:700;border:none;cursor:pointer;transition:.2s;margin-bottom:10px}
-.land .login:hover{background:var(--blue2)}
-.land .skip{font-size:12px;color:var(--t3);cursor:pointer;text-decoration:underline}
+.land-c{text-align:center;max-width:420px;padding:40px 24px}
+.land-logo{font-size:32px;font-weight:800;color:var(--text);letter-spacing:-.5px;margin-bottom:4px}
+.land-logo span{color:var(--blue)}
+.land-tag{font-size:15px;color:var(--text2);margin-bottom:32px;line-height:1.6}
+.land-features{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:28px;text-align:left}
+.land-f{padding:14px;border-radius:var(--radius);background:var(--surface2);border:1px solid var(--border-light)}
+.land-f .lf-icon{font-size:20px;margin-bottom:6px}
+.land-f h4{font-size:12px;font-weight:700;margin-bottom:2px}
+.land-f p{font-size:10px;color:var(--text3);line-height:1.4}
+.land-btn{width:100%;padding:13px;border-radius:var(--radius);background:var(--blue);color:#fff;font-size:14px;font-weight:600;border:none;cursor:pointer;transition:var(--transition)}
+.land-btn:hover{background:var(--blue-hover);transform:translateY(-1px)}
 
-/* ═══ APP ═══ */
-.app{display:none;height:100vh;flex-direction:row}
+/* ═══ ONBOARDING ═══ */
+.onb{position:fixed;inset:0;z-index:500;background:var(--surface);display:flex;align-items:center;justify-content:center;transition:opacity .3s}
+.onb.hide{opacity:0;pointer-events:none}
+.onb-c{max-width:480px;padding:32px 24px}
+.onb-c h2{font-size:20px;font-weight:700;margin-bottom:4px}
+.onb-c .onb-sub{font-size:13px;color:var(--text2);margin-bottom:20px}
+.sc-grid{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+.sc-card{display:flex;gap:14px;align-items:center;padding:14px 16px;border-radius:var(--radius);border:1.5px solid var(--border);cursor:pointer;transition:var(--transition)}
+.sc-card:hover{border-color:var(--blue);background:var(--blue-soft)}
+.sc-card .sc-i{font-size:28px;flex-shrink:0}
+.sc-card h4{font-size:13px;font-weight:600;margin-bottom:1px}
+.sc-card p{font-size:11px;color:var(--text3);line-height:1.4}
+.onb-skip{text-align:center;font-size:11px;color:var(--text3);cursor:pointer;margin-top:8px}
+.onb-skip:hover{color:var(--blue)}
+
+/* ═══ APP LAYOUT ═══ */
+.app{display:none;height:100vh}
 .app.show{display:flex}
 
 /* Sidebar */
-.side{width:320px;background:var(--card);border-right:1px solid var(--border);display:flex;flex-direction:column}
-.side-top{padding:16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
-.side-top .slogo{font-size:17px;font-weight:800;color:var(--blue)}
-.side-top .slogo span{color:var(--red)}
-.side-top .gear{margin-left:auto;width:30px;height:30px;border-radius:50%;border:none;background:var(--bg);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center}
-.cl{flex:1;overflow-y:auto}
-.ci{display:flex;align-items:center;gap:10px;padding:12px 16px;cursor:pointer;border-bottom:1px solid #fafafa;transition:.1s}
-.ci:hover{background:#fafafa}.ci.act{background:var(--bluel)}
-.ci .av{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;flex-shrink:0}
-.ci .meta{flex:1;min-width:0}
-.ci .nm{font-size:13px;font-weight:600;display:flex;align-items:center;gap:5px}
-.ci .pv{font-size:11px;color:var(--t2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px}
-.ci .tm{font-size:9px;color:var(--t3);margin-left:auto;flex-shrink:0}
-.badge{font-size:8px;padding:1px 5px;border-radius:4px;font-weight:600}
-.badge.w{background:var(--bluel);color:var(--blue)}.badge.p{background:#dcfce7;color:#166534}
-.unr{width:16px;height:16px;border-radius:50%;background:var(--blue);color:#fff;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.side{width:300px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0}
+.side-hdr{padding:16px 16px 12px;display:flex;align-items:center;gap:8px}
+.side-hdr .s-logo{font-size:16px;font-weight:800;color:var(--text)}.side-hdr .s-logo span{color:var(--blue)}
+.side-hdr .s-gear{margin-left:auto;width:28px;height:28px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--surface);cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;transition:var(--transition)}
+.side-hdr .s-gear:hover{background:var(--surface2);border-color:var(--text3)}
+.side-search{padding:0 12px 10px}
+.side-search input{width:100%;padding:7px 10px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--surface2);font-size:12px;outline:none;transition:var(--transition)}
+.side-search input:focus{border-color:var(--blue);background:var(--surface)}
+.ch-list{flex:1;overflow-y:auto}
+.ch-item{display:flex;align-items:center;gap:10px;padding:10px 16px;cursor:pointer;transition:var(--transition);border-left:3px solid transparent}
+.ch-item:hover{background:var(--surface2)}
+.ch-item.active{background:var(--blue-soft);border-left-color:var(--blue)}
+.ch-av{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;flex-shrink:0}
+.ch-meta{flex:1;min-width:0}
+.ch-name{font-size:13px;font-weight:600;display:flex;align-items:center;gap:5px}
+.ch-prev{font-size:11px;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px}
+.ch-time{font-size:9px;color:var(--text3);flex-shrink:0;align-self:flex-start;margin-top:2px}
+.ch-badge{font-size:8px;padding:1px 5px;border-radius:4px;font-weight:600}
+.ch-badge.w{background:var(--blue-soft);color:var(--blue)}
+.ch-badge.p{background:var(--green-soft);color:#059669}
 
-/* Main */
-.main{flex:1;display:flex;flex-direction:column;position:relative}
-.empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--t3);gap:6px}
-.empty .eic{font-size:40px}.empty h3{font-size:16px;color:var(--text)}.empty p{font-size:12px}
+/* ═══ MAIN CHAT ═══ */
+.main{flex:1;display:flex;flex-direction:column}
+.main .empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:var(--text3)}
+.main .empty h3{font-size:18px;color:var(--text);font-weight:700}
+.main .empty p{font-size:12px}
 
 /* Chat header */
-.chdr{height:52px;background:var(--card);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 16px;gap:10px}
-.chdr .av{width:32px;height:32px;font-size:12px}
-.chdr h4{font-size:14px;font-weight:600}.chdr .csub{font-size:10px;color:var(--t3)}
-.chdr .rel-chip{margin-left:auto;display:flex;align-items:center;gap:6px}
-.chdr .rel-badge{padding:3px 8px;border-radius:6px;font-size:9px;font-weight:600;background:var(--bluel);color:var(--blue)}
+.c-hdr{height:54px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:10px}
+.c-hdr .ch-av{width:30px;height:30px;font-size:11px;border-radius:8px}
+.c-hdr h4{font-size:14px;font-weight:600}
+.c-hdr .c-sub{font-size:10px;color:var(--text3)}
+.c-hdr .c-chips{margin-left:auto;display:flex;gap:6px;align-items:center}
+.c-chip{padding:3px 8px;border-radius:6px;font-size:9px;font-weight:600}
+.c-chip.formal{background:var(--amber-soft);color:#92400e}
+.c-chip.ctx{background:var(--blue-soft);color:var(--blue)}
+.c-hdr .c-gear{width:28px;height:28px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--surface);cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;transition:var(--transition)}
 
 /* Messages */
-.msgs{flex:1;overflow-y:auto;padding:12px 50px;display:flex;flex-direction:column;gap:4px;background:var(--chatbg)}
-.dsep{text-align:center;font-size:10px;color:var(--t3);background:rgba(255,255,255,.7);display:inline-block;align-self:center;padding:2px 10px;border-radius:6px;margin:4px 0}
-.msg{max-width:70%;padding:8px 12px;border-radius:14px;font-size:13px;line-height:1.55;animation:fi .2s ease}
-@keyframes fi{from{opacity:0;transform:translateY(3px)}to{opacity:1}}
-.msg.o{background:var(--other);align-self:flex-start;border-bottom-left-radius:3px;box-shadow:0 1px 2px rgba(0,0,0,.04)}
-.msg.m{background:var(--mine);color:#fff;align-self:flex-end;border-bottom-right-radius:3px}
-.msg .sn{font-size:9px;font-weight:600;color:var(--t2);margin-bottom:1px}
-.msg .tm{font-size:8px;opacity:.5;text-align:right;margin-top:2px}
-.ehl{cursor:pointer;border-radius:3px;padding:0 1px;transition:.1s}.ehl:hover{background:rgba(79,108,255,.15)}
-.msg .hint{font-size:9px;color:var(--blue);margin-top:4px;cursor:pointer;padding:3px 8px;background:var(--bluel);border-radius:6px;display:inline-block;border:1px solid rgba(79,108,255,.2);animation:hpulse 2s infinite}
-@keyframes hpulse{0%,100%{box-shadow:0 0 0 0 rgba(79,108,255,.2)}50%{box-shadow:0 0 0 4px rgba(79,108,255,.1)}}
-.msg.emoji-s{font-size:13px}
+.msg-area{flex:1;overflow-y:auto;padding:16px 40px;display:flex;flex-direction:column;gap:3px;background:var(--chat-bg)}
+.day-sep{text-align:center;font-size:10px;color:var(--text3);margin:8px 0;align-self:center}
+.day-sep span{background:rgba(255,255,255,.8);padding:2px 10px;border-radius:10px}
+.msg-wrap{display:flex;flex-direction:column;max-width:68%;animation:slideUp .2s ease}
+.msg-wrap.me{align-self:flex-end}
+.msg-wrap.other{align-self:flex-start}
+.msg-sender{font-size:10px;font-weight:600;color:var(--text2);margin-bottom:2px;margin-left:2px}
+.bubble{padding:8px 13px;border-radius:var(--radius);font-size:13px;line-height:1.55;position:relative;word-break:break-word}
+.msg-wrap.me .bubble{background:var(--mine);color:#fff;border-bottom-right-radius:4px}
+.msg-wrap.other .bubble{background:var(--other);color:var(--text);border-bottom-left-radius:4px;box-shadow:var(--shadow-sm)}
+.bubble .b-time{font-size:8px;opacity:.4;text-align:right;margin-top:3px}
+.bubble.emoji-std{font-size:13px}
+
+/* Clickable emoji in messages */
+.e-click{cursor:pointer;border-radius:3px;transition:var(--transition)}
+.e-click:hover{background:rgba(79,108,255,.12)}
+
+/* Emoji hint badge */
+.e-hint{display:inline-block;font-size:9px;color:var(--blue);margin-top:4px;cursor:pointer;padding:2px 8px;background:var(--blue-soft);border-radius:6px;transition:var(--transition)}
+.e-hint:hover{background:#dde3ff}
 
 /* Reactions */
-.rxr{display:flex;gap:2px;margin-top:3px;flex-wrap:wrap}
-.rx{display:inline-flex;align-items:center;gap:2px;padding:2px 6px;border-radius:10px;background:rgba(0,0,0,.05);font-size:11px;cursor:pointer}
-.rx:hover{background:rgba(0,0,0,.08)}
-.rx .rn{font-size:8px;color:var(--t2);max-width:60px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.rxa{width:20px;height:20px;border-radius:50%;background:rgba(0,0,0,.04);font-size:10px;cursor:pointer;border:1px dashed #ccc;display:inline-flex;align-items:center;justify-content:center}
+.rx-row{display:flex;gap:2px;margin-top:4px;flex-wrap:wrap}
+.rx-pill{display:inline-flex;align-items:center;gap:2px;padding:2px 7px;border-radius:10px;background:rgba(0,0,0,.04);font-size:11px;cursor:pointer;transition:var(--transition);border:1px solid transparent}
+.rx-pill:hover{background:rgba(0,0,0,.08);border-color:var(--border)}
+.rx-pill .rx-note{font-size:8px;color:var(--text2);max-width:70px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rx-add{width:22px;height:22px;border-radius:50%;background:rgba(0,0,0,.03);font-size:10px;cursor:pointer;border:1px dashed var(--border);display:inline-flex;align-items:center;justify-content:center;transition:var(--transition)}
+.rx-add:hover{background:rgba(0,0,0,.06)}
 
-/* Quick reaction bar on hover */
-.msg.o{position:relative}
-.msg.o .qrx{display:none;position:absolute;top:-8px;right:-4px;background:#fff;border-radius:16px;padding:2px 4px;box-shadow:0 2px 8px rgba(0,0,0,.12);gap:1px;z-index:10}
-.msg.o:hover .qrx{display:flex}
-.qrx button{width:26px;height:26px;border:none;background:none;font-size:15px;cursor:pointer;border-radius:50%;transition:.1s}
-.qrx button:hover{background:#f0f0f0;transform:scale(1.2)}
+/* Quick reactions on hover */
+.msg-wrap.other{position:relative}
+.qrx{display:none;position:absolute;top:-6px;right:-6px;background:var(--surface);border-radius:14px;padding:2px 3px;box-shadow:var(--shadow);gap:1px;z-index:10}
+.msg-wrap.other:hover .qrx{display:flex}
+.qrx button{width:24px;height:24px;border:none;background:none;font-size:14px;cursor:pointer;border-radius:50%;transition:var(--transition)}
+.qrx button:hover{background:var(--surface2);transform:scale(1.15)}
 
 /* ═══ COMPOSER ═══ */
-.carea{border-top:1px solid var(--border);background:var(--card)}
+.composer{background:var(--surface);border-top:1px solid var(--border)}
 
-/* Formality slider — relationship-aware */
-.fbar{display:none;padding:8px 16px;align-items:center;gap:8px;border-bottom:1px solid #f5f5f5}
-.fbar.show{display:flex}
-.fbar label{font-size:11px;color:var(--t2);font-weight:600;white-space:nowrap}
-.fbar input[type=range]{flex:1;accent-color:var(--blue);cursor:pointer}
-.fbar .fv{font-size:11px;font-weight:700;color:var(--blue);min-width:50px;text-align:right}
+/* Formality slider */
+.f-slider{display:none;padding:8px 20px;align-items:center;gap:10px;border-bottom:1px solid var(--border-light)}
+.f-slider.show{display:flex}
+.f-slider .fs-label{font-size:10px;font-weight:600;white-space:nowrap}
+.f-slider .fs-label.casual{color:var(--green)}
+.f-slider .fs-label.formal{color:var(--blue)}
+.f-slider input[type=range]{flex:1;accent-color:var(--blue);cursor:pointer;height:4px}
+.f-slider .fs-level{font-size:12px;min-width:24px;text-align:center}
 
 /* Tone suggestion */
-.tsug{display:none;padding:6px 16px 4px}
-.tsug.show{display:block}
-.tsug .tl{font-size:9px;color:var(--blue);font-weight:600;margin-bottom:4px}
-.tsug .topt{padding:10px 14px;background:var(--bluel);border:1.5px solid var(--blue);border-radius:12px;font-size:13px;cursor:pointer;transition:.15s;margin-bottom:4px;position:relative}
-.tsug .topt:hover{background:#dde3ff}
-.tsug .topt .tap-hint{position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:9px;color:var(--blue);opacity:.5;pointer-events:none}
-.tsug .talts{display:flex;gap:4px;overflow-x:auto;padding-bottom:2px}
-.tsug .talt{padding:5px 10px;border-radius:12px;font-size:11px;border:1px solid var(--border);color:var(--t2);background:#fff;cursor:pointer;white-space:nowrap;flex-shrink:0}
-.tsug .talt:hover{border-color:var(--blue);color:var(--blue)}
+.tone-sug{display:none;padding:8px 20px;position:relative}
+.tone-sug.show{display:block;animation:slideDown .15s ease}
+.tone-sug .ts-close{position:absolute;top:6px;right:16px;font-size:14px;cursor:pointer;color:var(--text3);line-height:1;width:20px;height:20px;display:flex;align-items:center;justify-content:center;border-radius:4px}
+.tone-sug .ts-close:hover{background:var(--surface2);color:var(--text)}
+.tone-sug .ts-label{font-size:10px;color:var(--blue);font-weight:600;margin-bottom:4px}
+.tone-sug .ts-main{padding:8px 12px;background:var(--blue-soft);border:1.5px solid rgba(79,108,255,.2);border-radius:var(--radius-sm);font-size:13px;cursor:pointer;transition:var(--transition);margin-bottom:4px;display:flex;justify-content:space-between;align-items:center}
+.tone-sug .ts-main:hover{background:#dde3ff;border-color:var(--blue)}
+.tone-sug .ts-main .ts-hint{font-size:9px;color:var(--blue);opacity:.5}
+.tone-sug .ts-alts{display:flex;gap:4px;overflow-x:auto;padding-bottom:2px}
+.tone-sug .ts-alt{padding:5px 10px;border-radius:var(--radius-sm);font-size:11px;border:1px solid var(--border);color:var(--text2);background:var(--surface);cursor:pointer;white-space:nowrap;flex-shrink:0;transition:var(--transition)}
+.tone-sug .ts-alt:hover{border-color:var(--blue);color:var(--blue)}
+.tone-sug .ts-compare{display:flex;gap:3px;margin-top:6px;overflow-x:auto;padding-bottom:2px}
+.tone-sug .ts-cmp{padding:4px 8px;border-radius:6px;font-size:10px;border:1px solid var(--border-light);cursor:pointer;white-space:nowrap;flex-shrink:0;transition:var(--transition)}
+.tone-sug .ts-cmp:hover{border-color:var(--blue);background:var(--blue-soft)}
 
-/* Emoji recommendation strip — always visible when typing */
-.erec{display:none;padding:5px 14px;gap:5px;align-items:center;border-bottom:1px solid #f5f5f5;background:#fafbff}
-.erec.show{display:flex}
-.erec .erl{font-size:9px;color:var(--blue);font-weight:600;flex-shrink:0;margin-right:2px}
-.erec .erb{width:34px;height:34px;border-radius:10px;font-size:20px;cursor:pointer;border:1.5px solid var(--border);background:#fff;display:flex;align-items:center;justify-content:center;transition:.15s;position:relative}
-.erec .erb:hover{background:var(--bluel);border-color:var(--blue);transform:scale(1.15)}
-.erec .erb .er-tip{display:none;position:absolute;bottom:110%;left:50%;transform:translateX(-50%);background:var(--blue);color:#fff;font-size:9px;padding:2px 6px;border-radius:4px;white-space:nowrap;pointer-events:none}
-.erec .erb:hover .er-tip{display:block}
-.erec .er-add{font-size:11px;color:var(--t3);margin-left:auto;cursor:pointer}
-.erec .er-add:hover{color:var(--blue)}
+/* Emoji recommendation */
+.e-rec{display:none;padding:6px 20px;gap:6px;align-items:center;border-bottom:1px solid var(--border-light);background:var(--surface2)}
+.e-rec.show{display:flex;animation:fadeIn .15s}
+.e-rec .er-label{font-size:9px;color:var(--blue);font-weight:600;flex-shrink:0}
+.e-rec .er-btn{width:32px;height:32px;border-radius:var(--radius-sm);font-size:18px;cursor:pointer;border:1px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;transition:var(--transition);position:relative}
+.e-rec .er-btn:hover{background:var(--blue-soft);border-color:var(--blue);transform:scale(1.1)}
+.e-rec .er-btn .er-tip{display:none;position:absolute;bottom:calc(100% + 4px);left:50%;transform:translateX(-50%);background:var(--text);color:#fff;font-size:9px;padding:3px 7px;border-radius:4px;white-space:nowrap;pointer-events:none}
+.e-rec .er-btn:hover .er-tip{display:block}
+.e-rec .er-more{font-size:10px;color:var(--text3);margin-left:auto;cursor:pointer}
+.e-rec .er-more:hover{color:var(--blue)}
 
 /* Warning */
-.wbar{display:none;padding:4px 14px;font-size:10px;color:#b45309;background:#fef3c7;align-items:center;gap:4px}
-.wbar.show{display:flex}
-.wbar .wd{margin-left:auto;font-size:9px;padding:1px 6px;border-radius:4px;border:1px solid #b45309;background:none;color:#b45309;cursor:pointer}
+.warn{display:none;padding:5px 20px;font-size:11px;color:#92400e;background:var(--amber-soft);align-items:center;gap:6px;border-bottom:1px solid #fde68a}
+.warn.show{display:flex;animation:fadeIn .15s}
+.warn .w-close{margin-left:auto;font-size:10px;padding:2px 6px;border-radius:4px;border:1px solid #d97706;background:none;color:#d97706;cursor:pointer}
 
 /* Token bar */
-.tkbar{display:none;padding:4px 12px;gap:3px;flex-wrap:wrap;border-bottom:1px solid #f5f5f5}
-.tkbar.show{display:flex}
-.tk{padding:4px 8px;border-radius:7px;font-size:10px;border:1px solid var(--border);background:#fff;cursor:pointer;display:inline-flex;align-items:center;gap:2px}
-.tk:hover{border-color:var(--blue);background:var(--bluel)}
-.tk.st{border-color:#fbbf24;background:#fffbeb}.tk.st:hover{background:#fef3c7}
-.tksep{width:1px;height:14px;background:var(--border)}
+.tok-bar{display:none;padding:5px 16px;gap:3px;flex-wrap:wrap;border-bottom:1px solid var(--border-light)}
+.tok-bar.show{display:flex}
+.tok{padding:4px 9px;border-radius:6px;font-size:10px;border:1px solid var(--border);background:var(--surface);cursor:pointer;display:inline-flex;align-items:center;gap:3px;transition:var(--transition);font-weight:500}
+.tok:hover{border-color:var(--blue);background:var(--blue-soft)}
+.tok.status{border-color:var(--amber);background:var(--amber-soft);color:#92400e}
+.tok.status:hover{background:#fde68a}
+.tok-sep{width:1px;height:16px;background:var(--border);margin:0 2px}
 
 /* Render preview */
-.rpv{display:none;padding:4px 16px;background:#faf9f6;border-top:1px solid #eee;font-size:10px;color:var(--t2)}
-.rpv.show{display:block}
-.rpv .rpm{display:inline-block;padding:4px 8px;border-radius:8px;background:var(--mine);color:#fff;font-size:12px;margin:2px 0}
+.rp{display:none;padding:5px 20px;background:var(--surface2);border-top:1px solid var(--border-light);font-size:10px;color:var(--text3)}
+.rp.show{display:block}
+.rp .rp-bubble{display:inline-block;padding:4px 8px;border-radius:8px;background:var(--mine);color:#fff;font-size:12px;margin:2px 0}
 
-.crow{display:flex;align-items:flex-end;padding:6px 10px 10px;gap:5px}
-.crow textarea{flex:1;resize:none;border:1.5px solid var(--border);border-radius:20px;padding:8px 14px;font-size:13px;font-family:inherit;outline:none;min-height:36px;max-height:80px}
-.crow textarea:focus{border-color:var(--blue)}
-.cb{width:34px;height:34px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
-.cb.eb{background:none;font-size:18px;border:1.5px solid var(--border)}.cb.eb:hover{border-color:var(--blue)}
-.cb.sb{background:var(--blue);color:#fff;font-size:14px}.cb.sb:hover{opacity:.9}
+/* Input row */
+.input-row{display:flex;align-items:flex-end;padding:8px 12px 12px;gap:6px}
+.input-row textarea{flex:1;resize:none;border:1.5px solid var(--border);border-radius:20px;padding:8px 14px;font-size:13px;font-family:inherit;outline:none;min-height:36px;max-height:100px;transition:var(--transition);line-height:1.4}
+.input-row textarea:focus{border-color:var(--blue)}
+.i-btn{width:34px;height:34px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;transition:var(--transition)}
+.i-btn.emoji{background:none;border:1.5px solid var(--border);font-size:18px}
+.i-btn.emoji:hover{border-color:var(--blue);background:var(--blue-soft)}
+.i-btn.send{background:var(--blue);color:#fff;font-size:14px}
+.i-btn.send:hover{background:var(--blue-hover)}
 
-/* Picker */
-.pkr{display:none;border-top:1px solid var(--border);background:#fff;max-height:180px;overflow-y:auto}
-.pkr.show{display:block}
-.pktabs{display:flex;border-bottom:1px solid var(--border)}
-.pkt{flex:1;padding:7px;font-size:11px;font-weight:600;text-align:center;cursor:pointer;color:var(--t3);border-bottom:2px solid transparent}
-.pkt.act{color:var(--blue);border-bottom-color:var(--blue)}
-.pkb{padding:8px 10px}
-.pkst{font-size:9px;font-weight:600;color:var(--t3);margin:6px 0 3px}.pkst:first-child{margin-top:0}
-.pkg{display:flex;flex-wrap:wrap;gap:1px}
-.ec{width:34px;height:34px;display:flex;align-items:center;justify-content:center;font-size:20px;border-radius:7px;cursor:pointer;position:relative;transition:.1s}
-.ec:hover{background:#eee;transform:scale(1.1)}
-.vd{position:absolute;top:0;right:1px;width:6px;height:6px;border-radius:50%;border:1.5px solid #fff}
-.vd.g{background:var(--green)}.vd.y{background:var(--yellow)}.vd.r{background:var(--red)}
+/* ═══ EMOJI PICKER ═══ */
+.picker{display:none;border-top:1px solid var(--border);background:var(--surface);max-height:200px;overflow-y:auto}
+.picker.show{display:block;animation:slideUp .15s}
+.pk-tabs{display:flex;border-bottom:1px solid var(--border-light);padding:0 12px}
+.pk-tab{padding:8px 14px;font-size:11px;font-weight:600;cursor:pointer;color:var(--text3);border-bottom:2px solid transparent;transition:var(--transition)}
+.pk-tab.act{color:var(--blue);border-bottom-color:var(--blue)}
+.pk-tab:hover{color:var(--text)}
+.pk-body{padding:8px 12px}
+.pk-sec{font-size:9px;font-weight:600;color:var(--text3);margin:8px 0 4px;text-transform:uppercase;letter-spacing:.3px}
+.pk-sec:first-child{margin-top:0}
+.pk-grid{display:flex;flex-wrap:wrap;gap:1px}
+.pk-cell{width:34px;height:34px;display:flex;align-items:center;justify-content:center;font-size:20px;border-radius:var(--radius-sm);cursor:pointer;position:relative;transition:var(--transition)}
+.pk-cell:hover{background:var(--surface2);transform:scale(1.1)}
+.vdot{position:absolute;top:1px;right:2px;width:6px;height:6px;border-radius:50%;border:1.5px solid var(--surface)}
+.vdot.g{background:var(--green)}.vdot.y{background:var(--amber)}.vdot.r{background:var(--red)}
+.pk-legend{display:flex;gap:12px;margin-top:8px;padding:4px;font-size:9px;color:var(--text3)}
+.pk-legend span{display:flex;align-items:center;gap:3px}
+.pk-legend .dot{width:5px;height:5px;border-radius:50%}
 
 /* ═══ OVERLAYS ═══ */
-.ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:200;align-items:center;justify-content:center}
+.ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.3);z-index:200;align-items:center;justify-content:center;backdrop-filter:blur(2px)}
 .ov.show{display:flex}
-.ovc{background:#fff;border-radius:18px;padding:24px;width:300px;text-align:center;box-shadow:0 16px 50px rgba(0,0,0,.15)}
+.ov-card{background:var(--surface);border-radius:var(--radius-lg);padding:24px;width:320px;box-shadow:var(--shadow-lg);animation:scaleIn .2s ease}
 
 /* Tooltip */
-.ovc .tbig{font-size:48px;margin-bottom:4px}
-.ovc .tmn{font-size:15px;font-weight:700}.ovc .tsb{font-size:11px;color:var(--t2);margin:2px 0 10px}
-.dbar{display:flex;border-radius:6px;overflow:hidden;height:24px;margin-bottom:6px}
-.dbar .sg{display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#fff}
-.sg.pos{background:var(--green)}.sg.neu{background:var(--yellow)}.sg.neg{background:var(--red)}
-.dlg{display:flex;gap:4px;flex-wrap:wrap;justify-content:center;margin-bottom:6px}
-.dlg span{font-size:9px;padding:2px 6px;border-radius:5px}
-.dlg .pos{background:#dcfce7;color:#166534}.dlg .neu{background:#fef9c3;color:#854d0e}.dlg .neg{background:#fee2e2;color:#991b1b}
-.ttcul{margin-top:8px;padding:8px;border-radius:8px;background:#fef3c7;font-size:10px;color:#92400e;text-align:left;line-height:1.4}
-.tta11{margin-top:6px;padding:8px;border-radius:8px;background:var(--bluel);font-size:10px;color:var(--blue);text-align:left;line-height:1.4}
-.cls{margin-top:10px;padding:6px 20px;border-radius:8px;border:1px solid var(--border);background:#fff;font-size:12px;cursor:pointer}.cls:hover{background:#f5f5f5}
+.ov-card .tt-emoji{font-size:52px;text-align:center;margin-bottom:4px}
+.ov-card .tt-meaning{font-size:16px;font-weight:700;text-align:center}
+.ov-card .tt-ctx{font-size:11px;color:var(--text2);text-align:center;margin:2px 0 12px}
+.dist-bar{display:flex;border-radius:var(--radius-sm);overflow:hidden;height:26px;margin-bottom:8px}
+.dist-bar .seg{display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#fff;transition:width .3s}
+.seg.pos{background:var(--green)}.seg.neu{background:var(--amber)}.seg.neg{background:var(--red)}
+.dist-labels{display:flex;gap:4px;flex-wrap:wrap;justify-content:center;margin-bottom:8px}
+.dl{font-size:9px;padding:2px 7px;border-radius:5px;font-weight:500}
+.dl.pos{background:var(--green-soft);color:#065f46}.dl.neu{background:var(--amber-soft);color:#92400e}.dl.neg{background:var(--red-soft);color:#991b1b}
+.tt-cultural{margin-top:8px;padding:10px;border-radius:var(--radius-sm);background:var(--amber-soft);font-size:10px;color:#92400e;text-align:left;line-height:1.5}
+.tt-a11y{margin-top:6px;padding:10px;border-radius:var(--radius-sm);background:var(--blue-soft);font-size:10px;color:var(--blue);text-align:left;line-height:1.5}
+.tt-close{margin-top:12px;width:100%;padding:8px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--surface);font-size:12px;cursor:pointer;font-weight:500;transition:var(--transition)}
+.tt-close:hover{background:var(--surface2)}
 
 /* Note modal */
-.ntc{text-align:left}
-.ntc h4{font-size:14px;font-weight:700;margin-bottom:8px}
-.ntc .epk{display:flex;gap:3px;margin-bottom:8px;flex-wrap:wrap}
-.ntc .epk button{padding:5px 8px;border-radius:8px;border:1.5px solid var(--border);background:#fff;font-size:16px;cursor:pointer}
-.ntc .epk button:hover{border-color:var(--blue)}.ntc .epk button.sel{border-color:var(--blue);background:var(--bluel)}
-.ntc input{width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:12px;outline:none;margin-bottom:10px;font-family:inherit}
-.ntc input:focus{border-color:var(--blue)}
-.nbtns{display:flex;gap:6px;justify-content:flex-end}
-.nbtns button{padding:6px 14px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;border:none}
-.nbtns .nc{background:#eee}.nbtns .no{background:var(--blue);color:#fff}
+.ov-card.note{text-align:left}
+.ov-card.note h4{font-size:14px;font-weight:700;margin-bottom:8px}
+.ov-card.note .n-emojis{display:flex;gap:3px;margin-bottom:10px;flex-wrap:wrap}
+.ov-card.note .n-emojis button{padding:6px 8px;border-radius:var(--radius-sm);border:1.5px solid var(--border);background:var(--surface);font-size:16px;cursor:pointer;transition:var(--transition)}
+.ov-card.note .n-emojis button:hover{border-color:var(--blue)}
+.ov-card.note .n-emojis button.sel{border-color:var(--blue);background:var(--blue-soft)}
+.ov-card.note input{width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:12px;outline:none;margin-bottom:12px;font-family:inherit}
+.ov-card.note input:focus{border-color:var(--blue)}
+.n-btns{display:flex;gap:6px;justify-content:flex-end}
+.n-btns button{padding:7px 16px;border-radius:var(--radius-sm);font-size:12px;font-weight:600;cursor:pointer;border:none;transition:var(--transition)}
+.n-btns .n-cancel{background:var(--surface2);color:var(--text)}
+.n-btns .n-ok{background:var(--blue);color:#fff}
+.n-btns .n-ok:hover{background:var(--blue-hover)}
 
 /* Settings */
-.ov.set{align-items:flex-end;justify-content:center}
-.stsh{background:#fff;border-radius:16px 16px 0 0;padding:20px;width:100%;max-width:400px}
-.stsh h4{font-size:14px;font-weight:700;margin-bottom:10px}
-.sr{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f5f5f5}.sr:last-of-type{border:none}
-.sr .sn{font-size:12px}.sr .sd{font-size:9px;color:var(--t3);margin-top:1px}
-.tgl{width:40px;height:22px;border-radius:11px;background:#ddd;position:relative;cursor:pointer;transition:.3s;flex-shrink:0}
+.ov.settings{align-items:flex-end;justify-content:center}
+.ov.settings .ov-card{width:100%;max-width:420px;border-radius:var(--radius-lg) var(--radius-lg) 0 0;animation:slideUp .2s}
+.ov.settings h4{font-size:15px;font-weight:700;margin-bottom:12px}
+.s-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border-light)}
+.s-row:last-of-type{border:none}
+.s-row .s-name{font-size:12px;font-weight:500}
+.s-row .s-desc{font-size:9px;color:var(--text3);margin-top:1px}
+.tgl{width:40px;height:22px;border-radius:11px;background:#d1d5db;position:relative;cursor:pointer;transition:var(--transition);flex-shrink:0}
 .tgl.on{background:var(--blue)}
-.tgl::after{content:'';position:absolute;width:18px;height:18px;border-radius:50%;background:#fff;top:2px;left:2px;transition:.3s;box-shadow:0 1px 2px rgba(0,0,0,.1)}
+.tgl::after{content:'';position:absolute;width:18px;height:18px;border-radius:50%;background:#fff;top:2px;left:2px;transition:var(--transition);box-shadow:var(--shadow-sm)}
 .tgl.on::after{left:20px}
-.stcl{width:100%;padding:8px;border:none;background:#f5f5f5;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;margin-top:10px}
-
-/* Onboarding */
-.onb{position:fixed;inset:0;z-index:400;background:#fff;display:flex;align-items:center;justify-content:center;transition:opacity .3s}
-.onb.hide{opacity:0;pointer-events:none}
-.onb-inner{max-width:440px;padding:32px 24px;text-align:center}
-.onb-inner h2{font-size:22px;font-weight:800;margin-bottom:6px;color:var(--blue)}
-.onb-inner .osub{font-size:13px;color:var(--t2);margin-bottom:20px;line-height:1.5}
-.scenario-grid{display:flex;flex-direction:column;gap:8px;margin-bottom:20px;text-align:left}
-.scenario{padding:14px 16px;border-radius:12px;border:1.5px solid var(--border);cursor:pointer;transition:.2s;display:flex;gap:12px;align-items:center}
-.scenario:hover{border-color:var(--blue);background:var(--bluel)}
-.scenario .sc-icon{font-size:28px;flex-shrink:0}
-.scenario .sc-info h4{font-size:13px;font-weight:700;margin-bottom:2px}
-.scenario .sc-info p{font-size:11px;color:var(--t2);line-height:1.4}
-.onb-skip{font-size:11px;color:var(--t3);cursor:pointer;text-decoration:underline;margin-top:8px}
+.s-close{width:100%;padding:9px;border:none;background:var(--surface2);border-radius:var(--radius-sm);font-size:12px;font-weight:600;cursor:pointer;margin-top:12px;transition:var(--transition)}
+.s-close:hover{background:var(--border)}
 
 /* Tour tooltip */
-.tour{position:fixed;z-index:300;background:var(--blue);color:#fff;padding:12px 16px;border-radius:12px;font-size:12px;line-height:1.5;max-width:260px;box-shadow:0 8px 24px rgba(0,0,0,.2);display:none}
-.tour.show{display:block;animation:fi .2s}
-.tour .tour-title{font-weight:700;margin-bottom:4px;font-size:13px}
-.tour .tour-step{font-size:10px;opacity:.7;margin-top:6px}
-.tour .tour-btn{margin-top:8px;padding:5px 14px;border-radius:8px;background:rgba(255,255,255,.2);border:none;color:#fff;font-size:11px;font-weight:600;cursor:pointer}
-.tour .tour-btn:hover{background:rgba(255,255,255,.3)}
-.tour::after{content:'';position:absolute;width:10px;height:10px;background:var(--blue);transform:rotate(45deg)}
-.tour.arrow-top::after{top:-5px;left:20px}
-.tour.arrow-bottom::after{bottom:-5px;left:20px}
-.tour.arrow-left::after{left:-5px;top:20px}
+.tour{position:fixed;z-index:300;background:var(--text);color:#fff;padding:14px 16px;border-radius:var(--radius);font-size:12px;line-height:1.5;max-width:240px;box-shadow:var(--shadow-lg);display:none}
+.tour.show{display:block;animation:scaleIn .2s}
+.tour h5{font-weight:600;margin-bottom:3px;font-size:13px}
+.tour .t-step{font-size:9px;opacity:.5;margin-top:6px}
+.tour .t-btn{margin-top:8px;padding:5px 12px;border-radius:6px;background:rgba(255,255,255,.15);border:none;color:#fff;font-size:11px;font-weight:500;cursor:pointer}
+.tour .t-btn:hover{background:rgba(255,255,255,.25)}
 
-/* Tone dismiss */
-.tsug .tdismiss{position:absolute;top:4px;right:8px;font-size:14px;cursor:pointer;color:var(--t3);line-height:1}
-.tsug .tdismiss:hover{color:var(--text)}
-.tsug{position:relative}
-
-::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:#ccc;border-radius:2px}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:#d1d5db;border-radius:2px}
 </style>
 </head>
 <body>
 
-<!-- LANDING -->
+<!-- ═══ LANDING ═══ -->
 <div class="landing" id="landing">
-  <div class="land">
-    <div class="logo">Re<span>:</span>Phrase</div>
-    <p class="tagline">같은 이모지, 다른 해석.<br>관계와 맥락을 이해하는 스마트 메신저.</p>
-    <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:24px">
-      <div style="background:#f8f8f8;border-radius:10px;padding:10px 14px;font-size:11px;text-align:left;flex:1;min-width:140px"><span style="font-size:16px">🔍</span><br><b>이모지 해석 확인</b><br><span style="color:#999">같은 🙂도 상사/친구에 따라<br>해석이 완전히 달라요</span></div>
-      <div style="background:#f8f8f8;border-radius:10px;padding:10px 14px;font-size:11px;text-align:left;flex:1;min-width:140px"><span style="font-size:16px">✨</span><br><b>톤 자동 조절</b><br><span style="color:#999">편안↔정중 슬라이더로<br>말투를 실시간 변환</span></div>
-      <div style="background:#f8f8f8;border-radius:10px;padding:10px 14px;font-size:11px;text-align:left;flex:1;min-width:140px"><span style="font-size:16px">💡</span><br><b>이모지 추천</b><br><span style="color:#999">내가 쓴 글에 맞는<br>이모지를 자동 추천</span></div>
+  <div class="land-c">
+    <div class="land-logo">Re<span>:</span>Phrase</div>
+    <p class="land-tag">같은 이모지, 다른 해석.<br>관계와 맥락을 이해하는 메시징 어시스턴트.</p>
+    <div class="land-features">
+      <div class="land-f"><div class="lf-icon">🔍</div><h4>해석 확인</h4><p>같은 🙂도 상사/친구에 따라 다르게 읽혀요</p></div>
+      <div class="land-f"><div class="lf-icon">✨</div><h4>톤 조절</h4><p>편안↔정중 슬라이더로 말투를 즉시 변환</p></div>
+      <div class="land-f"><div class="lf-icon">💡</div><h4>이모지 추천</h4><p>내 메시지에 맞는 이모지를 자동 추천</p></div>
     </div>
-    <button class="login" onclick="startApp()">시작하기</button>
+    <button class="land-btn" onclick="toLanding()">시작하기</button>
   </div>
 </div>
 
-<!-- ONBOARDING -->
+<!-- ═══ ONBOARDING ═══ -->
 <div class="onb hide" id="onb">
-  <div class="onb-inner">
+  <div class="onb-c">
     <h2>어떤 상황을 체험해볼까요?</h2>
-    <p class="osub">Re:Phrase의 핵심 기능을 체험할 수 있는<br>시나리오를 선택하세요.</p>
-    <div class="scenario-grid">
-      <div class="scenario" onclick="startScenario('prof')">
-        <div class="sc-icon">🎓</div>
-        <div class="sc-info"><h4>교수님에게 정중하게 답장하기</h4><p>짧은 답을 정중한 표현으로 자동 변환. 편안↔정중 슬라이더로 톤을 실시간 조절해보세요.</p></div>
-      </div>
-      <div class="scenario" onclick="startScenario('peer')">
-        <div class="sc-icon">🤔</div>
-        <div class="sc-info"><h4>동료가 보낸 이모지, 무슨 뜻일까?</h4><p>🙂🙃😅 — 같은 이모지도 관계와 맥락에 따라 해석이 달라요. 이모지를 눌러 확인해보세요.</p></div>
-      </div>
-      <div class="scenario" onclick="startScenario('sarah')">
-        <div class="sc-icon">🌍</div>
-        <div class="sc-info"><h4>해외팀과 이모지 오해 방지</h4><p>🙏가 racism으로? 👍가 포기? 문화별 이모지 해석 차이를 미리 확인하세요.</p></div>
-      </div>
-      <div class="scenario" onclick="startScenario('friend')">
-        <div class="sc-icon">😂</div>
-        <div class="sc-info"><h4>친구와의 이모지 해석 토론</h4><p>사장님이 🙂 보냈는데 화난 거야? 친구와 이모지 해석에 대해 대화해보세요.</p></div>
-      </div>
+    <p class="onb-sub">Re:Phrase의 핵심 기능을 체험할 시나리오를 선택하세요.</p>
+    <div class="sc-grid">
+      <div class="sc-card" onclick="goScenario('prof')"><div class="sc-i">🎓</div><div><h4>교수님에게 정중하게 답장하기</h4><p>짧은 답을 정중한 표현으로 변환. 편안↔정중 슬라이더 체험.</p></div></div>
+      <div class="sc-card" onclick="goScenario('peer')"><div class="sc-i">🤔</div><div><h4>동료가 보낸 이모지, 무슨 뜻?</h4><p>🙃😅👀 — 이모지를 눌러 맥락별 해석 분포를 확인하세요.</p></div></div>
+      <div class="sc-card" onclick="goScenario('sarah')"><div class="sc-i">🌍</div><div><h4>해외팀과 이모지 오해 방지</h4><p>🙏가 racism? 👍가 포기? 문화별 해석 차이를 미리 확인.</p></div></div>
+      <div class="sc-card" onclick="goScenario('friend')"><div class="sc-i">😂</div><div><h4>친구와 이모지 토론</h4><p>"사장님이 🙂 보냈는데 화난 거야?" — 해석 불확실성 체험.</p></div></div>
     </div>
-    <div class="onb-skip" onclick="skipOnb()">전체 채팅 목록으로 바로 가기</div>
+    <div class="onb-skip" onclick="goSkip()">전체 채팅 목록으로 바로 가기 →</div>
   </div>
 </div>
 
-<!-- TOUR -->
+<!-- ═══ TOUR ═══ -->
 <div class="tour" id="tour"></div>
 
-<!-- OVERLAYS -->
-<div class="ov" id="ttOv" onclick="if(event.target===this)this.classList.remove('show')"><div class="ovc" id="ttC"></div></div>
-<div class="ov" id="ntOv" onclick="if(event.target===this)this.classList.remove('show')"><div class="ovc ntc" id="ntC"></div></div>
-<div class="ov set" id="stOv" onclick="if(event.target===this)this.classList.remove('show')"><div class="stsh" id="stC"></div></div>
+<!-- ═══ OVERLAYS ═══ -->
+<div class="ov" id="ttOv" onclick="if(event.target===this)this.classList.remove('show')"><div class="ov-card" id="ttCard"></div></div>
+<div class="ov" id="noteOv" onclick="if(event.target===this)this.classList.remove('show')"><div class="ov-card note" id="noteCard"></div></div>
+<div class="ov settings" id="setOv" onclick="if(event.target===this)this.classList.remove('show')"><div class="ov-card" id="setCard"></div></div>
 
-<!-- APP -->
+<!-- ═══ APP ═══ -->
 <div class="app" id="app">
   <div class="side">
-    <div class="side-top">
-      <div class="slogo">Re<span>:</span>Phrase</div>
-      <button class="gear" onclick="openSet()">⚙️</button>
-    </div>
-    <div class="cl" id="chatList"></div>
+    <div class="side-hdr"><div class="s-logo">Re<span>:</span>Phrase</div><button class="s-gear" onclick="openSettings()">⚙</button></div>
+    <div class="side-search"><input placeholder="Search" type="text"></div>
+    <div class="ch-list" id="chList"></div>
   </div>
-  <div class="main" id="mainArea">
-    <div class="empty"><div class="eic">💬</div><h3>Re:Phrase</h3><p>대화를 선택하세요</p></div>
-  </div>
+  <div class="main" id="mainArea"><div class="empty"><h3>Re:Phrase</h3><p>대화를 선택하세요</p></div></div>
 </div>
 
 <script>
-// ═══ DATA ═══
-const CFG={emojiSize:true,panelSwitch:true,renderPreview:true,toneAid:true};
+/* ══════════════════════════════════════════════════════
+   RE:PHRASE ENGINE
+   ══════════════════════════════════════════════════════ */
 
-// Context-dependent emoji interpretation
+// ── Config ──
+const CFG={emojiSize:true,panelSwitch:true,renderPreview:true,toneAid:true,emojiWarn:true};
+
+// ── Emoji Interpretation Data ──
 const ED_CTX={
   formal:{
     '🙂':{v:'r',m:'형식적 마무리 또는 불만',d:[{l:'형식적 마무리',p:40,t:'neu'},{l:'불만/냉소',p:35,t:'neg'},{l:'진짜 미소',p:25,t:'pos'}]},
     '👍':{v:'y',m:'확인 — 무성의할 수 있음',d:[{l:'단순 확인',p:50,t:'neu'},{l:'긍정',p:35,t:'pos'},{l:'귀찮음',p:15,t:'neg'}]},
     '🤔':{v:'r',m:'재검토 요청 가능성',d:[{l:'수정 요청',p:45,t:'neg'},{l:'궁금',p:35,t:'neu'},{l:'흥미',p:20,t:'pos'}]},
     '🙃':{v:'r',m:'불만 또는 비꼼',d:[{l:'짜증/불만',p:50,t:'neg'},{l:'체념',p:30,t:'neu'},{l:'장난',p:20,t:'pos'}]},
-    '🫡':{v:'y',m:'수행하겠습니다',d:[{l:'알겠습니다',p:55,t:'pos'},{l:'형식적',p:30,t:'neu'},{l:'비꼼',p:15,t:'neg'}]},
   },
   peer:{
     '🙂':{v:'r',m:'"OK" 또는 비꼼',d:[{l:'OK/친근',p:35,t:'pos'},{l:'어색',p:30,t:'neu'},{l:'비꼼',p:35,t:'neg'}]},
     '👀':{v:'r',m:'관심 또는 "지켜보겠다"',d:[{l:'흥미',p:35,t:'pos'},{l:'지켜봄',p:40,t:'neu'},{l:'압박',p:25,t:'neg'}]},
     '😅':{v:'y',m:'미안 또는 짜증',d:[{l:'진짜 민망',p:45,t:'neu'},{l:'가볍게',p:30,t:'pos'},{l:'짜증',p:25,t:'neg'}]},
     '🙃':{v:'r',m:'장난 또는 빈정',d:[{l:'장난',p:35,t:'pos'},{l:'체념',p:25,t:'neu'},{l:'빈정거림',p:40,t:'neg'}]},
-    '🥲':{v:'y',m:'웃지만 힘든 상황',d:[{l:'감동',p:30,t:'pos'},{l:'힘들지만 괜찮은 척',p:45,t:'neu'},{l:'서운함',p:25,t:'neg'}]},
   },
   personal:{
     '😂':{v:'g',m:'ㅋㅋㅋ 진짜 웃김',d:[{l:'진짜 웃김',p:70,t:'pos'},{l:'리액션',p:25,t:'neu'},{l:'비웃음',p:5,t:'neg'}]},
-    '👍':{v:'g',m:'ㅇㅋ — 가벼운 확인',d:[{l:'알겠어',p:75,t:'pos'},{l:'귀찮',p:20,t:'neu'},{l:'무시',p:5,t:'neg'}]},
-    '🙂':{v:'y',m:'"할 말 없다" 또는 미소',d:[{l:'그냥 미소',p:35,t:'pos'},{l:'할 말 없음',p:40,t:'neu'},{l:'삐짐/서운',p:25,t:'neg'}]},
+    '🙂':{v:'y',m:'"할 말 없다" 또는 미소',d:[{l:'미소',p:35,t:'pos'},{l:'할 말 없음',p:40,t:'neu'},{l:'삐짐',p:25,t:'neg'}]},
     '🫠':{v:'y',m:'지쳤다 · 녹아내림',d:[{l:'귀여운 지침',p:40,t:'pos'},{l:'진짜 지침',p:40,t:'neu'},{l:'포기',p:20,t:'neg'}]},
-    '💅':{v:'y',m:'쿨한 척 · 무관심',d:[{l:'자신감',p:40,t:'pos'},{l:'상관없음',p:35,t:'neu'},{l:'은근 무시',p:25,t:'neg'}]},
   },
   cultural:{
-    '🙏':{v:'r',m:'기도? 감사? high-five?',d:[{l:'감사',p:40,t:'pos'},{l:'기도/소원',p:25,t:'neu'},{l:'racism 오해',p:35,t:'neg'}],c:'파리 협업 시 racism으로, 일부 문화권에서 high-five로 해석 (Q-15)'},
+    '🙏':{v:'r',m:'기도? 감사? high-five?',d:[{l:'감사',p:40,t:'pos'},{l:'기도',p:25,t:'neu'},{l:'racism 오해',p:35,t:'neg'}],c:'파리 협업 시 racism으로, 일부 문화권에서 high-five로 해석됨'},
     '👍':{v:'r',m:'OK 또는 포기/모욕',d:[{l:'OK',p:45,t:'pos'},{l:'형식적',p:25,t:'neu'},{l:'포기/모욕',p:30,t:'neg'}],c:'중동·서아프리카에서 부정적 제스처. "give up" 의미도'},
-    '🙂':{v:'r',m:'문화별 미소 해석 상이',d:[{l:'친근함',p:30,t:'pos'},{l:'문화별 차이',p:40,t:'neu'},{l:'비꼼/냉소',p:30,t:'neg'}],c:'서양에서 passive-aggressive 신호로 빈번하게 사용'},
+    '🙂':{v:'r',m:'문화별 미소 해석 상이',d:[{l:'친근',p:30,t:'pos'},{l:'문화 차이',p:40,t:'neu'},{l:'passive-aggressive',p:30,t:'neg'}],c:'서양에서 passive-aggressive 신호로 빈번하게 사용'},
   },
 };
 const ED={
-  '✔':{v:'g',m:'확인 · 완료',d:[{l:'완료 확인',p:85,t:'pos'},{l:'무성의한 답',p:10,t:'neu'},{l:'짜증 섞인 확인',p:5,t:'neg'}],a11y:'작업 완료를 확인하는 기능적 신호'},
-  '👍':{v:'y',m:'좋아요 · 동의',d:[{l:'긍정/동의',p:60,t:'pos'},{l:'무관심',p:25,t:'neu'},{l:'비꼼/조소',p:15,t:'neg'}],a11y:'동의 또는 승인의 표시'},
-  '🙂':{v:'r',m:'미소 · 또는 냉소?',d:[{l:'친근한 미소',p:35,t:'pos'},{l:'어색함/할 말 없음',p:35,t:'neu'},{l:'냉소/비꼼',p:30,t:'neg'}],a11y:'표면적 미소 — 맥락에 따라 냉소 가능'},
-  '🙃':{v:'r',m:'뒤집힌 미소 · 짜증?',d:[{l:'장난/유머',p:30,t:'pos'},{l:'체념',p:30,t:'neu'},{l:'짜증/빈정',p:40,t:'neg'}],a11y:'뒤집힌 미소 — 짜증이나 빈정의 신호'},
-  '🙏':{v:'y',m:'감사 · 부탁 · 기도?',d:[{l:'감사',p:50,t:'pos'},{l:'부탁/간청',p:35,t:'neu'},{l:'문화차이',p:15,t:'neg'}],c:'일부 문화권에서 high-five 또는 부정적 해석 (Q-15)',a11y:'감사 또는 부탁 — 문화권별 해석 차이 존재'},
-  '😅':{v:'y',m:'곤란 · 민망',d:[{l:'진짜 민망',p:45,t:'neu'},{l:'가볍게 넘기기',p:30,t:'pos'},{l:'짜증/불만',p:25,t:'neg'}],a11y:'곤란하거나 민망한 상황을 가볍게 표현'},
-  '👀':{v:'r',m:'관심? 감시? 의심?',d:[{l:'관심/흥미',p:35,t:'pos'},{l:'지켜보는 중',p:40,t:'neu'},{l:'의심/압박',p:25,t:'neg'}],a11y:'주시 또는 관심 — 감시나 의심으로도 해석 가능'},
-  '😂':{v:'r',m:'웃김 · 또는 조롱',d:[{l:'진짜 웃김',p:40,t:'pos'},{l:'과장된 리액션',p:30,t:'neu'},{l:'조롱/비웃음',p:30,t:'neg'}],a11y:'강한 웃음 — 진심 또는 조롱 가능'},
-  '😊':{v:'g',m:'따뜻한 미소',d:[{l:'따뜻함/호감',p:80,t:'pos'},{l:'형식적',p:15,t:'neu'},{l:'어색함',p:5,t:'neg'}],a11y:'따뜻한 감정 표현'},
-  '🔥':{v:'g',m:'멋짐 · 열정',d:[{l:'칭찬/멋있다',p:75,t:'pos'},{l:'열정적',p:20,t:'pos'},{l:'과장',p:5,t:'neu'}]},
-  '❤️':{v:'g',m:'사랑 · 좋아요',d:[{l:'애정/사랑',p:70,t:'pos'},{l:'좋아요',p:25,t:'pos'},{l:'부담스러움',p:5,t:'neu'}]},
-  '💀':{v:'r',m:'웃겨서 죽겠 · 충격',d:[{l:'너무 웃김',p:45,t:'pos'},{l:'충격/놀람',p:30,t:'neu'},{l:'부정적 반응',p:25,t:'neg'}]},
-  '🤔':{v:'y',m:'생각 중 · 의심?',d:[{l:'궁금/고민',p:50,t:'neu'},{l:'의심/불신',p:30,t:'neg'},{l:'흥미',p:20,t:'pos'}]},
-  '🥲':{v:'r',m:'웃지만 슬픔',d:[{l:'감동/뭉클',p:35,t:'pos'},{l:'슬프지만 괜찮은 척',p:40,t:'neu'},{l:'서운함/섭섭',p:25,t:'neg'}]},
-  '🫠':{v:'r',m:'녹아내림 · 지침',d:[{l:'지쳤다',p:40,t:'neu'},{l:'부끄러움',p:30,t:'pos'},{l:'포기/체념',p:30,t:'neg'}]},
-  '🤡':{v:'r',m:'광대 · 자조',d:[{l:'자기 비하 유머',p:45,t:'neu'},{l:'바보 같은 상황',p:30,t:'pos'},{l:'남을 조롱',p:25,t:'neg'}]},
-  '🫡':{v:'y',m:'경례 · 수행하겠습니다',d:[{l:'알겠습니다/수행',p:60,t:'pos'},{l:'형식적 복종',p:25,t:'neu'},{l:'비꼼/풍자',p:15,t:'neg'}]},
-  '💅':{v:'y',m:'자신감 · 또는 무관심',d:[{l:'자신감/쿨함',p:45,t:'pos'},{l:'무관심/상관없음',p:35,t:'neu'},{l:'도발/은근 무시',p:20,t:'neg'}]},
-  '😭':{v:'y',m:'울음 · 감동 · 웃김',d:[{l:'너무 웃김/감동',p:50,t:'pos'},{l:'진짜 슬픔',p:30,t:'neu'},{l:'과장된 반응',p:20,t:'neg'}]},
+  '✔':{v:'g',m:'확인 · 완료',d:[{l:'완료',p:85,t:'pos'},{l:'무성의',p:10,t:'neu'},{l:'짜증',p:5,t:'neg'}],a:'작업 완료를 확인하는 기능적 신호'},
+  '👍':{v:'y',m:'좋아요 · 동의',d:[{l:'긍정',p:60,t:'pos'},{l:'무관심',p:25,t:'neu'},{l:'비꼼',p:15,t:'neg'}],a:'동의 또는 승인의 표시'},
+  '🙂':{v:'r',m:'미소 · 또는 냉소?',d:[{l:'친근',p:35,t:'pos'},{l:'어색/할 말 없음',p:35,t:'neu'},{l:'냉소/비꼼',p:30,t:'neg'}],a:'표면적 미소 — 맥락에 따라 냉소 가능'},
+  '🙃':{v:'r',m:'뒤집힌 미소 · 짜증?',d:[{l:'장난',p:30,t:'pos'},{l:'체념',p:30,t:'neu'},{l:'짜증/빈정',p:40,t:'neg'}],a:'뒤집힌 미소 — 짜증이나 빈정의 신호'},
+  '🙏':{v:'y',m:'감사 · 부탁 · 기도?',d:[{l:'감사',p:50,t:'pos'},{l:'부탁',p:35,t:'neu'},{l:'문화차이',p:15,t:'neg'}],c:'일부 문화권에서 high-five 또는 부정적 해석',a:'감사 또는 부탁 — 문화권별 해석 차이'},
+  '😅':{v:'y',m:'곤란 · 민망',d:[{l:'민망',p:45,t:'neu'},{l:'가볍게',p:30,t:'pos'},{l:'짜증',p:25,t:'neg'}],a:'곤란한 상황의 가벼운 표현'},
+  '👀':{v:'r',m:'관심? 감시? 의심?',d:[{l:'관심',p:35,t:'pos'},{l:'지켜봄',p:40,t:'neu'},{l:'의심',p:25,t:'neg'}],a:'주시 또는 관심 — 의심 가능'},
+  '😂':{v:'r',m:'웃김 · 또는 조롱',d:[{l:'웃김',p:40,t:'pos'},{l:'과장',p:30,t:'neu'},{l:'조롱',p:30,t:'neg'}],a:'강한 웃음 — 진심 또는 조롱'},
+  '😊':{v:'g',m:'따뜻한 미소',d:[{l:'따뜻함',p:80,t:'pos'},{l:'형식적',p:15,t:'neu'},{l:'어색',p:5,t:'neg'}],a:'따뜻한 감정'},
+  '🔥':{v:'g',m:'멋짐 · 열정',d:[{l:'칭찬',p:75,t:'pos'},{l:'열정',p:20,t:'pos'},{l:'과장',p:5,t:'neu'}],a:'칭찬 또는 열정'},
+  '❤️':{v:'g',m:'사랑 · 좋아요',d:[{l:'애정',p:70,t:'pos'},{l:'좋아요',p:25,t:'pos'},{l:'부담',p:5,t:'neu'}],a:'애정 또는 강한 호감'},
+  '💀':{v:'r',m:'웃겨서 죽겠 · 충격',d:[{l:'웃김',p:45,t:'pos'},{l:'충격',p:30,t:'neu'},{l:'부정',p:25,t:'neg'}],a:'극단적 웃음 또는 충격'},
+  '🤔':{v:'y',m:'생각 중 · 의심?',d:[{l:'궁금',p:50,t:'neu'},{l:'의심',p:30,t:'neg'},{l:'흥미',p:20,t:'pos'}],a:'생각 중이거나 의문'},
+  '🥲':{v:'r',m:'웃지만 슬픔',d:[{l:'감동',p:35,t:'pos'},{l:'괜찮은 척',p:40,t:'neu'},{l:'서운함',p:25,t:'neg'}],a:'웃지만 슬픈 감정'},
+  '🫠':{v:'r',m:'녹아내림 · 지침',d:[{l:'지침',p:40,t:'neu'},{l:'부끄러움',p:30,t:'pos'},{l:'포기',p:30,t:'neg'}],a:'지쳐서 녹아내리는 상태'},
+  '🫡':{v:'y',m:'경례 · 알겠습니다',d:[{l:'수행',p:60,t:'pos'},{l:'형식적',p:25,t:'neu'},{l:'비꼼',p:15,t:'neg'}],a:'알겠습니다/수행하겠습니다'},
+  '💅':{v:'y',m:'자신감 · 무관심',d:[{l:'자신감',p:45,t:'pos'},{l:'상관없음',p:35,t:'neu'},{l:'무시',p:20,t:'neg'}],a:'쿨함 또는 무관심'},
+  '😭':{v:'y',m:'울음 · 감동 · 웃김',d:[{l:'감동/웃김',p:50,t:'pos'},{l:'진짜 슬픔',p:30,t:'neu'},{l:'과장',p:20,t:'neg'}],a:'울 정도의 감정 — 맥락에 따라 다름'},
+  '🤡':{v:'r',m:'광대 · 자조',d:[{l:'자기 비하',p:45,t:'neu'},{l:'바보짓',p:30,t:'pos'},{l:'남 조롱',p:25,t:'neg'}],a:'자조적 유머 또는 조롱'},
 };
 
-function getED(e){const c=curChat;if(!c)return ED[e];let ctx=c.type==='personal'?'personal':c.formal?'formal':c.name?.includes('Sarah')?'cultural':'peer';return ED_CTX[ctx]?.[e]||ED[e]}
+function getED(e){if(!curChat)return ED[e];const ctx=curChat.type==='personal'?'personal':curChat.formal?'formal':curChat.name?.includes('Sarah')?'cultural':'peer';return ED_CTX[ctx]?.[e]||ED[e]}
 
 const WE=['✔','👍','🙏','🙂','🙃','😊','🤔','😅','👀','🫡','🥲'];
 const PE=['😂','❤️','🔥','💀','😊','😭','🙂','🙃','😅','👀','🤔','🥲','🫠','🤡','💅'];
 
-// Content → emoji recommendation (Korean + English) with tooltip
-const EMOJI_REC_DATA=[
-  {k:['감사','고마','ㄳ','ㄱㅅ'],e:['🙏','😊','🫡','❤️'],tip:'감사 표현'},
-  {k:['수고','고생','힘들'],e:['👍','🙏','😊','🫡'],tip:'수고/격려'},
-  {k:['확인','알겠','봤','체크'],e:['✔','👍','🫡'],tip:'확인/동의'},
-  {k:['완료','끝','다했','done'],e:['✅','✔','🔥','👍'],tip:'완료'},
-  {k:['ㅋㅋ','ㅎㅎ','웃','재밌'],e:['😂','💀','🤣','🔥'],tip:'웃김'},
-  {k:['미안','죄송','ㅈㅅ','sorry'],e:['🙏','😅','🥲'],tip:'사과'},
-  {k:['곤란','힘든','지친','피곤'],e:['😅','🫠','🥲','😭'],tip:'곤란/지침'},
-  {k:['좋','굿','최고','멋','짱'],e:['👍','🔥','❤️','💯'],tip:'칭찬'},
-  {k:['궁금','질문','혹시','모르'],e:['🤔','👀','❓'],tip:'질문/궁금'},
-  {k:['화이팅','파이팅','힘내','응원'],e:['🔥','💪','👍','❤️'],tip:'응원'},
-  {k:['사랑','보고싶','좋아해'],e:['❤️','😊','🥰'],tip:'애정'},
-  {k:['놀라','대박','헐','와'],e:['😱','🔥','💀','👀'],tip:'놀람'},
-  {k:['슬프','아쉬','속상'],e:['🥲','😢','😭'],tip:'슬픔'},
-  {k:['화나','짜증','열받'],e:['😤','🙃','💀'],tip:'분노'},
-  {k:['부끄','민망','쑥스'],e:['😅','🫠','🥲','🙈'],tip:'민망'},
-  {k:['넵','네','ㅇㅇ','ㅇㅋ','응'],e:['👍','✔','🫡'],tip:'확인'},
-  {k:['thank','thx','appreciate'],e:['🙏','😊','❤️'],tip:'Thanks'},
-  {k:['sorry','apolog','my bad'],e:['🙏','😅','🥲'],tip:'Apology'},
-  {k:['great','awesome','amazing','nice'],e:['🔥','👍','❤️','💯'],tip:'Praise'},
-  {k:['good','ok','sure','agree'],e:['👍','✔','🙂'],tip:'Agreement'},
-  {k:['love','miss','care'],e:['❤️','😊','🥰'],tip:'Love'},
-  {k:['lol','haha','funny','lmao'],e:['😂','💀','🤣'],tip:'Laughing'},
-  {k:['wow','omg','what','no way'],e:['😱','💀','👀','🔥'],tip:'Surprise'},
-  {k:['help','please','need'],e:['🙏','🤔','😅'],tip:'Request'},
-  {k:['congrat','celebrate','yay'],e:['🔥','🎉','❤️','👍'],tip:'Celebrate'},
-  {k:['tired','exhausted','ugh'],e:['🫠','😅','💀','😭'],tip:'Tired'},
-  {k:['check','review','look'],e:['👀','✔','🤔'],tip:'Review'},
+// ── Emoji Recommendation ──
+const EREC=[
+  {k:['감사','고마','ㄳ'],e:['🙏','😊','🫡','❤️'],t:'감사'},
+  {k:['수고','고생'],e:['👍','🙏','😊','🫡'],t:'격려'},
+  {k:['확인','알겠','봤'],e:['✔','👍','🫡'],t:'확인'},
+  {k:['완료','done'],e:['✅','✔','🔥'],t:'완료'},
+  {k:['ㅋㅋ','ㅎㅎ','웃','재밌'],e:['😂','💀','🔥'],t:'웃김'},
+  {k:['미안','죄송','sorry'],e:['🙏','😅','🥲'],t:'사과'},
+  {k:['곤란','힘든','지친','피곤'],e:['😅','🫠','🥲','😭'],t:'지침'},
+  {k:['좋','굿','최고','멋'],e:['👍','🔥','❤️'],t:'칭찬'},
+  {k:['궁금','질문','혹시'],e:['🤔','👀'],t:'궁금'},
+  {k:['화이팅','파이팅','힘내'],e:['🔥','💪','👍'],t:'응원'},
+  {k:['사랑','보고싶'],e:['❤️','😊'],t:'애정'},
+  {k:['놀라','대박','헐'],e:['🔥','💀','👀'],t:'놀람'},
+  {k:['넵','네','ㅇㅇ','ㅇㅋ'],e:['👍','✔','🫡'],t:'확인'},
+  {k:['thank','thx'],e:['🙏','😊','❤️'],t:'Thanks'},
+  {k:['sorry','apolog'],e:['🙏','😅','🥲'],t:'Sorry'},
+  {k:['great','awesome','nice'],e:['🔥','👍','❤️'],t:'Great'},
+  {k:['lol','haha','funny'],e:['😂','💀'],t:'LOL'},
+  {k:['ok','sure','got it'],e:['👍','✔'],t:'OK'},
 ];
 
-// Language detection
-function isEng(t){return /^[a-zA-Z0-9\s.,!?'"@#$%&*()\-+=;:\/\\]+$/.test(t.replace(/[\p{Emoji}\uFE0F]/gu,'').trim())}
+// ── Tone Transformation ──
+function isEng(t){return /^[a-zA-Z0-9\s.,!?'"()\-]+$/.test(t.replace(/[\p{Emoji}\uFE0F]/gu,'').trim())}
 
-// Tone transformation — Korean + English
-const TONES_KR=[
-  {m:v=>['네','넵','넹','ㅇㅇ','ㅇㅋ','응','넴','ㅋ'].some(s=>v.includes(s)),i:'확인',
+const TK=[
+  {m:v=>['네','넵','ㅇㅇ','ㅇㅋ','응'].some(s=>v.includes(s)),i:'확인',
    L:['ㅇㅋ','넵!','네, 확인했습니다!','네, 알겠습니다. 확인하겠습니다.','네, 말씀 감사합니다. 확인 후 바로 진행하겠습니다.'],
    A:[['ㅇㅇ'],['알겠어요~'],['알겠습니다!'],['검토 후 말씀드리겠습니다.'],['검토 후 회신드리겠습니다.']]},
   {m:v=>['감사','고마','ㄳ'].some(s=>v.includes(s)),i:'감사',
@@ -399,430 +439,317 @@ const TONES_KR=[
   {m:v=>['죄송','미안','ㅈㅅ'].some(s=>v.includes(s)),i:'사과',
    L:['ㅈㅅ','미안해요!','죄송합니다!','죄송합니다, 바로 수정하겠습니다.','죄송합니다. 빠르게 보완하겠습니다.'],
    A:[['미안~'],['미안해요~'],['죄송해요!'],['빠르게 반영하겠습니다.'],['즉시 조치하겠습니다.']]},
-  {m:v=>['확인','봤','체크','검토'].some(s=>v.includes(s)),i:'확인',
-   L:['ㅇㅇ 봤어','확인했어요!','확인했습니다!','확인했습니다, 검토 후 말씀드리겠습니다.','확인 완료했습니다. 검토 후 의견 전달드리겠습니다.'],
+  {m:v=>['확인','봤','체크'].some(s=>v.includes(s)),i:'확인',
+   L:['ㅇㅇ 봤어','확인했어요!','확인했습니다!','확인했습니다, 검토 후 말씀드리겠습니다.','확인 완료했습니다. 의견 전달드리겠습니다.'],
    A:[['봤어~'],['봤어요!'],['검토했습니다!'],['검토 완료했습니다.'],['회신드리겠습니다.']]},
-  {m:v=>['보내','제출','올리','전달','공유'].some(s=>v.includes(s)),i:'전달',
+  {m:v=>['보내','제출','올리','공유'].some(s=>v.includes(s)),i:'전달',
    L:['보냈어','보냈어요!','보내드렸습니다!','보내드렸습니다, 확인 부탁드립니다.','보내드렸습니다. 피드백 부탁드리겠습니다.'],
    A:[['올렸어~'],['올렸어요!'],['전달드렸습니다!'],['확인 부탁드립니다.'],['검토 부탁드리겠습니다.']]},
   {m:v=>['수고','고생'].some(s=>v.includes(s)),i:'격려',
-   L:['수고~','수고했어요!','수고하셨습니다!','수고 많으셨습니다.','정말 수고 많으셨습니다. 큰 도움이 되었습니다.'],
+   L:['수고~','수고했어요!','수고하셨습니다!','수고 많으셨습니다.','정말 수고 많으셨습니다.'],
    A:[['고생했어~'],['고생했어요!'],['고생하셨어요!'],['감사합니다.'],['노고에 감사드립니다.']]},
-  {m:v=>['ㅋㅋ','ㅎㅎ','ㅠㅠ','ㅜㅜ'].some(s=>v.includes(s)),i:'리액션',
-   L:['ㅋㅋ','ㅋㅋㅋ','ㅋㅋㅋㅋ','하하 재밌네요!','정말 재미있네요 😂'],
-   A:[['ㅎㅎ'],['ㅋㅋㅋ'],['ㅎㅎ 재밌네요~'],['재밌습니다!'],['흥미로운 이야기네요.']]},
-  {m:v=>['뭐해','뭐 해','뭐하','머해'].some(s=>v.includes(s)),i:'안부',
-   L:['뭐해~','뭐 해요?','지금 뭐 하세요?','혹시 지금 시간 괜찮으세요?','안녕하세요, 혹시 지금 통화 가능하신지 여쭤봐도 될까요?'],
-   A:[['머행'],['뭐 하는 중?'],['지금 바빠요?'],['시간 되시면 연락 부탁드립니다.'],['가능하신 시간에 회신 부탁드리겠습니다.']]},
   {m:()=>true,i:'일반',
-   L:[v=>{let r=v.replace(/합니다/g,'해').replace(/세요/g,'해').replace(/드립니다/g,'줄게').replace(/겠습니다/g,'할게').replace(/\.$/,'~');return r===v?v+'~':r},
-      v=>{let r=v.replace(/합니다/g,'해요').replace(/드립니다/g,'드릴게요');return r===v?v+'요':r},
+   L:[v=>{let r=v.replace(/합니다/g,'해').replace(/세요/g,'해').replace(/겠습니다/g,'할게');return r===v?v+'~':r},
+      v=>{let r=v.replace(/합니다/g,'해요').replace(/드립니다/g,'드릴게요');return r===v?v:r},
       v=>v,
       v=>'네, '+v.replace(/[.!?~]*$/,'')+'. 확인하겠습니다.',
       v=>'말씀하신 내용 확인했습니다. 검토 후 회신드리겠습니다.'],
    A:[['ㅇㅋ!'],['알겠어요~'],['확인했습니다!'],['감사합니다.'],['진행하겠습니다.']]},
 ];
-const TONES_EN=[
-  {m:v=>['ok','okay','yes','yep','sure','got it','k','yea','ya'].some(s=>v.includes(s)),i:'Confirm',
-   L:['k','Sure!','Got it, thanks!','Understood. I\'ll take care of it.','Thank you for letting me know. I\'ll proceed accordingly and follow up.'],
-   A:[['yep'],['Okay!'],['Will do!'],['I\'ll review and get back to you.'],['I\'ll handle this promptly.']]},
-  {m:v=>['thank','thx','appreciate'].some(s=>v.includes(s)),i:'Thanks',
-   L:['thx','Thanks!','Thank you!','Thank you, I\'ll keep that in mind.','Thank you so much. I truly appreciate your guidance.'],
-   A:[['ty!'],['Thanks a lot!'],['Appreciate it!'],['Much appreciated.'],['Your feedback is invaluable.']]},
-  {m:v=>['sorry','apolog','my bad'].some(s=>v.includes(s)),i:'Apology',
-   L:['my bad','Sorry about that!','I apologize for the inconvenience.','I sincerely apologize. I\'ll fix this right away.','I deeply apologize. I\'ll address this immediately and ensure it doesn\'t happen again.'],
-   A:[['sry'],['Sorry!'],['My apologies!'],['I\'ll correct this promptly.'],['This will be resolved immediately.']]},
-  {m:v=>['check','review','look','see','read'].some(s=>v.includes(s)),i:'Review',
-   L:['seen','Checked!','I\'ve reviewed it!','I\'ve reviewed it. I\'ll share my feedback shortly.','I\'ve thoroughly reviewed the materials. I\'ll compile my comments and send them over.'],
-   A:[['looked at it'],['On it!'],['Reviewed!'],['Feedback coming soon.'],['I\'ll provide detailed comments.']]},
-  {m:v=>['send','submit','share','attach'].some(s=>v.includes(s)),i:'Send',
-   L:['sent','Sent!','I\'ve sent it over!','I\'ve sent it. Please let me know if you need anything else.','I\'ve submitted the documents. Please review at your convenience and share any feedback.'],
-   A:[['done'],['Shared!'],['Submitted!'],['Please check when you can.'],['Looking forward to your feedback.']]},
+const TE=[
+  {m:v=>['ok','yes','sure','got it','yep'].some(s=>v.includes(s)),i:'Confirm',
+   L:['k','Sure!','Got it, thanks!','Understood. I\'ll take care of it.','Thank you. I\'ll proceed accordingly.'],
+   A:[['yep'],['Okay!'],['Will do!'],['I\'ll follow up.'],['I\'ll handle this promptly.']]},
+  {m:v=>['thank','thx'].some(s=>v.includes(s)),i:'Thanks',
+   L:['thx','Thanks!','Thank you!','Thank you, noted.','Thank you so much. I truly appreciate it.'],
+   A:[['ty!'],['Thanks a lot!'],['Appreciate it!'],['Much appreciated.'],['Your guidance is invaluable.']]},
+  {m:v=>['sorry','apolog'].some(s=>v.includes(s)),i:'Apology',
+   L:['my bad','Sorry!','I apologize.','I sincerely apologize. I\'ll fix this.','I deeply apologize. I\'ll address this immediately.'],
+   A:[['sry'],['Sorry about that!'],['My apologies!'],['I\'ll correct this.'],['This will be resolved immediately.']]},
   {m:()=>true,i:'General',
-   L:[v=>v.toLowerCase().replace(/\./g,''),
-      v=>v+'!',
-      v=>v,
-      v=>'Understood. '+v.replace(/[.!?]*$/,'.')+' I\'ll take care of it.',
-      v=>'Thank you for your message. I\'ve noted the details and will follow up shortly.'],
+   L:[v=>v.toLowerCase(),v=>v+'!',v=>v,v=>'Understood. '+v.replace(/[.!?]*$/,'.')+' I\'ll handle it.',v=>'Thank you. I\'ve noted the details and will follow up.'],
    A:[['cool'],['sounds good!'],['noted!'],['Thank you.'],['I\'ll proceed as discussed.']]},
 ];
 
-// Chat data
+// ── Chat Data ──
 const CHATS=[
-  {id:'prof',name:'김교수님',av:'김',col:'#6366f1',type:'work',formal:true,formalLv:5,
-   msgs:[{s:'김교수님',t:'다음 주 월요일까지 중간보고서 초안 보내주세요.',tm:'10:23'},{s:'김교수님',t:'분석 프레임워크 부분은 특히 신경 써주세요.',tm:'10:24'},{s:'김교수님',t:'진행 상황은 어떤가요?',tm:'10:30'}],
-},
-  {id:'boss',name:'이팀장님',av:'이',col:'#ec4899',type:'work',formal:true,formalLv:4,
-   msgs:[{s:'이팀장님',t:'오늘 회의 자료 검토 부탁합니다.',tm:'14:10'},{s:'이팀장님',t:'3시까지 코멘트 남겨주세요 👍',tm:'14:11'}],
-},
-  {id:'peer',name:'박동료',av:'박',col:'#f97316',type:'work',formal:false,formalLv:2,
-   msgs:[{s:'박동료',t:'어제 리뷰 피드백 반영했어!',tm:'13:05'},{s:'박동료',t:'확인해봐 🙂',tm:'13:06'},{s:'me',t:'고마워~ 👍',tm:'13:10'},{s:'박동료',t:'근데 팀장님이 🙃 이거 보냈는데... 괜찮은 거 맞아?',tm:'13:12'},{s:'박동료',t:'😅 혹시 내가 뭐 잘못한 건 아니겠지',tm:'13:13'}],
-},
-  {id:'sarah',name:'Sarah (해외팀)',av:'S',col:'#22c55e',type:'work',formal:true,formalLv:4,
-   msgs:[{s:'Sarah',t:'Thanks for the update! 🙏',tm:'15:30'},{s:'Sarah',t:'Can we sync tomorrow?',tm:'15:31'},{s:'Sarah',t:'Also, the client sent us 👍 but I\'m not sure if they actually liked it 🤔',tm:'15:33'}],
-},
-  {id:'proj',name:'프로젝트 채널',av:'#',col:'#4F6CFF',type:'work',formal:false,formalLv:3,group:true,
-   msgs:[{s:'김대리',t:'API 연동 완료했습니다.',tm:'16:20',rx:[{e:'✔',c:3},{e:'👍',c:2}]},{s:'이사원',t:'프론트 작업은 내일까지 걸릴 것 같아요.',tm:'16:25'},{s:'박과장',t:'일정 괜찮을까요? 확인 부탁드립니다.',tm:'16:30'},{s:'정인턴',t:'디자인 시안 올렸습니다.',tm:'16:35',rx:[{e:'🔥',c:1}]}],
-},
-  {id:'friend',name:'최친구',av:'최',col:'#a855f7',type:'personal',formal:false,formalLv:1,
+  {id:'prof',name:'김교수님',av:'김',col:'#6366f1',type:'work',formal:true,fLv:5,
+   msgs:[{s:'김교수님',t:'다음 주 월요일까지 중간보고서 초안 보내주세요.',tm:'10:23'},{s:'김교수님',t:'분석 프레임워크 부분은 특히 신경 써주세요.',tm:'10:24'},{s:'김교수님',t:'진행 상황은 어떤가요?',tm:'10:30'}]},
+  {id:'boss',name:'이팀장님',av:'이',col:'#ec4899',type:'work',formal:true,fLv:4,
+   msgs:[{s:'이팀장님',t:'오늘 회의 자료 검토 부탁합니다.',tm:'14:10'},{s:'이팀장님',t:'3시까지 코멘트 남겨주세요 👍',tm:'14:11'}]},
+  {id:'peer',name:'박동료',av:'박',col:'#f97316',type:'work',formal:false,fLv:2,
+   msgs:[{s:'박동료',t:'어제 리뷰 피드백 반영했어!',tm:'13:05'},{s:'박동료',t:'확인해봐 🙂',tm:'13:06'},{s:'me',t:'고마워~ 👍',tm:'13:10'},{s:'박동료',t:'근데 팀장님이 🙃 이거 보냈는데... 괜찮은 거 맞아?',tm:'13:12'},{s:'박동료',t:'😅 혹시 내가 뭐 잘못한 건 아니겠지',tm:'13:13'}]},
+  {id:'sarah',name:'Sarah (Global)',av:'S',col:'#10b981',type:'work',formal:true,fLv:4,
+   msgs:[{s:'Sarah',t:'Thanks for the update! 🙏',tm:'15:30'},{s:'Sarah',t:'Can we sync tomorrow?',tm:'15:31'},{s:'Sarah',t:'Also, the client sent us 👍 but I\'m not sure if they actually liked it 🤔',tm:'15:33'}]},
+  {id:'proj',name:'프로젝트 채널',av:'#',col:'#4f6cff',type:'work',formal:false,fLv:3,group:true,
+   msgs:[{s:'김대리',t:'API 연동 완료했습니다.',tm:'16:20',rx:[{e:'✔',c:3},{e:'👍',c:2}]},{s:'이사원',t:'프론트 작업은 내일까지 걸릴 것 같아요.',tm:'16:25'},{s:'박과장',t:'일정 괜찮을까요? 확인 부탁드립니다.',tm:'16:30'},{s:'정인턴',t:'디자인 시안 올렸습니다.',tm:'16:35',rx:[{e:'🔥',c:1}]}]},
+  {id:'friend',name:'최친구',av:'최',col:'#a855f7',type:'personal',formal:false,fLv:1,
    msgs:[{s:'최친구',t:'야 아까 그거 봤어? 😂',tm:'19:30'},{s:'최친구',t:'진짜 나 🫠 상태야',tm:'19:31'},{s:'me',t:'ㅋㅋㅋ 왜 무슨 일??',tm:'19:32'},{s:'최친구',t:'ㅋㅋ 알바에서 실수했는데 사장님이 🙂 이거만 보내심',tm:'19:33'},{s:'최친구',t:'이거 화난 거 맞지? 🥲',tm:'19:34'}]},
-  {id:'mom',name:'엄마',av:'엄',col:'#ef4444',type:'personal',formal:false,formalLv:1,
+  {id:'mom',name:'엄마',av:'엄',col:'#ef4444',type:'personal',formal:false,fLv:1,
    msgs:[{s:'엄마',t:'밥 먹었어?',tm:'18:00'},{s:'me',t:'네~ 먹었어요',tm:'18:05'},{s:'엄마',t:'❤️',tm:'18:06'}]},
 ];
 
-let curChat=null,lt=null,noteIdx=null,noteEmoji='👍';
+let curChat=null,lt=null,noteIdx=null,noteEmoji='👍',replyTimer=null;
+const recentEmoji={work:[],personal:[]};
 
 function now(){return new Date().toLocaleTimeString('ko-KR',{hour:'numeric',minute:'2-digit'})}
+function pick(a){return a[Math.floor(Math.random()*a.length)]}
+function trackE(e){const t=curChat?.type||'work';const a=recentEmoji[t];const i=a.indexOf(e);if(i>-1)a.splice(i,1);a.unshift(e);if(a.length>6)a.pop()}
 
-// ═══ RECENTLY USED EMOJI TRACKING (F-C4) ═══
-const recentEmojis={work:[],personal:[]};
-function trackEmoji(e){
-  const ctx=curChat?.type||'work';
-  const arr=recentEmojis[ctx];
-  const i=arr.indexOf(e);if(i>-1)arr.splice(i,1);
-  arr.unshift(e);if(arr.length>8)arr.pop();
-}
-
-// ═══ NAV ═══
-function startApp(){
-  document.getElementById('landing').classList.add('hide');
-  document.getElementById('onb').classList.remove('hide');
-}
-function skipOnb(){
-  document.getElementById('onb').classList.add('hide');
-  document.getElementById('app').classList.add('show');
-  renderList();
-}
-function startScenario(chatId){
-  document.getElementById('onb').classList.add('hide');
-  document.getElementById('app').classList.add('show');
-  renderList();
-  const chat=CHATS.find(c=>c.id===chatId);
-  if(chat){openChat(chat);showTour(chatId)}
-}
-function showTour(chatId){
-  const tour=document.getElementById('tour');
-  const tips={
-    prof:{title:'💡 톤 자동 조절',body:'아래 편안↔정중 슬라이더를 움직여보세요.\n"네"라고 입력하면 정중함 수준에 맞는\n표현으로 자동 변환됩니다.',pos:'bottom:140px;left:340px'},
-    peer:{title:'💡 이모지 해석 확인',body:'메시지의 이모지를 클릭해보세요.\n🙂🙃😅 — 같은 이모지도\n관계에 따라 해석이 달라요.',pos:'top:200px;left:400px'},
-    sarah:{title:'💡 문화별 이모지 차이',body:'🙏를 클릭해보세요.\n국가·문화에 따라 전혀 다른\n의미로 해석될 수 있습니다.',pos:'top:200px;left:400px'},
-    friend:{title:'💡 이모지 해석 토론',body:'친구의 🙂 메시지를 클릭해보세요.\n"화난 거 맞지?" — 이모지 해석의\n불확실성을 체험할 수 있어요.',pos:'top:240px;left:400px'},
-  };
-  const tip=tips[chatId];if(!tip)return;
-  tour.className='tour show arrow-left';
-  tour.style.cssText=tip.pos;
-  tour.innerHTML=`<div class="tour-title">${tip.title}</div><div>${tip.body.replace(/\n/g,'<br>')}</div><button class="tour-btn" onclick="document.getElementById('tour').classList.remove('show')">알겠어요</button>`;
+// ── Navigation ──
+function toLanding(){document.getElementById('landing').classList.add('hide');document.getElementById('onb').classList.remove('hide')}
+function goSkip(){document.getElementById('onb').classList.add('hide');document.getElementById('app').classList.add('show');renderList()}
+function goScenario(id){document.getElementById('onb').classList.add('hide');document.getElementById('app').classList.add('show');renderList();const c=CHATS.find(x=>x.id===id);if(c){openChat(c);showTour(id)}}
+function showTour(id){
+  const T={prof:{h:'톤 자동 조절',b:'아래 편안↔정중 슬라이더를 조절해보세요.<br>"네"라고 입력하면 정중함에 맞게 변환됩니다.',s:'bottom:150px;left:340px'},peer:{h:'이모지 해석 확인',b:'메시지의 이모지를 클릭해보세요.<br>🙂🙃 — 맥락에 따라 해석이 달라요.',s:'top:200px;left:400px'},sarah:{h:'문화별 이모지 차이',b:'🙏를 클릭해보세요.<br>국가별로 전혀 다른 의미로 해석됩니다.',s:'top:200px;left:400px'},friend:{h:'이모지 해석 토론',b:'🙂 메시지를 클릭해보세요.<br>"화난 거야?" — 해석 불확실성 체험.',s:'top:260px;left:400px'}};
+  const t=T[id];if(!t)return;const el=document.getElementById('tour');
+  el.className='tour show';el.style.cssText=t.s;
+  el.innerHTML=`<h5>💡 ${t.h}</h5>${t.b}<button class="t-btn" onclick="this.parentElement.classList.remove('show')">알겠어요</button>`;
 }
 
+// ── Chat List ──
 function renderList(){
-  const el=document.getElementById('chatList');el.innerHTML='';
+  const el=document.getElementById('chList');el.innerHTML='';
   CHATS.forEach(c=>{
     const last=c.msgs[c.msgs.length-1];
-    const div=document.createElement('div');
-    div.className='ci'+(curChat?.id===c.id?' act':'');
-    div.innerHTML=`<div class="av" style="background:${c.col}">${c.av}</div><div class="meta"><div class="nm">${c.name} <span class="badge ${c.type==='work'?'w':'p'}">${c.type==='work'?'업무':'개인'}</span></div><div class="pv">${last.t}</div></div><span class="tm">${last.tm}</span>`;
-    div.onclick=()=>openChat(c);
-    el.appendChild(div);
+    const d=document.createElement('div');
+    d.className='ch-item'+(curChat?.id===c.id?' active':'');
+    d.innerHTML=`<div class="ch-av" style="background:${c.col}">${c.av}</div><div class="ch-meta"><div class="ch-name">${c.name}<span class="ch-badge ${c.type==='work'?'w':'p'}">${c.type==='work'?'Work':'Personal'}</span></div><div class="ch-prev">${last.t}</div></div><span class="ch-time">${last.tm}</span>`;
+    d.onclick=()=>openChat(c);
+    el.appendChild(d);
   });
 }
 
+// ── Open Chat ──
 function openChat(c){
   curChat=c;renderList();
   const m=document.getElementById('mainArea');
-  const isWork=c.type==='work';
-  const showTokens=isWork&&c.group;
+  const isW=c.type==='work',showTok=isW&&c.group;
   m.innerHTML=`
-    <div class="chdr"><div class="av" style="background:${c.col}">${c.av}</div><div><h4>${c.name}</h4><div class="csub">${isWork?'업무':'개인'}${c.formal?' · 공식':''}${c.group?' · 그룹':''}</div></div>
-      <div class="rel-chip">${c.formal?'<span class="rel-badge">🏢 공식</span>':''}</div>
+    <div class="c-hdr"><div class="ch-av" style="background:${c.col}">${c.av}</div><div><h4>${c.name}</h4><div class="c-sub">${isW?'Workspace':'Personal'}${c.formal?' · Formal':''}${c.group?' · Group':''}</div></div>
+      <div class="c-chips">${c.formal?'<span class="c-chip formal">Formal</span>':''}<span class="c-chip ctx">${isW?'Work':'Personal'}</span></div>
+      <button class="c-gear" onclick="openSettings()">⚙</button>
     </div>
-    <div class="msgs" id="ma"></div>
-    ${CFG.renderPreview?'<div class="rpv" id="rpv"></div>':''}
-    <div class="carea">
-      <div class="fbar show"><label style="color:var(--green)">편안</label><input type="range" min="1" max="5" value="${c.formalLv}" id="fr" oninput="onFR()"><label style="color:var(--blue)">정중</label><span class="fv" id="fv">${['','😊','🙂','📝','🏢','🎩'][c.formalLv]}</span></div>
-      <div class="tsug" id="tsug"></div>
-      <div class="erec" id="erec"></div>
-      <div class="wbar" id="wb"><span id="wt"></span><button class="wd" onclick="this.parentElement.classList.remove('show')">무시</button></div>
-      ${showTokens?`<div class="tkbar show">
-        <button class="tk" onclick="ins('✔')">✔</button><button class="tk" onclick="ins('👍')">👍</button><button class="tk" onclick="ins('🙏')">🙏</button><div class="tksep"></div>
-        <button class="tk st" onclick="addSt('⏳','확인 중')">⏳ 확인 중</button><button class="tk st" onclick="addSt('🚫','블로킹')">🚫</button><button class="tk st" onclick="addSt('⚠️','지연')">⚠️</button><button class="tk st" onclick="addSt('✅','완료')">✅</button>
+    <div class="msg-area" id="msgArea"></div>
+    ${CFG.renderPreview?'<div class="rp" id="rp"></div>':''}
+    <div class="composer">
+      <div class="f-slider show"><span class="fs-label casual">편안</span><input type="range" min="1" max="5" value="${c.fLv}" id="fSlider" oninput="onSlider()"><span class="fs-label formal">정중</span><span class="fs-level" id="fLevel">${['','😊','🙂','📝','🏢','🎩'][c.fLv]}</span></div>
+      <div class="tone-sug" id="toneSug"></div>
+      <div class="e-rec" id="eRec"></div>
+      <div class="warn" id="warn"><span id="warnTxt"></span><button class="w-close" onclick="this.parentElement.classList.remove('show')">무시</button></div>
+      ${showTok?`<div class="tok-bar show">
+        <button class="tok" onclick="insE('✔')">✔ 확인</button><button class="tok" onclick="insE('👍')">👍</button><button class="tok" onclick="insE('🙏')">🙏</button><div class="tok-sep"></div>
+        <button class="tok status" onclick="addStatus('⏳','확인 중')">⏳ Pending</button><button class="tok status" onclick="addStatus('🚫','블로킹')">🚫 Blocked</button><button class="tok status" onclick="addStatus('⚠️','지연')">⚠️ Overdue</button><button class="tok status" onclick="addStatus('✅','완료')">✅ Done</button>
       </div>`:''}
-      <div class="crow">
-        <button class="cb eb" onclick="document.getElementById('pkr').classList.toggle('show')">😊</button>
-        <textarea id="inp" rows="1" placeholder="${c.formal?c.name+'님에게 답장...':'메시지 입력...'}" oninput="onInp()"></textarea>
-        <button class="cb sb" onclick="doSend()">↑</button>
+      <div class="input-row">
+        <button class="i-btn emoji" onclick="document.getElementById('picker').classList.toggle('show')">😊</button>
+        <textarea id="inp" rows="1" placeholder="${c.formal?c.name+'님에게 답장...':'메시지 입력...'}" oninput="onInput()"></textarea>
+        <button class="i-btn send" onclick="doSend()">↑</button>
       </div>
     </div>
-    <div class="pkr" id="pkr">
-      <div class="pktabs"><div class="pkt ${isWork?'act':''}" onclick="bldPkr('work',this)">🏢 업무</div><div class="pkt ${!isWork?'act':''}" onclick="bldPkr('personal',this)">🏠 개인</div></div>
-      <div class="pkb" id="pkb"></div>
+    <div class="picker" id="picker">
+      <div class="pk-tabs"><div class="pk-tab ${isW?'act':''}" onclick="buildPicker('work',this)">🏢 Work</div><div class="pk-tab ${!isW?'act':''}" onclick="buildPicker('personal',this)">🏠 Personal</div></div>
+      <div class="pk-body" id="pkBody"></div>
     </div>`;
   renderMsgs();
-  bldPkr(isWork?'work':'personal');
+  buildPicker(CFG.panelSwitch?(isW?'work':'personal'):'work');
   const inp=document.getElementById('inp');
   if(inp&&!inp._b){inp._b=true;inp.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();doSend()}})}
 }
 
-// ═══ MESSAGES ═══
+// ── Messages ──
 function renderMsgs(){
-  const el=document.getElementById('ma');if(!el)return;
-  const c=curChat;el.innerHTML='<div class="dsep">오늘</div>';
+  const el=document.getElementById('msgArea');if(!el)return;
+  const c=curChat;el.innerHTML='<div class="day-sep"><span>Today</span></div>';
   c.msgs.forEach((msg,idx)=>{
-    const me=msg.s==='me';const div=document.createElement('div');
+    const me=msg.s==='me';const w=document.createElement('div');
     const se=/^[\p{Emoji_Presentation}\p{Emoji}\uFE0F]{1,4}$/u.test(msg.t.trim())&&msg.t.trim().length<=8;
-    div.className=`msg ${me?'m':'o'}${se&&CFG.emojiSize?' emoji-s':''}`;
-    let html=msg.t.replace(/([\p{Emoji_Presentation}\p{Emoji}\uFE0F]+)/gu,(m)=>ED[m]?`<span class="ehl" onclick="showTT('${m}')">${m}</span>`:m);
+    w.className=`msg-wrap ${me?'me':'other'}`;
+    let html=msg.t.replace(/([\p{Emoji_Presentation}\p{Emoji}\uFE0F]+)/gu,m=>ED[m]?`<span class="e-click" onclick="showTooltip('${m}')">${m}</span>`:m);
     let rxH='';
-    if(msg.rx?.length){rxH='<div class="rxr">'+msg.rx.map(r=>`<span class="rx">${r.e}${r.c>1?' '+r.c:''}${r.note?`<span class="rn">${r.note}</span>`:''}</span>`).join('')+`<span class="rxa" onclick="openNote(${idx})">+</span></div>`}
-    else if(!me){rxH=`<div class="rxr"><span class="rxa" onclick="openNote(${idx})">+</span></div>`}
+    if(msg.rx?.length){rxH='<div class="rx-row">'+msg.rx.map(r=>`<span class="rx-pill">${r.e}${r.c>1?' '+r.c:''}${r.note?`<span class="rx-note">${r.note}</span>`:''}</span>`).join('')+`<span class="rx-add" onclick="openNote(${idx})">+</span></div>`}
+    else if(!me){rxH=`<div class="rx-row"><span class="rx-add" onclick="openNote(${idx})">+</span></div>`}
     let hintH='';
-    if(!me&&idx>=c.msgs.length-3){const ems=msg.t.match(/([\p{Emoji_Presentation}\p{Emoji}\uFE0F])/gu);if(ems?.some(e=>getED(e)&&(getED(e).v==='r'||getED(e).v==='y'))){const e=ems.find(e=>getED(e)&&(getED(e).v==='r'||getED(e).v==='y'));if(e)hintH=`<div class="hint" onclick="showTT('${e}')">🔍 이 이모지, 어떤 뜻일까?</div>`}}
+    if(!me&&idx>=c.msgs.length-3){const ems=msg.t.match(/([\p{Emoji_Presentation}\p{Emoji}\uFE0F])/gu);if(ems?.some(e=>getED(e)&&(getED(e).v==='r'||getED(e).v==='y'))){const e=ems.find(e=>getED(e)&&(getED(e).v==='r'||getED(e).v==='y'));if(e)hintH=`<span class="e-hint" onclick="showTooltip('${e}')">🔍 이 이모지, 어떤 뜻일까?</span>`}}
     const qrxH=!me?`<div class="qrx"><button onclick="quickRx(${idx},'👍')">👍</button><button onclick="quickRx(${idx},'❤️')">❤️</button><button onclick="quickRx(${idx},'😂')">😂</button><button onclick="quickRx(${idx},'🙏')">🙏</button><button onclick="openNote(${idx})">+</button></div>`:'';
-    div.innerHTML=`${qrxH}${!me&&c.group?`<div class="sn">${msg.s}</div>`:''}${html}${hintH}${rxH}<div class="tm">${msg.tm}</div>`;
-    if(!me){div.addEventListener('contextmenu',e=>{e.preventDefault();openNote(idx)});div.addEventListener('dblclick',()=>openNote(idx))}
-    el.appendChild(div);
+    w.innerHTML=`${qrxH}${!me&&c.group?`<div class="msg-sender">${msg.s}</div>`:''}<div class="bubble${se&&CFG.emojiSize?' emoji-std':''}">${html}<div class="b-time">${msg.tm}</div></div>${hintH}${rxH}`;
+    if(!me){w.addEventListener('contextmenu',e=>{e.preventDefault();openNote(idx)});w.addEventListener('dblclick',()=>openNote(idx))}
+    el.appendChild(w);
   });
   el.scrollTop=el.scrollHeight;
 }
 
-// ═══ TOOLTIP ═══
-function showTT(emoji){
-  const d=getED(emoji);if(!d)return;
-  const gd=ED[emoji]; // global data for a11y
-  const ctx=curChat?.type==='personal'?'개인 대화':curChat?.formal?'공식 대화':curChat?.name?.includes('Sarah')?'해외팀':'동료 대화';
-  const a11y=gd?.a11y||d.a11y; // F-B6 accessibility
-  document.getElementById('ttC').innerHTML=`<div class="tbig">${emoji}</div><div class="tmn">${d.m}</div><div class="tsb">현재 맥락: ${ctx}</div>
-    <div class="dbar">${d.d.map(x=>`<div class="sg ${x.t}" style="width:${x.p}%">${x.p}%</div>`).join('')}</div>
-    <div class="dlg">${d.d.map(x=>`<span class="${x.t}">${x.l} ${x.p}%</span>`).join('')}</div>
-    ${d.c?`<div class="ttcul">🌍 ${d.c}</div>`:''}
-    ${a11y?`<div class="tta11">♿ 접근성: "${a11y}"</div>`:''}
-    <button class="cls" onclick="document.getElementById('ttOv').classList.remove('show')">닫기</button>`;
+// ── Tooltip ──
+function showTooltip(emoji){
+  const d=getED(emoji);if(!d)return;const g=ED[emoji];
+  const ctx=curChat?.type==='personal'?'개인 대화':curChat?.formal?'공식/위계 대화':curChat?.name?.includes('Sarah')?'해외팀 (Cross-cultural)':'동료 대화';
+  document.getElementById('ttCard').innerHTML=`<div class="tt-emoji">${emoji}</div><div class="tt-meaning">${d.m}</div><div class="tt-ctx">맥락: ${ctx}</div>
+    <div class="dist-bar">${d.d.map(x=>`<div class="seg ${x.t}" style="width:${x.p}%">${x.p}%</div>`).join('')}</div>
+    <div class="dist-labels">${d.d.map(x=>`<span class="dl ${x.t}">${x.l} ${x.p}%</span>`).join('')}</div>
+    ${d.c?`<div class="tt-cultural">🌍 ${d.c}</div>`:''}
+    ${g?.a?`<div class="tt-a11y">♿ 접근성: "${g.a}"</div>`:''}
+    <button class="tt-close" onclick="document.getElementById('ttOv').classList.remove('show')">닫기</button>`;
   document.getElementById('ttOv').classList.add('show');
 }
 
-// ═══ PICKER ═══
-function bldPkr(mode,el){
-  if(el){document.querySelectorAll('.pkt').forEach(t=>t.classList.remove('act'));el.classList.add('act')}
-  const b=document.getElementById('pkb');if(!b)return;
+// ── Picker ──
+function buildPicker(mode,el){
+  if(el){document.querySelectorAll('.pk-tab').forEach(t=>t.classList.remove('act'));el.classList.add('act')}
+  const b=document.getElementById('pkBody');if(!b)return;
   const emojis=mode==='work'?WE:PE;const pins=mode==='work'?['✔','👍','🙏']:['❤️','🔥','😂'];
-  const recent=recentEmojis[mode]||[];
-  const recentH=recent.length?`<div class="pkst">🕐 최근 사용</div><div class="pkg">${recent.map(e=>`<div class="ec" onclick="pickE('${e}')">${e}${ED[e]?`<span class="vd ${ED[e].v}"></span>`:''}</div>`).join('')}</div>`:'';
-  b.innerHTML=`${recentH}<div class="pkst">📌 고정</div><div class="pkg">${pins.map(e=>`<div class="ec" onclick="pickE('${e}')">${e}${ED[e]?`<span class="vd ${ED[e].v}"></span>`:''}</div>`).join('')}</div>
-    <div class="pkst">전체 (길게 눌러서 해석 확인)</div><div class="pkg">${emojis.map(e=>`<div class="ec" onclick="pickE('${e}')" onmousedown="lt=setTimeout(()=>showTT('${e}'),400)" onmouseup="clearTimeout(lt)" onmouseleave="clearTimeout(lt)">${e}${ED[e]?`<span class="vd ${ED[e].v}"></span>`:''}</div>`).join('')}</div>
-    <div style="display:flex;gap:10px;margin-top:8px;padding:4px 6px;font-size:9px;color:var(--t3)"><span style="display:flex;align-items:center;gap:3px"><span style="width:6px;height:6px;border-radius:50%;background:var(--green)"></span>안정</span><span style="display:flex;align-items:center;gap:3px"><span style="width:6px;height:6px;border-radius:50%;background:var(--yellow)"></span>주의</span><span style="display:flex;align-items:center;gap:3px"><span style="width:6px;height:6px;border-radius:50%;background:var(--red)"></span>해석 분산 높음</span></div>`;
+  const recent=recentEmoji[mode]||[];
+  const recentH=recent.length?`<div class="pk-sec">Recent</div><div class="pk-grid">${recent.map(e=>eCell(e)).join('')}</div>`:'';
+  b.innerHTML=`${recentH}<div class="pk-sec">Pinned</div><div class="pk-grid">${pins.map(e=>eCell(e)).join('')}</div>
+    <div class="pk-sec">All (long-press for details)</div><div class="pk-grid">${emojis.map(e=>eCell(e)).join('')}</div>
+    <div class="pk-legend"><span><div class="dot" style="background:var(--green)"></div>Stable</span><span><div class="dot" style="background:var(--amber)"></div>Caution</span><span><div class="dot" style="background:var(--red)"></div>High variance</span></div>`;
 }
-function pickE(e){trackEmoji(e);document.getElementById('inp').value+=e;document.getElementById('inp').dispatchEvent(new Event('input'));document.getElementById('pkr').classList.remove('show')}
-function addEmojiToMsg(e){
-  const inp=document.getElementById('inp');
-  // Add space before emoji if text doesn't end with space
-  if(inp.value.length>0&&!inp.value.endsWith(' ')&&!/[\p{Emoji}]/u.test(inp.value.slice(-1)))inp.value+=' ';
-  inp.value+=e;
-  inp.focus();
-}
-function ins(e){document.getElementById('inp').value+=e;document.getElementById('inp').focus()}
+function eCell(e){const d=ED[e];return `<div class="pk-cell" onclick="pickEmoji('${e}')" onmousedown="lt=setTimeout(()=>showTooltip('${e}'),400)" onmouseup="clearTimeout(lt)" onmouseleave="clearTimeout(lt)">${e}${d?`<span class="vdot ${d.v}"></span>`:''}</div>`}
+function pickEmoji(e){trackE(e);const inp=document.getElementById('inp');inp.value+=e;inp.dispatchEvent(new Event('input'));document.getElementById('picker').classList.remove('show')}
+function insE(e){const inp=document.getElementById('inp');if(inp.value&&!inp.value.endsWith(' '))inp.value+=' ';inp.value+=e;inp.focus()}
 
-// ═══ COMPOSER ═══
-function onInp(){
+// ── Composer ──
+function onInput(){
   const el=document.getElementById('inp');
-  el.style.height='auto';el.style.height=Math.min(el.scrollHeight,80)+'px';
-  const v=el.value.trim();const c=curChat;if(!c)return;
+  el.style.height='auto';el.style.height=Math.min(el.scrollHeight,100)+'px';
+  const v=el.value.trim();if(!v||!curChat){hideTone();hideERec();return}
 
-  // Tone suggestion — works in all chats
-  if(CFG.toneAid&&v.length>0){updateTone(v)}
-  else{document.getElementById('tsug')?.classList.remove('show')}
+  // Tone suggestion
+  if(CFG.toneAid&&v.length>0)updateTone(v);else hideTone();
 
-  // Emoji recommendation based on content — multi-match
-  if(v.length>=1){
-    const low=v.toLowerCase();
-    let matched=null;
-    for(const rule of EMOJI_REC_DATA){
-      if(rule.k.some(k=>low.includes(k))){matched=rule;break}
-    }
-    const erec=document.getElementById('erec');
-    if(matched&&erec){
-      erec.innerHTML=`<span class="erl">💡 ${matched.tip}</span>${matched.e.slice(0,5).map(e=>`<button class="erb" onclick="addEmojiToMsg('${e}')">${e}<span class="er-tip">${ED[e]?.m||e}</span></button>`).join('')}<span class="er-add" onclick="document.getElementById('pkr').classList.add('show')">더보기 →</span>`;
-      erec.classList.add('show');
-    } else erec?.classList.remove('show');
-  } else document.getElementById('erec')?.classList.remove('show');
+  // Emoji recommendation
+  const low=v.toLowerCase();
+  let matched=EREC.find(r=>r.k.some(k=>low.includes(k)));
+  const erec=document.getElementById('eRec');
+  if(matched&&erec){
+    erec.innerHTML=`<span class="er-label">💡 ${matched.t}</span>${matched.e.slice(0,4).map(e=>`<button class="er-btn" onclick="insE('${e}')">${e}<span class="er-tip">${ED[e]?.m||''}</span></button>`).join('')}<span class="er-more" onclick="document.getElementById('picker').classList.add('show')">more →</span>`;
+    erec.classList.add('show');
+  } else erec?.classList.remove('show');
 
-  // Emoji warning — all chats, risky emojis
-  const em=v.match(/(\p{Emoji_Presentation}|\p{Emoji}\uFE0F)/u);
-  if(em){const ed=getED(em[0]);if(ed&&ed.v==='r'){document.getElementById('wt').textContent=`⚠️ "${em[0]}" ${ed.m} — ${ed.d.map(x=>x.l+' '+x.p+'%').join(', ')}`;document.getElementById('wb').classList.add('show')}else document.getElementById('wb')?.classList.remove('show')}else document.getElementById('wb')?.classList.remove('show');
+  // Warning
+  if(CFG.emojiWarn){
+    const em=v.match(/(\p{Emoji_Presentation}|\p{Emoji}\uFE0F)/u);
+    if(em){const ed=getED(em[0]);if(ed&&ed.v==='r'){document.getElementById('warnTxt').textContent=`⚠ "${em[0]}" ${ed.m} — ${ed.d.map(x=>x.l+' '+x.p+'%').join(', ')}`;document.getElementById('warn').classList.add('show')}else document.getElementById('warn')?.classList.remove('show')}else document.getElementById('warn')?.classList.remove('show');
+  }
 
   // Render preview
-  const rpv=document.getElementById('rpv');
-  if(CFG.renderPreview&&v&&rpv){
+  const rp=document.getElementById('rp');
+  if(CFG.renderPreview&&v&&rp){
     const se=/^[\p{Emoji_Presentation}\p{Emoji}\uFE0F]{1,4}$/u.test(v)&&v.length<=8;
-    if(se&&CFG.emojiSize)rpv.innerHTML=`👁 <span class="rpm" style="font-size:12px">${v}</span> 표준 크기`;
-    else if(se)rpv.innerHTML=`👁 <span class="rpm" style="font-size:32px;background:none;color:inherit">${v}</span> 확대 표시`;
-    else rpv.innerHTML=`👁 <span class="rpm">${v}</span>`;
-    rpv.classList.add('show');
-  } else rpv?.classList.remove('show');
+    if(se)rp.innerHTML=`👁 <span class="rp-bubble" style="font-size:${CFG.emojiSize?'12px':'32px'}">${v}</span> ${CFG.emojiSize?'Standard size':'Enlarged'}`;
+    else rp.innerHTML=`👁 <span class="rp-bubble">${v}</span>`;
+    rp.classList.add('show');
+  } else rp?.classList.remove('show');
 }
 
-function onFR(){
-  const icons=['','😊','🙂','📝','🏢','🎩'];
-  document.getElementById('fv').textContent=icons[document.getElementById('fr').value];
+function hideTone(){document.getElementById('toneSug')?.classList.remove('show')}
+function hideERec(){document.getElementById('eRec')?.classList.remove('show')}
+
+function onSlider(){
+  document.getElementById('fLevel').textContent=['','😊','🙂','📝','🏢','🎩'][document.getElementById('fSlider').value];
   const v=document.getElementById('inp')?.value.trim();
-  if(v) updateTone(v);
+  if(v)updateTone(v);
 }
 
 function updateTone(raw){
-  const ts=document.getElementById('tsug');if(!ts)return;
-  const lv=parseInt(document.getElementById('fr')?.value||3);
-  const low=raw.toLowerCase();
-  const eng=isEng(raw);
-  const tones=eng?TONES_EN:TONES_KR;
-  const matched=tones.find(t=>t.m(low));
+  const ts=document.getElementById('toneSug');if(!ts)return;
+  const lv=parseInt(document.getElementById('fSlider')?.value||3);
+  const eng=isEng(raw);const tones=eng?TE:TK;
+  const matched=tones.find(t=>t.m(raw.toLowerCase()));
   const idx=lv-1;
-
-  // Get all 5 levels
   const all5=matched.L.map((l,i)=>{let v=l;if(typeof v==='function')v=v(raw);return v});
   const main=all5[idx];
   let alts=(matched.A[idx]||[]).map(a=>typeof a==='function'?a(raw):a).filter(a=>a&&a!==main);
-
-  const lvLabels=eng?['casual','friendly','polite','formal','very formal']:['편안','친근','보통','정중','매우 정중'];
-  const lvIcons=['😊','🙂','📝','🏢','🎩'];
-  const relName=curChat?.name||'';
-
-  // Always show — even if main===raw, show alternatives from other levels
-  // Build comparison: show neighboring levels
-  // Build comparison strip — skip duplicates and current level
   const seen=new Set([main]);
-  let compareH='<div style="display:flex;gap:3px;margin-top:6px;overflow-x:auto;padding-bottom:2px">';
-  for(let i=0;i<5;i++){
-    if(i===idx) continue;
-    const v=all5[i];
-    if(seen.has(v)) continue; // skip duplicates
-    seen.add(v);
-    compareH+=`<div style="padding:4px 8px;border-radius:8px;font-size:10px;border:1px solid var(--border);color:${i<idx?'var(--green)':'var(--blue)'};cursor:pointer;white-space:nowrap;flex-shrink:0" data-v="${v.replace(/"/g,'&quot;')}" onclick="useTone(this.dataset.v)">${lvIcons[i]} ${v.slice(0,30)}${v.length>30?'...':''}</div>`;
-  }
-  compareH+='</div>';
-  if(seen.size<=1) compareH=''; // nothing to compare
+  const lvIcons=['😊','🙂','📝','🏢','🎩'];
+  const lvLabels=eng?['casual','friendly','polite','formal','very formal']:['편안','친근','보통','정중','매우 정중'];
+  let cmpH='<div class="ts-compare">';
+  for(let i=0;i<5;i++){if(i===idx)continue;const v=all5[i];if(seen.has(v))continue;seen.add(v);
+    cmpH+=`<div class="ts-cmp" style="color:${i<idx?'var(--green)':'var(--blue)'}" data-v="${v.replace(/"/g,'&quot;')}" onclick="useTone(this.dataset.v)">${lvIcons[i]} ${v.slice(0,28)}${v.length>28?'…':''}</div>`}
+  cmpH+='</div>';if(seen.size<=1)cmpH='';
 
-  if(main===raw&&!compareH){
-    ts.classList.remove('show');return; // nothing to suggest
-  }
-  const dismissBtn='<span class="tdismiss" onclick="this.parentElement.classList.remove(\'show\')" title="닫기">×</span>';
+  if(main===raw&&!cmpH){ts.classList.remove('show');return}
+  const dismiss='<span class="ts-close" onclick="this.parentElement.classList.remove(\'show\')">×</span>';
   if(main===raw){
-    ts.innerHTML=`${dismissBtn}<div class="tl">✨ ${matched.i} · ${lvLabels[idx]}</div><div style="font-size:11px;color:var(--t2);margin-bottom:2px">다른 톤으로 바꿔보세요</div>${compareH}`;
+    ts.innerHTML=`${dismiss}<div class="ts-label">✨ ${matched.i} · ${lvLabels[idx]}</div><div style="font-size:11px;color:var(--text3);margin-bottom:2px">다른 톤으로 바꿔보세요</div>${cmpH}`;
   } else {
-    ts.innerHTML=`${dismissBtn}<div class="tl">✨ ${matched.i} · ${lvLabels[idx]}</div><div class="topt" data-v="${main.replace(/"/g,'&quot;')}" onclick="useTone(this.dataset.v)">${main}<span class="tap-hint">탭하여 적용</span></div>${alts.length?`<div class="talts">${alts.map(a=>`<div class="talt" data-v="${a.replace(/"/g,'&quot;')}" onclick="useTone(this.dataset.v)">${a}</div>`).join('')}</div>`:''}${compareH}`;
+    ts.innerHTML=`${dismiss}<div class="ts-label">✨ ${matched.i} · ${lvLabels[idx]}</div><div class="ts-main" data-v="${main.replace(/"/g,'&quot;')}" onclick="useTone(this.dataset.v)"><span>${main}</span><span class="ts-hint">적용</span></div>${alts.length?`<div class="ts-alts">${alts.map(a=>`<div class="ts-alt" data-v="${a.replace(/"/g,'&quot;')}" onclick="useTone(this.dataset.v)">${a}</div>`).join('')}</div>`:''}${cmpH}`;
   }
   ts.classList.add('show');
 }
-function useTone(v){document.getElementById('inp').value=v;document.getElementById('tsug')?.classList.remove('show');document.getElementById('wb')?.classList.remove('show');document.getElementById('inp').focus()}
+function useTone(v){document.getElementById('inp').value=v;hideTone();document.getElementById('warn')?.classList.remove('show');document.getElementById('inp').focus()}
 
-// ═══ SEND ═══
-let replyTimer=null;
+// ── Send ──
 function doSend(){
   const el=document.getElementById('inp');const v=el.value.trim();if(!v||!curChat)return;
   curChat.msgs.push({s:'me',t:v,tm:now()});
   el.value='';el.style.height='auto';renderMsgs();renderList();
-  document.getElementById('tsug')?.classList.remove('show');
-  document.getElementById('erec')?.classList.remove('show');
-  document.getElementById('wb')?.classList.remove('show');
-  document.getElementById('rpv')?.classList.remove('show');
-  document.getElementById('pkr')?.classList.remove('show');
-  // Smart contextual auto-reply — cancel previous pending reply
+  hideTone();hideERec();
+  document.getElementById('warn')?.classList.remove('show');
+  document.getElementById('rp')?.classList.remove('show');
+  document.getElementById('picker')?.classList.remove('show');
   if(replyTimer)clearTimeout(replyTimer);
   const c=curChat;
-  replyTimer=setTimeout(()=>{
-    replyTimer=null;
-    if(curChat?.id!==c.id)return; // switched chat
-    const reply=genReply(v,c);
-    if(reply){c.msgs.push(reply);renderMsgs();renderList()}
-  },1500+Math.random()*1500);
+  replyTimer=setTimeout(()=>{replyTimer=null;if(curChat?.id!==c.id)return;const r=genReply(v,c);if(r){c.msgs.push(r);renderMsgs();renderList()}},1500+Math.random()*1500);
 }
 
-// ═══ SMART REPLY — context-aware ═══
-function genReply(userMsg,chat){
-  const low=userMsg.toLowerCase();
-  const s=chat.group?pick(['김대리','이사원','박과장','정인턴']):chat.name;
-
-  // ── Sarah: English ──
+// ── Smart Reply ──
+function genReply(msg,chat){
+  const low=msg.toLowerCase();const s=chat.group?pick(['김대리','이사원','박과장','정인턴']):chat.name;
   if(chat.name?.includes('Sarah')){
-    if(low.includes('not sure')||low.includes('interpret'))return{s,t:pick(['Yeah, it\'s tricky with emojis across cultures 🤔','Right? 👍 can mean different things depending on where you\'re from','We should probably ask them directly to be safe']),tm:now()};
     if(low.includes('thank')||low.includes('thx'))return{s,t:pick(['You\'re welcome! 😊','Happy to help!','Anytime 🙂']),tm:now()};
-    if(low.includes('sure')||low.includes('yes')||low.includes('ok'))return{s,t:pick(['Great! I\'ll set up the meeting 📅','Perfect, let\'s do 2pm?','Sounds good 👍']),tm:now()};
-    if(low.includes('send')||low.includes('share')||low.includes('doc'))return{s,t:pick(['Got it, I\'ll review it 👍','Thanks! Will check and get back to you','Received, looking at it now 🙂']),tm:now()};
-    if(low.includes('sorry')||low.includes('apolog'))return{s,t:pick(['No worries at all!','That\'s totally fine, don\'t worry about it 🙂','No problem!']),tm:now()};
-    if(low.includes('?'))return{s,t:pick(['Good question, let me check','I\'ll look into it and get back to you 🤔','Hmm, I think so but let me confirm']),tm:now()};
-    return{s,t:pick(['Got it!','Thanks for the update 🙂','Noted, will follow up','Sounds good!']),tm:now()};
+    if(low.includes('sure')||low.includes('yes')||low.includes('ok'))return{s,t:pick(['Great! Let\'s do 2pm?','Sounds good 👍','Perfect!']),tm:now()};
+    if(low.includes('?'))return{s,t:pick(['Let me check and get back to you.','Good question 🤔','I\'ll confirm.']),tm:now()};
+    return{s,t:pick(['Got it!','Thanks 🙂','Noted!','Sounds good!']),tm:now()};
   }
-
-  // ── 개인 채팅 ──
   if(chat.type==='personal'){
     if(chat.name==='엄마'){
       if(low.includes('먹')||low.includes('밥'))return{s,t:pick(['맛있는 거 먹어~ ❤️','뭐 먹었어?','건강한 거 먹고~']),tm:now()};
-      if(low.includes('보고싶')||low.includes('사랑'))return{s,t:pick(['나도 보고싶어 ❤️','엄마도~ 😊','빨리 와~']),tm:now()};
-      if(low.includes('바쁘')||low.includes('힘들')||low.includes('피곤'))return{s,t:pick(['무리하지 마~ 😊','푹 쉬어!','건강이 제일이야 ❤️']),tm:now()};
-      if(low.includes('네')||low.includes('응')||low.includes('ㅇㅇ'))return{s,t:pick(['그래~ 😊','알겠어 ❤️','ㅋㅋ 우리 딸']),tm:now()};
-      if(low.includes('?'))return{s,t:pick(['응~ 😊','왜?','뭐가 궁금해?']),tm:now()};
+      if(low.includes('보고싶')||low.includes('사랑'))return{s,t:pick(['나도 ❤️','엄마도~ 😊','빨리 와~']),tm:now()};
       return{s,t:pick(['그래~ 😊','알겠어 ❤️','ㅋㅋ','잘 지내고~']),tm:now()};
     }
-    // 이모지 해석 주제
-    if(low.includes('뜻')||low.includes('의미')||low.includes('해석')||low.includes('화난'))return{s,t:pick(['ㅋㅋ 그니까 🙂 이거 진짜 애매해','화난 건지 괜찮은 건지 모르겠음 😅','그래서 나는 🙂 안 쓰려고 해 ㅋㅋ','아마 괜찮은 거 아닐까? 🤔']),tm:now()};
-    if(low.includes('맞')||low.includes('진짜')||low.includes('그니까')||low.includes('인정'))return{s,t:pick(['ㅋㅋ 이모지 쓸 때 진짜 고민됨','맞아 특히 윗사람한테 보낼 때 😅','나도 🫠','ㅇㅇ 진짜 공감']),tm:now()};
-    if(low.includes('ㅋㅋ')||low.includes('ㅎㅎ')||low.includes('😂'))return{s,t:pick(['ㅋㅋㅋ','ㅋㅋㅋㅋ 진짜','😂😂','ㅋㅋ 웃기지']),tm:now()};
-    if(low.includes('밥')||low.includes('먹')||low.includes('만나'))return{s,t:pick(['ㅇㅇ 좋아! 뭐 먹을까?','맛있는 거 먹자 😊','주말에 어때?']),tm:now()};
-    if(low.includes('?'))return{s,t:pick(['ㅇㅇ!','글쎄 🤔','ㅋㅋ 왜??','뭔데뭔데?']),tm:now()};
-    if(low.includes('ㅇㅋ')||low.includes('ㅇㅇ')||low.includes('알겠'))return{s,t:pick(['ㅇㅇ!','👍','ㅋㅋ','좋아!']),tm:now()};
+    if(low.includes('뜻')||low.includes('의미')||low.includes('화난'))return{s,t:pick(['ㅋㅋ 🙂 이거 진짜 애매해','화난 건지 모르겠음 😅','그래서 나는 🙂 안 쓰려고 해 ㅋㅋ']),tm:now()};
+    if(low.includes('맞')||low.includes('진짜'))return{s,t:pick(['ㅋㅋ 이모지 쓸 때 고민됨','맞아 특히 윗사람한테 😅','ㅇㅇ 진짜']),tm:now()};
+    if(low.includes('ㅋㅋ')||low.includes('😂'))return{s,t:pick(['ㅋㅋㅋ','😂😂','ㅋㅋ 진짜']),tm:now()};
+    if(low.includes('?'))return{s,t:pick(['ㅇㅇ!','글쎄 🤔','ㅋㅋ 왜??']),tm:now()};
     return{s,t:pick(['ㅇㅋ!','ㅋㅋ','ㅇㅇ','오키!']),tm:now()};
   }
-
-  // ── 업무 공식: 상사/교수 답장 ──
   if(chat.formal){
     if(low.includes('확인')||low.includes('알겠'))return{s,t:pick(['네 감사합니다.','수고하세요.','좋습니다 👍']),tm:now()};
-    if(low.includes('보내')||low.includes('제출')||low.includes('전달')||low.includes('공유'))return{s,t:pick(['네 잘 받았습니다. 확인하겠습니다.','감사합니다, 확인해볼게요 👍','잘 받았습니다.']),tm:now()};
-    if(low.includes('감사')||low.includes('고마'))return{s,t:pick(['네, 수고하세요.','감사합니다 🙂']),tm:now()};
-    if(low.includes('죄송')||low.includes('미안'))return{s,t:pick(['괜찮습니다.','네, 다음부터 주의해주세요.']),tm:now()};
-    if(low.includes('질문')||low.includes('여쭤')||low.includes('될까요'))return{s,t:pick(['네, 그렇게 해주세요.','좋습니다. 그 방향으로 진행해주세요.','확인 후 말씀드리겠습니다 🤔']),tm:now()};
+    if(low.includes('보내')||low.includes('제출'))return{s,t:pick(['잘 받았습니다. 확인하겠습니다.','감사합니다 👍','네, 잘 받았습니다.']),tm:now()};
     if(low.includes('?'))return{s,t:pick(['확인해보겠습니다.','잠시만요, 확인 후 말씀드리겠습니다.']),tm:now()};
     return{s,t:pick(['네.','확인했습니다.','감사합니다.']),tm:now()};
   }
-
-  // ── 업무 동료: 이모지 해석 대화 자연스럽게 ──
-  if(low.includes('🙃')||low.includes('뭔 뜻')||low.includes('무슨 뜻')||low.includes('괜찮'))return{s,t:pick(['나도 잘 모르겠어 🤔 그냥 장난일 수도?','ㅋㅋ 그거 진짜 애매하지','아마 괜찮은 거 아닐까? 근데 🙃 이거 좀 무섭긴 해','팀장님 스타일상 그냥 확인 의미일 듯 👍']),tm:now()};
-  if(low.includes('확인')||low.includes('봤'))return{s,t:pick(['ㅇㅋ 고마워!','👍','ㅇㅇ 확인했어~']),tm:now()};
-  if(low.includes('이모지')||low.includes('헷갈'))return{s,t:pick(['ㅋㅋ 나도 헷갈려 😅','이모지 해석 진짜 사람마다 다름','그래서 중요한 건 글로 쓰는 게 나은 듯 🤔']),tm:now()};
-  if(low.includes('?'))return{s,t:pick(['ㅇㅇ!','음 잠깐만 🤔','확인해볼게!','글쎄 🤔']),tm:now()};
-  return{s,t:pick(['ㅇㅋ!','👍','ㅇㅇ 알겠어!','확인!']),tm:now()};
+  if(low.includes('🙃')||low.includes('뜻')||low.includes('괜찮'))return{s,t:pick(['나도 잘 모르겠어 🤔','ㅋㅋ 진짜 애매하지','아마 괜찮은 거 아닐까?']),tm:now()};
+  if(low.includes('?'))return{s,t:pick(['ㅇㅇ!','확인해볼게 🤔','글쎄 🤔']),tm:now()};
+  return{s,t:pick(['ㅇㅋ!','👍','확인!']),tm:now()};
 }
 
-function pick(arr){return arr[Math.floor(Math.random()*arr.length)]}
+// ── Quick Reactions ──
+function quickRx(idx,emoji){const msg=curChat.msgs[idx];if(!msg.rx)msg.rx=[];const ex=msg.rx.find(r=>r.e===emoji);if(ex)ex.c++;else msg.rx.push({e:emoji,c:1});renderMsgs()}
 
-function quickRx(idx,emoji){
-  const msg=curChat.msgs[idx];
-  if(!msg.rx)msg.rx=[];
-  // Check if same emoji already exists, increment count
-  const existing=msg.rx.find(r=>r.e===emoji);
-  if(existing)existing.c++;
-  else msg.rx.push({e:emoji,c:1});
-  renderMsgs();
-}
+// ── Status Reactions ──
+function addStatus(e,l){for(let i=curChat.msgs.length-1;i>=0;i--){if(curChat.msgs[i].s!=='me'){if(!curChat.msgs[i].rx)curChat.msgs[i].rx=[];curChat.msgs[i].rx.push({e,c:1,note:l});renderMsgs();break}}}
 
-// ═══ TOKENS ═══
-function addSt(e,l){const c=curChat;for(let i=c.msgs.length-1;i>=0;i--){if(c.msgs[i].s!=='me'){if(!c.msgs[i].rx)c.msgs[i].rx=[];c.msgs[i].rx.push({e,c:1,note:l});renderMsgs();break}}}
-
-// ═══ NOTE ═══
+// ── Note Modal ──
 function openNote(idx){
   noteIdx=idx;noteEmoji='👍';
   const qe=['👍','✔','❤️','🙏','😊','🔥','⏳','✅','🚫','⚠️'];
-  document.getElementById('ntC').innerHTML=`<h4>리액션 추가</h4><div class="epk">${qe.map(e=>`<button class="${e==='👍'?'sel':''}" onclick="noteEmoji='${e}';this.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('sel'));this.classList.add('sel')">${e}</button>`).join('')}</div><input type="text" id="ni" placeholder="메모 (선택)"><div class="nbtns"><button class="nc" onclick="document.getElementById('ntOv').classList.remove('show')">취소</button><button class="no" onclick="doNote()">추가</button></div>`;
-  document.getElementById('ntOv').classList.add('show');
-  setTimeout(()=>document.getElementById('ni')?.focus(),100);
+  document.getElementById('noteCard').innerHTML=`<h4>Add Reaction</h4><div class="n-emojis">${qe.map(e=>`<button class="${e==='👍'?'sel':''}" onclick="noteEmoji='${e}';this.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('sel'));this.classList.add('sel')">${e}</button>`).join('')}</div><input type="text" id="noteInp" placeholder="Add a note (optional)"><div class="n-btns"><button class="n-cancel" onclick="document.getElementById('noteOv').classList.remove('show')">Cancel</button><button class="n-ok" onclick="confirmNote()">Add</button></div>`;
+  document.getElementById('noteOv').classList.add('show');
+  setTimeout(()=>document.getElementById('noteInp')?.focus(),100);
 }
-function doNote(){const n=document.getElementById('ni')?.value.trim()||'';if(noteIdx!==null&&curChat.msgs[noteIdx]){if(!curChat.msgs[noteIdx].rx)curChat.msgs[noteIdx].rx=[];curChat.msgs[noteIdx].rx.push({e:noteEmoji,c:1,note:n});renderMsgs()}document.getElementById('ntOv').classList.remove('show')}
+function confirmNote(){const n=document.getElementById('noteInp')?.value.trim()||'';if(noteIdx!==null&&curChat.msgs[noteIdx]){if(!curChat.msgs[noteIdx].rx)curChat.msgs[noteIdx].rx=[];curChat.msgs[noteIdx].rx.push({e:noteEmoji,c:1,note:n});renderMsgs()}document.getElementById('noteOv').classList.remove('show')}
 
-// ═══ SETTINGS ═══
-function openSet(){
-  document.getElementById('stC').innerHTML=`<h4>설정</h4>
-    <div class="sr"><div><div class="sn">이모지 크기 고정</div><div class="sd">단일 이모지 확대 표시 안 함</div></div><div class="tgl ${CFG.emojiSize?'on':''}" onclick="CFG.emojiSize=!CFG.emojiSize;this.classList.toggle('on');if(curChat)renderMsgs()"></div></div>
-    <div class="sr"><div><div class="sn">채팅별 이모지 패널 전환</div><div class="sd">업무/개인에 따라 추천 변경</div></div><div class="tgl ${CFG.panelSwitch?'on':''}" onclick="CFG.panelSwitch=!CFG.panelSwitch;this.classList.toggle('on')"></div></div>
-    <div class="sr"><div><div class="sn">발신 미리보기</div><div class="sd">상대에게 어떻게 보이는지 미리 확인</div></div><div class="tgl ${CFG.renderPreview?'on':''}" onclick="CFG.renderPreview=!CFG.renderPreview;this.classList.toggle('on')"></div></div>
-    <div class="sr"><div><div class="sn">톤 제안</div><div class="sd">입력 내용에 맞는 정중한 표현 추천</div></div><div class="tgl ${CFG.toneAid?'on':''}" onclick="CFG.toneAid=!CFG.toneAid;this.classList.toggle('on')"></div></div>
-    <button class="stcl" onclick="document.getElementById('stOv').classList.remove('show')">닫기</button>`;
-  document.getElementById('stOv').classList.add('show');
+// ── Settings ──
+function openSettings(){
+  document.getElementById('setCard').innerHTML=`<h4>Settings</h4>
+    <div class="s-row"><div><div class="s-name">Standard emoji size</div><div class="s-desc">Prevent single emoji enlargement</div></div><div class="tgl ${CFG.emojiSize?'on':''}" onclick="CFG.emojiSize=!CFG.emojiSize;this.classList.toggle('on');if(curChat)renderMsgs()"></div></div>
+    <div class="s-row"><div><div class="s-name">Auto-switch emoji panel</div><div class="s-desc">Switch emoji set by chat type</div></div><div class="tgl ${CFG.panelSwitch?'on':''}" onclick="CFG.panelSwitch=!CFG.panelSwitch;this.classList.toggle('on')"></div></div>
+    <div class="s-row"><div><div class="s-name">Send preview</div><div class="s-desc">Show how recipient sees the message</div></div><div class="tgl ${CFG.renderPreview?'on':''}" onclick="CFG.renderPreview=!CFG.renderPreview;this.classList.toggle('on')"></div></div>
+    <div class="s-row"><div><div class="s-name">Tone suggestions</div><div class="s-desc">Suggest polite alternatives while typing</div></div><div class="tgl ${CFG.toneAid?'on':''}" onclick="CFG.toneAid=!CFG.toneAid;this.classList.toggle('on')"></div></div>
+    <div class="s-row"><div><div class="s-name">Emoji warnings</div><div class="s-desc">Alert on high-variance emojis</div></div><div class="tgl ${CFG.emojiWarn?'on':''}" onclick="CFG.emojiWarn=!CFG.emojiWarn;this.classList.toggle('on')"></div></div>
+    <button class="s-close" onclick="document.getElementById('setOv').classList.remove('show')">Done</button>`;
+  document.getElementById('setOv').classList.add('show');
 }
 
 renderList();
