@@ -322,8 +322,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Pretendard','Noto San
     <div class="sc-grid">
       <div class="sc-card" onclick="goScenario('prof')"><div class="sc-i">🎓</div><div><h4>교수님에게 정중하게 답장하기</h4><p>짧은 답을 정중한 표현으로 변환. 편안↔정중 슬라이더 체험.</p></div></div>
       <div class="sc-card" onclick="goScenario('peer')"><div class="sc-i">🤔</div><div><h4>동료가 보낸 이모지, 무슨 뜻?</h4><p>🙃😅👀 — 이모지를 눌러 맥락별 해석 분포를 확인하세요.</p></div></div>
-      <div class="sc-card" onclick="goScenario('sarah')"><div class="sc-i">🌍</div><div><h4>해외팀과 이모지 오해 방지</h4><p>🙏가 racism? 👍가 포기? 문화별 해석 차이를 미리 확인.</p></div></div>
-      <div class="sc-card" onclick="goScenario('friend')"><div class="sc-i">😂</div><div><h4>친구와 이모지 토론</h4><p>"사장님이 🙂 보냈는데 화난 거야?" — 해석 불확실성 체험.</p></div></div>
+      <div class="sc-card" onclick="goScenario('proj')"><div class="sc-i">📊</div><div><h4>프로젝트 채널에서 상태 리액션</h4><p>✅ Done, ⏳ Pending, 🚫 Blocked — 업무 진행 상태를 이모지로 관리.</p></div></div>
+      <div class="sc-card" onclick="goScenario('sarah')"><div class="sc-i">💬</div><div><h4>다른 문화권에 맞는 이모지 추천받기</h4><p>해외 동료에게 감사를 표현하고 싶을 때, 안전한 이모지는? 문화별 추천 체험.</p></div></div>
     </div>
     <div class="onb-skip" onclick="goSkip()">전체 채팅 목록으로 바로 가기 →</div>
   </div>
@@ -511,7 +511,7 @@ function backToScenarios(){
 }
 function goScenario(id){document.getElementById('onb').classList.add('hide');document.getElementById('app').classList.add('show');renderList();const c=CHATS.find(x=>x.id===id);if(c){openChat(c);showTour(id)}}
 function showTour(id){
-  const T={prof:{h:'톤 자동 조절',b:'아래 편안↔정중 슬라이더를 조절해보세요.<br>"네"라고 입력하면 정중함에 맞게 변환됩니다.',s:'bottom:150px;left:340px'},peer:{h:'이모지 해석 확인',b:'메시지의 이모지를 클릭해보세요.<br>🙂🙃 — 맥락에 따라 해석이 달라요.',s:'top:200px;left:400px'},sarah:{h:'문화별 이모지 차이',b:'🙏를 클릭해보세요.<br>국가별로 전혀 다른 의미로 해석됩니다.',s:'top:200px;left:400px'},friend:{h:'이모지 해석 토론',b:'🙂 메시지를 클릭해보세요.<br>"화난 거야?" — 해석 불확실성 체험.',s:'top:260px;left:400px'}};
+  const T={prof:{h:'톤 자동 조절',b:'아래 편안↔정중 슬라이더를 조절해보세요.<br>"네"라고 입력하면 정중함에 맞게 변환됩니다.',s:'bottom:150px;left:340px'},peer:{h:'이모지 해석 확인',b:'메시지의 이모지를 클릭해보세요.<br>🙂🙃 — 맥락에 따라 해석이 달라요.',s:'top:200px;left:400px'},sarah:{h:'문화별 이모지 추천',b:'"thank you"를 입력해보세요.<br>문화권에 안전한 이모지를 추천합니다.<br>🙏을 클릭하면 문화별 해석 차이도 확인!',s:'top:200px;left:400px'},proj:{h:'상태 리액션',b:'아래 토큰 바에서 ⏳ Pending, ✅ Done 등을<br>클릭해 업무 상태를 리액션으로 표시해보세요.',s:'bottom:120px;left:400px'}};
   const t=T[id];if(!t)return;const el=document.getElementById('tour');
   el.className='tour show';el.style.cssText=t.s;
   el.innerHTML=`<h5>💡 ${t.h}</h5>${t.b}<button class="t-btn" onclick="this.parentElement.classList.remove('show')">알겠어요</button>`;
