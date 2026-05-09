@@ -449,11 +449,11 @@ const TK=[
    L:['수고~','수고했어요!','수고하셨습니다!','수고 많으셨습니다.','정말 수고 많으셨습니다.'],
    A:[['고생했어~'],['고생했어요!'],['고생하셨어요!'],['감사합니다.'],['노고에 감사드립니다.']]},
   {m:()=>true,i:'일반',
-   L:[v=>{let r=v.replace(/합니다/g,'해').replace(/세요/g,'해').replace(/겠습니다/g,'할게');return r===v?v+'~':r},
-      v=>{let r=v.replace(/합니다/g,'해요').replace(/드립니다/g,'드릴게요');return r===v?v:r},
+   L:[v=>{const r=v.replace(/합니다/g,'해').replace(/하세요/g,'해').replace(/겠습니다/g,'할게').replace(/드립니다/g,'줄게');return r!==v?r:v.length>3?v+'~':v},
+      v=>{const r=v.replace(/합니다/g,'해요').replace(/드립니다/g,'드릴게요').replace(/하세요/g,'해요');return r!==v?r:v.length>3?v+'요':v},
       v=>v,
-      v=>'네, '+v.replace(/[.!?~]*$/,'')+'. 확인하겠습니다.',
-      v=>'말씀하신 내용 확인했습니다. 검토 후 회신드리겠습니다.'],
+      v=>v.length>2?'네, '+v.replace(/[.!?~]*$/,'')+'. 확인하겠습니다.':v,
+      v=>v.length>2?'말씀하신 내용 확인했습니다. 검토 후 회신드리겠습니다.':v],
    A:[['ㅇㅋ!'],['알겠어요~'],['확인했습니다!'],['감사합니다.'],['진행하겠습니다.']]},
 ];
 const TE=[
@@ -605,7 +605,7 @@ function buildPicker(mode,el){
 }
 function eCell(e){const d=ED[e];return `<div class="pk-cell" onclick="pickEmoji('${e}')" onmousedown="lt=setTimeout(()=>showTooltip('${e}'),400)" onmouseup="clearTimeout(lt)" onmouseleave="clearTimeout(lt)">${e}${d?`<span class="vdot ${d.v}"></span>`:''}</div>`}
 function pickEmoji(e){trackE(e);const inp=document.getElementById('inp');inp.value+=e;inp.dispatchEvent(new Event('input'));document.getElementById('picker').classList.remove('show')}
-function insE(e){const inp=document.getElementById('inp');if(inp.value&&!inp.value.endsWith(' '))inp.value+=' ';inp.value+=e;inp.focus()}
+function insE(e){const inp=document.getElementById('inp');if(inp.value&&!inp.value.endsWith(' '))inp.value+=' ';inp.value+=e;inp.dispatchEvent(new Event('input'));inp.focus()}
 
 // ── Composer ──
 function onInput(){
@@ -697,15 +697,19 @@ function genReply(msg,chat){
   const low=msg.toLowerCase();const s=chat.group?pick(['김대리','이사원','박과장','정인턴']):chat.name;
   if(chat.name?.includes('Sarah')){
     if(low.includes('thank')||low.includes('thx'))return{s,t:pick(['You\'re welcome! 😊','Happy to help!','Anytime 🙂']),tm:now()};
-    if(low.includes('sure')||low.includes('yes')||low.includes('ok'))return{s,t:pick(['Great! Let\'s do 2pm?','Sounds good 👍','Perfect!']),tm:now()};
+    if(low.includes('sure')||low.includes('yes'))return{s,t:pick(['Sounds good 👍','Perfect!','Great, thanks!']),tm:now()};
+    if(low.includes('send')||low.includes('share')||low.includes('doc'))return{s,t:pick(['Got it, I\'ll review it 👍','Thanks! Will check soon.','Received 🙂']),tm:now()};
+    if(low.includes('sorry'))return{s,t:pick(['No worries!','That\'s fine 🙂','No problem at all!']),tm:now()};
     if(low.includes('?'))return{s,t:pick(['Let me check and get back to you.','Good question 🤔','I\'ll confirm.']),tm:now()};
     return{s,t:pick(['Got it!','Thanks 🙂','Noted!','Sounds good!']),tm:now()};
   }
   if(chat.type==='personal'){
     if(chat.name==='엄마'){
       if(low.includes('먹')||low.includes('밥'))return{s,t:pick(['맛있는 거 먹어~ ❤️','뭐 먹었어?','건강한 거 먹고~']),tm:now()};
-      if(low.includes('보고싶')||low.includes('사랑'))return{s,t:pick(['나도 ❤️','엄마도~ 😊','빨리 와~']),tm:now()};
-      return{s,t:pick(['그래~ 😊','알겠어 ❤️','ㅋㅋ','잘 지내고~']),tm:now()};
+      if(low.includes('보고싶')||low.includes('사랑'))return{s,t:pick(['나도 보고싶어 ❤️','엄마도~ 😊','빨리 와~']),tm:now()};
+      if(low.includes('바쁘')||low.includes('피곤'))return{s,t:pick(['무리하지 마~ 😊','푹 쉬어!','건강이 제일이야 ❤️']),tm:now()};
+      if(low.includes('?'))return{s,t:pick(['응~ 😊','왜?','뭐가 궁금해?']),tm:now()};
+      return{s,t:pick(['그래~ 😊','알겠어 ❤️','잘 지내고~','응응~']),tm:now()};
     }
     if(low.includes('뜻')||low.includes('의미')||low.includes('화난'))return{s,t:pick(['ㅋㅋ 🙂 이거 진짜 애매해','화난 건지 모르겠음 😅','그래서 나는 🙂 안 쓰려고 해 ㅋㅋ']),tm:now()};
     if(low.includes('맞')||low.includes('진짜'))return{s,t:pick(['ㅋㅋ 이모지 쓸 때 고민됨','맞아 특히 윗사람한테 😅','ㅇㅇ 진짜']),tm:now()};
@@ -714,10 +718,11 @@ function genReply(msg,chat){
     return{s,t:pick(['ㅇㅋ!','ㅋㅋ','ㅇㅇ','오키!']),tm:now()};
   }
   if(chat.formal){
-    if(low.includes('확인')||low.includes('알겠'))return{s,t:pick(['네 감사합니다.','수고하세요.','좋습니다 👍']),tm:now()};
-    if(low.includes('보내')||low.includes('제출'))return{s,t:pick(['잘 받았습니다. 확인하겠습니다.','감사합니다 👍','네, 잘 받았습니다.']),tm:now()};
+    if(low.includes('확인')||low.includes('알겠'))return{s,t:pick(['네 감사합니다.','좋습니다.','네, 수고해주세요.']),tm:now()};
+    if(low.includes('보내')||low.includes('제출')||low.includes('공유'))return{s,t:pick(['잘 받았습니다. 확인하겠습니다.','감사합니다, 확인해볼게요.','네, 잘 받았습니다.']),tm:now()};
+    if(low.includes('감사')||low.includes('고마'))return{s,t:pick(['네.','감사합니다 🙂']),tm:now()};
     if(low.includes('?'))return{s,t:pick(['확인해보겠습니다.','잠시만요, 확인 후 말씀드리겠습니다.']),tm:now()};
-    return{s,t:pick(['네.','확인했습니다.','감사합니다.']),tm:now()};
+    return{s,t:pick(['네.','확인했습니다.','네, 알겠습니다.']),tm:now()};
   }
   if(low.includes('🙃')||low.includes('뜻')||low.includes('괜찮'))return{s,t:pick(['나도 잘 모르겠어 🤔','ㅋㅋ 진짜 애매하지','아마 괜찮은 거 아닐까?']),tm:now()};
   if(low.includes('?'))return{s,t:pick(['ㅇㅇ!','확인해볼게 🤔','글쎄 🤔']),tm:now()};
