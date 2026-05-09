@@ -234,69 +234,93 @@ function getED(e){const c=curChat;if(!c)return ED[e];let ctx=c.type==='personal'
 const WE=['✔','👍','🙏','🙂','😊','🤔','😅','👀'];
 const PE=['😂','❤️','🔥','💀','😊','👍','🙂','😅','👀','🤔'];
 
-// Content → emoji recommendation map
+// Content → emoji recommendation (Korean + English)
 const EMOJI_REC={
   '감사':['🙏','😊','❤️'],'고마':['🙏','😊'],'수고':['👍','🙏','😊'],
-  '확인':['✔','👍'],'알겠':['👍','✔'],'네':['👍','✔'],
+  '확인':['✔','👍'],'알겠':['👍','✔'],'완료':['✅','✔','👍'],
   '웃':['😂','🔥'],'ㅋㅋ':['😂','💀','🔥'],'재밌':['😂','🔥'],
   '미안':['🙏','😅'],'죄송':['🙏','😅'],'곤란':['😅','🤔'],
   '좋':['👍','🔥','❤️'],'멋':['🔥','👍'],'최고':['🔥','❤️'],
   '궁금':['🤔','👀'],'질문':['🤔'],'혹시':['🤔','🙂'],
   '화이팅':['🔥','💪','👍'],'파이팅':['🔥','💪'],
   '사랑':['❤️','😊'],'보고싶':['❤️','🙂'],
+  'thank':['🙏','😊','❤️'],'sorry':['🙏','😅'],'great':['🔥','👍','❤️'],
+  'good':['👍','🔥'],'love':['❤️','😊'],'nice':['👍','🔥'],
+  'check':['✔','👍'],'done':['✅','✔'],'help':['🙏','🤔'],
+  'wow':['🔥','💀','😂'],'lol':['😂','💀'],'haha':['😂','🔥'],
+  'agree':['👍','✔'],'sure':['👍','✔'],'cool':['🔥','👍'],
+  'miss':['❤️','🙂'],'congrat':['🔥','❤️','👍'],
 };
 
-// Tone transformation
-const TONES=[
-  {m:v=>['네','넵','넹','ㅇㅇ','ㅇㅋ','ok','응'].some(s=>v.includes(s)),i:'확인',
+// Language detection
+function isEng(t){return /^[a-zA-Z0-9\s.,!?'"@#$%&*()\-+=;:\/\\]+$/.test(t.replace(/[\p{Emoji}\uFE0F]/gu,'').trim())}
+
+// Tone transformation — Korean + English
+const TONES_KR=[
+  {m:v=>['네','넵','넹','ㅇㅇ','ㅇㅋ','응','넴','ㅋ'].some(s=>v.includes(s)),i:'확인',
    L:['ㅇㅋ','넵!','네, 확인했습니다!','네, 알겠습니다. 확인하겠습니다.','네, 말씀 감사합니다. 확인 후 바로 진행하겠습니다.'],
    A:[['ㅇㅇ'],['알겠어요~'],['알겠습니다!'],['검토 후 말씀드리겠습니다.'],['검토 후 회신드리겠습니다.']]},
-  {m:v=>['감사','고마','thx','ㄳ'].some(s=>v.includes(s)),i:'감사',
+  {m:v=>['감사','고마','ㄳ'].some(s=>v.includes(s)),i:'감사',
    L:['ㄳ','고마워요!','감사합니다!','감사합니다, 참고하겠습니다.','진심으로 감사드립니다. 반영하겠습니다.'],
    A:[['ㄱㅅ!'],['감사!'],['감사합니다~'],['말씀 감사드립니다.'],['감사드립니다.']]},
-  {m:v=>['죄송','미안','ㅈㅅ','sorry'].some(s=>v.includes(s)),i:'사과',
+  {m:v=>['죄송','미안','ㅈㅅ'].some(s=>v.includes(s)),i:'사과',
    L:['ㅈㅅ','미안해요!','죄송합니다!','죄송합니다, 바로 수정하겠습니다.','죄송합니다. 빠르게 보완하겠습니다.'],
    A:[['미안~'],['미안해요~'],['죄송해요!'],['빠르게 반영하겠습니다.'],['즉시 조치하겠습니다.']]},
-  {m:v=>['확인','봤','체크'].some(s=>v.includes(s)),i:'확인',
-   L:['ㅇㅇ 봤어','확인했어요!','확인했습니다!','확인했습니다, 검토 후 말씀드리겠습니다.','확인했습니다. 검토 후 의견 전달드리겠습니다.'],
+  {m:v=>['확인','봤','체크','검토'].some(s=>v.includes(s)),i:'확인',
+   L:['ㅇㅇ 봤어','확인했어요!','확인했습니다!','확인했습니다, 검토 후 말씀드리겠습니다.','확인 완료했습니다. 검토 후 의견 전달드리겠습니다.'],
    A:[['봤어~'],['봤어요!'],['검토했습니다!'],['검토 완료했습니다.'],['회신드리겠습니다.']]},
-  {m:v=>['보내','제출','올리','전달'].some(s=>v.includes(s)),i:'전달',
+  {m:v=>['보내','제출','올리','전달','공유'].some(s=>v.includes(s)),i:'전달',
    L:['보냈어','보냈어요!','보내드렸습니다!','보내드렸습니다, 확인 부탁드립니다.','보내드렸습니다. 피드백 부탁드리겠습니다.'],
    A:[['올렸어~'],['올렸어요!'],['전달드렸습니다!'],['확인 부탁드립니다.'],['검토 부탁드리겠습니다.']]},
   {m:v=>['수고','고생'].some(s=>v.includes(s)),i:'격려',
    L:['수고~','수고했어요!','수고하셨습니다!','수고 많으셨습니다.','정말 수고 많으셨습니다. 큰 도움이 되었습니다.'],
    A:[['고생했어~'],['고생했어요!'],['고생하셨어요!'],['감사합니다.'],['노고에 감사드립니다.']]},
-  {m:v=>/^[\p{Emoji}\uFE0F\s]{1,8}$/u.test(v),i:'이모지→텍스트',
-   L:[v=>v,'알겠어요!','확인했습니다!','네, 감사합니다.','말씀 확인했습니다.'],
-   A:[[],['넵!'],['감사합니다!'],['확인하겠습니다.'],['감사드립니다.']]},
   {m:()=>true,i:'일반',
    L:[v=>v,v=>v,v=>v,v=>'네, '+v.replace(/[.!?]*$/,'')+'. 확인하겠습니다.',v=>'말씀하신 내용 확인했습니다. 검토 후 회신드리겠습니다.'],
-   A:[[],[],[],['감사합니다.'],['말씀대로 진행하겠습니다.']]},
+   A:[[],[],[],['감사합니다.'],['진행하겠습니다.']]},
+];
+const TONES_EN=[
+  {m:v=>['ok','okay','yes','yep','sure','got it','k','yea','ya'].some(s=>v.includes(s)),i:'Confirm',
+   L:['k','Sure!','Got it, thanks!','Understood. I\'ll take care of it.','Thank you for letting me know. I\'ll proceed accordingly and follow up.'],
+   A:[['yep'],['Okay!'],['Will do!'],['I\'ll review and get back to you.'],['I\'ll handle this promptly.']]},
+  {m:v=>['thank','thx','appreciate'].some(s=>v.includes(s)),i:'Thanks',
+   L:['thx','Thanks!','Thank you!','Thank you, I\'ll keep that in mind.','Thank you so much. I truly appreciate your guidance.'],
+   A:[['ty!'],['Thanks a lot!'],['Appreciate it!'],['Much appreciated.'],['Your feedback is invaluable.']]},
+  {m:v=>['sorry','apolog','my bad'].some(s=>v.includes(s)),i:'Apology',
+   L:['my bad','Sorry about that!','I apologize for the inconvenience.','I sincerely apologize. I\'ll fix this right away.','I deeply apologize. I\'ll address this immediately and ensure it doesn\'t happen again.'],
+   A:[['sry'],['Sorry!'],['My apologies!'],['I\'ll correct this promptly.'],['This will be resolved immediately.']]},
+  {m:v=>['check','review','look','see','read'].some(s=>v.includes(s)),i:'Review',
+   L:['seen','Checked!','I\'ve reviewed it!','I\'ve reviewed it. I\'ll share my feedback shortly.','I\'ve thoroughly reviewed the materials. I\'ll compile my comments and send them over.'],
+   A:[['looked at it'],['On it!'],['Reviewed!'],['Feedback coming soon.'],['I\'ll provide detailed comments.']]},
+  {m:v=>['send','submit','share','attach'].some(s=>v.includes(s)),i:'Send',
+   L:['sent','Sent!','I\'ve sent it over!','I\'ve sent it. Please let me know if you need anything else.','I\'ve submitted the documents. Please review at your convenience and share any feedback.'],
+   A:[['done'],['Shared!'],['Submitted!'],['Please check when you can.'],['Looking forward to your feedback.']]},
+  {m:()=>true,i:'General',
+   L:[v=>v,v=>v,v=>v,v=>'Understood. '+v.replace(/[.!?]*$/,'.')+' I\'ll take care of it.',v=>'Thank you for your message. I\'ve noted the details and will follow up shortly.'],
+   A:[[],[],[],['Thank you.'],['I\'ll proceed as discussed.']]},
 ];
 
 // Chat data
 const CHATS=[
   {id:'prof',name:'김교수님',av:'김',col:'#6366f1',type:'work',formal:true,formalLv:5,
    msgs:[{s:'김교수님',t:'다음 주 월요일까지 중간보고서 초안 보내주세요.',tm:'10:23'},{s:'김교수님',t:'분석 프레임워크 부분은 특히 신경 써주세요.',tm:'10:24'},{s:'김교수님',t:'진행 상황은 어떤가요?',tm:'10:30'}],
-   rpool:['네 확인했어요.','참고 논문 있으면 공유 부탁드립니다.','좋습니다, 그 방향으로 진행해주세요 👍','수고하세요 🙂','발표 자료도 같이 준비해주세요.','네, 알겠습니다.','진행 상황 공유 부탁드립니다 🤔'],rpi:0},
+},
   {id:'boss',name:'이팀장님',av:'이',col:'#ec4899',type:'work',formal:true,formalLv:4,
    msgs:[{s:'이팀장님',t:'오늘 회의 자료 검토 부탁합니다.',tm:'14:10'},{s:'이팀장님',t:'3시까지 코멘트 남겨주세요 👍',tm:'14:11'}],
-   rpool:['감사합니다 👍','확인했어요, 코멘트 남기겠습니다 🙂','네 좋습니다.','내일까지 정리해서 공유드리겠습니다.','수고하셨습니다 🙏','회의록 공유 부탁드립니다.'],rpi:0},
+},
   {id:'peer',name:'박동료',av:'박',col:'#f97316',type:'work',formal:false,formalLv:2,
    msgs:[{s:'박동료',t:'어제 리뷰 피드백 반영했어!',tm:'13:05'},{s:'박동료',t:'확인해봐 🙂',tm:'13:06'},{s:'me',t:'고마워~ 👍',tm:'13:10'},{s:'박동료',t:'근데 이거 좀 봐줘 👀',tm:'13:12'},{s:'박동료',t:'😅 미안 갑자기 부탁해서',tm:'13:13'}],
-   rpool:['ㅋㅋ 고마워!','아 Sarah가 🙏 보냈는데 이거 무슨 뜻이야?','나는 좀 다르게 이해했었는데 👀','이모지 진짜 헷갈리네 😅','ㅇㅋ 알겠어!','팀장님이 👍 보냈는데 진짜 OK인 거 맞겠지?','ㅋㅋ 그건 괜찮을 듯','ㅇㅇ 확인했어'],rpi:0},
+},
   {id:'sarah',name:'Sarah (해외팀)',av:'S',col:'#22c55e',type:'work',formal:true,formalLv:4,
    msgs:[{s:'Sarah',t:'Thanks for the update! 🙏',tm:'15:30'},{s:'Sarah',t:'Can we sync tomorrow?',tm:'15:31'}],
-   rpool:['Sounds good 👍','Let me check and get back to you','Thanks! 🙏','Sure, I\'ll send the doc 🙂','Got it, will review today'],rpi:0},
+},
   {id:'proj',name:'프로젝트 채널',av:'#',col:'#4F6CFF',type:'work',formal:false,formalLv:3,group:true,
    msgs:[{s:'김대리',t:'API 연동 완료했습니다.',tm:'16:20',rx:[{e:'✔',c:3},{e:'👍',c:2}]},{s:'이사원',t:'프론트 작업은 내일까지 걸릴 것 같아요.',tm:'16:25'},{s:'박과장',t:'일정 괜찮을까요? 확인 부탁드립니다.',tm:'16:30'},{s:'정인턴',t:'디자인 시안 올렸습니다.',tm:'16:35',rx:[{e:'🔥',c:1}]}],
-   rpool:[{s:'이사원',t:'확인했습니다! 반영할게요.'},{s:'김대리',t:'👍'},{s:'박과장',t:'프론트 일정 재확인 부탁드립니다.'},{s:'정인턴',t:'넵 확인했습니다!'},{s:'김대리',t:'디자인 검토 완료. 수정 사항 있어요.'},{s:'이사원',t:'수정본 올렸습니다 🙏'},{s:'박과장',t:'네 확인하겠습니다.'},{s:'정인턴',t:'컬러 가이드 있을까요? 🤔'}],rpi:0},
+},
   {id:'friend',name:'최친구',av:'최',col:'#a855f7',type:'personal',formal:false,formalLv:1,
-   msgs:[{s:'최친구',t:'주말에 뭐해?',tm:'19:30'},{s:'최친구',t:'😂😂 아까 그거 봤어?',tm:'19:31'},{s:'me',t:'ㅋㅋㅋ 뭔데',tm:'19:32'},{s:'최친구',t:'👍',tm:'19:33'}],
-   rpool:['ㅋㅋㅋ 진짜?','😂😂','아 주말에 같이 밥 먹자!','❤️','ㅇㅇ 좋아!','어디서 먹을까?','ㅋㅋ 알겠어','아 맞다 그거 봤어?','ㅋㅋㅋ 대박','👍'],rpi:0},
+   msgs:[{s:'최친구',t:'주말에 뭐해?',tm:'19:30'},{s:'최친구',t:'😂😂 아까 그거 봤어?',tm:'19:31'},{s:'me',t:'ㅋㅋㅋ 뭔데',tm:'19:32'},{s:'최친구',t:'👍',tm:'19:33'}]},
   {id:'mom',name:'엄마',av:'엄',col:'#ef4444',type:'personal',formal:false,formalLv:1,
-   msgs:[{s:'엄마',t:'밥 먹었어?',tm:'18:00'},{s:'me',t:'네~ 먹었어요',tm:'18:05'},{s:'엄마',t:'❤️',tm:'18:06'}],
-   rpool:['잘 먹어~','오늘 뭐 했어?','❤️','주말에 집에 와~','건강 챙겨!','ㅋㅋ 알겠어','엄마도 보고싶어 😊'],rpi:0},
+   msgs:[{s:'엄마',t:'밥 먹었어?',tm:'18:00'},{s:'me',t:'네~ 먹었어요',tm:'18:05'},{s:'엄마',t:'❤️',tm:'18:06'}]},
 ];
 
 let curChat=null,lt=null,noteIdx=null,noteEmoji='👍';
@@ -330,7 +354,7 @@ function openChat(c){
     <div class="msgs" id="ma"></div>
     ${CFG.renderPreview?'<div class="rpv" id="rpv"></div>':''}
     <div class="carea">
-      ${isWork&&CFG.toneAid?`<div class="fbar show"><label>정중함</label><input type="range" min="1" max="5" value="${c.formalLv}" id="fr" oninput="onFR()"><span class="fv" id="fv">${['','반말','약간 반말','보통','높임','매우 높임'][c.formalLv]}</span></div>`:''}
+      ${isWork&&CFG.toneAid?`<div class="fbar show"><label style="color:var(--green)">편안</label><input type="range" min="1" max="5" value="${c.formalLv}" id="fr" oninput="onFR()"><label style="color:var(--blue)">정중</label><span class="fv" id="fv">${['','😊','🙂','📝','🏢','🎩'][c.formalLv]}</span></div>`:''}
       <div class="tsug" id="tsug"></div>
       <div class="erec" id="erec"></div>
       <div class="wbar" id="wb"><span id="wt"></span><button class="wd" onclick="this.parentElement.classList.remove('show')">무시</button></div>
@@ -439,8 +463,8 @@ function onInp(){
 }
 
 function onFR(){
-  const labels=['','반말','약간 반말','보통','높임','매우 높임'];
-  document.getElementById('fv').textContent=labels[document.getElementById('fr').value];
+  const icons=['','😊','🙂','📝','🏢','🎩'];
+  document.getElementById('fv').textContent=icons[document.getElementById('fr').value];
   const v=document.getElementById('inp')?.value.trim();
   if(v) updateTone(v);
 }
@@ -449,12 +473,15 @@ function updateTone(raw){
   const ts=document.getElementById('tsug');if(!ts)return;
   const lv=parseInt(document.getElementById('fr')?.value||3);
   const low=raw.toLowerCase();
-  const matched=TONES.find(t=>t.m(low));
+  const eng=isEng(raw);
+  const tones=eng?TONES_EN:TONES_KR;
+  const matched=tones.find(t=>t.m(low));
   const idx=lv-1;
   let main=matched.L[idx];if(typeof main==='function')main=main(raw);
   if(main===raw){ts.classList.remove('show');return}
   let alts=(matched.A[idx]||[]).map(a=>typeof a==='function'?a(raw):a).filter(a=>a&&a!==main);
-  ts.innerHTML=`<div class="tl">✨ ${matched.i} · 정중함 ${lv}</div><div class="topt" onclick="useTone(this)">${main}</div>${alts.length?`<div class="talts">${alts.map(a=>`<div class="talt" onclick="useTone(this)">${a}</div>`).join('')}</div>`:''}`;
+  const lvLabels=eng?['casual','friendly','polite','formal','very formal']:['편안','친근','보통','정중','매우 정중'];
+  ts.innerHTML=`<div class="tl">✨ ${matched.i} · ${lvLabels[idx]}</div><div class="topt" onclick="useTone(this)">${main}</div>${alts.length?`<div class="talts">${alts.map(a=>`<div class="talt" onclick="useTone(this)">${a}</div>`).join('')}</div>`:''}`;
   ts.classList.add('show');
 }
 function useTone(el){document.getElementById('inp').value=el.textContent;document.getElementById('tsug')?.classList.remove('show');document.getElementById('wb')?.classList.remove('show');document.getElementById('inp').focus()}
@@ -469,15 +496,58 @@ function doSend(){
   document.getElementById('wb')?.classList.remove('show');
   document.getElementById('rpv')?.classList.remove('show');
   document.getElementById('pkr')?.classList.remove('show');
-  // Auto reply
+  // Smart contextual auto-reply
   const c=curChat;
-  if(c.rpool?.length){
-    const r=c.rpool[c.rpi%c.rpool.length];c.rpi++;
-    const sender=typeof r==='string'?c.name:r.s;
-    const text=typeof r==='string'?r:r.t;
-    setTimeout(()=>{c.msgs.push({s:sender,t:text,tm:now()});renderMsgs();renderList()},1200+Math.random()*1500);
-  }
+  setTimeout(()=>{
+    const reply=genReply(v,c);
+    if(reply){c.msgs.push(reply);renderMsgs();renderList()}
+  },1200+Math.random()*1800);
 }
+
+// ═══ SMART REPLY ═══
+function genReply(userMsg,chat){
+  const low=userMsg.toLowerCase();
+  const eng=isEng(userMsg);
+  const s=chat.group?pick(['김대리','이사원','박과장','정인턴']):chat.name;
+  const formal=chat.formal;
+
+  // Sarah always replies in English
+  if(chat.name?.includes('Sarah')){
+    if(low.includes('thank')||low.includes('thx'))return{s,t:pick(['You\'re welcome! 😊','No problem at all!','Anytime! 🙏','Happy to help!']),tm:now()};
+    if(low.includes('sorry'))return{s,t:pick(['No worries!','That\'s totally fine 🙂','Don\'t worry about it!']),tm:now()};
+    if(low.includes('send')||low.includes('share')||low.includes('attach'))return{s,t:pick(['Got it, I\'ll review it 👍','Thanks, I\'ll take a look!','Received! Will check soon 🙂']),tm:now()};
+    if(low.includes('?'))return{s,t:pick(['Let me check and get back to you.','Good question! I\'ll look into it 🤔','I\'ll confirm and let you know.']),tm:now()};
+    return{s,t:pick(['Sounds good 👍','Got it!','Thanks for the update! 🙂','Will do!','Noted 👍']),tm:now()};
+  }
+
+  // Personal chats
+  if(chat.type==='personal'){
+    if(low.includes('ㅋㅋ')||low.includes('ㅎㅎ')||low.includes('😂'))return{s,t:pick(['ㅋㅋㅋㅋ','😂😂','ㅋㅋ 진짜','ㅋㅋㅋ 대박']),tm:now()};
+    if(low.includes('밥')||low.includes('먹'))return{s,t:pick(['ㅇㅇ 좋아! 뭐 먹을까?','맛있는 거 먹자 😊','어디서?','좋아좋아!']),tm:now()};
+    if(low.includes('보고싶')||low.includes('사랑')||low.includes('❤'))return{s,t:pick(['나도 ❤️','ㅋㅋ 보고싶어~','😊😊']),tm:now()};
+    if(low.includes('주말')||low.includes('약속')||low.includes('시간'))return{s,t:pick(['ㅇㅇ 괜찮아!','몇 시에?','좋아 시간 맞춰보자!','👍']),tm:now()};
+    if(low.includes('?'))return{s,t:pick(['ㅇㅇ!','글쎄~? 🤔','ㅋㅋ 몰라','왜왜?']),tm:now()};
+    return{s,t:pick(['ㅇㅋ','ㅋㅋ','👍','ㅇㅇ','ㅋㅋ 알겠어','오키!']),tm:now()};
+  }
+
+  // Work formal
+  if(formal){
+    if(low.includes('확인')||low.includes('알겠'))return{s,t:pick(['네 감사합니다.','확인했습니다.','좋습니다 👍','네, 수고하세요.']),tm:now()};
+    if(low.includes('보내')||low.includes('제출')||low.includes('전달'))return{s,t:pick(['네 확인하겠습니다.','감사합니다, 검토 후 연락드리겠습니다.','잘 받았습니다 👍']),tm:now()};
+    if(low.includes('감사')||low.includes('고마'))return{s,t:pick(['네, 수고하세요 🙂','감사합니다.','좋은 하루 보내세요.']),tm:now()};
+    if(low.includes('죄송')||low.includes('미안'))return{s,t:pick(['괜찮습니다.','네, 확인 부탁드립니다.','다음부터 주의해주세요 🙂']),tm:now()};
+    if(low.includes('?'))return{s,t:pick(['네, 확인해보겠습니다.','잠시만요, 확인 후 말씀드리겠습니다 🤔','좋은 질문이네요. 검토 후 답변드리겠습니다.']),tm:now()};
+    return{s,t:pick(['네 알겠습니다.','확인했습니다 👍','감사합니다.','네, 참고하겠습니다.']),tm:now()};
+  }
+
+  // Work peer
+  if(low.includes('확인')||low.includes('봤'))return{s,t:pick(['ㅇㅋ 고마워!','👍','ㅇㅇ 확인했어!']),tm:now()};
+  if(low.includes('이모지')||low.includes('뜻')||low.includes('의미'))return{s,t:pick(['ㅋㅋ 나도 헷갈려 😅','그거 맥락에 따라 다르더라 🤔','ㅇㅇ 진짜 애매하지']),tm:now()};
+  if(low.includes('?'))return{s,t:pick(['ㅇㅇ!','음 잠깐만 🤔','ㅋㅋ 그건 잘 모르겠어','확인해볼게!']),tm:now()};
+  return{s,t:pick(['ㅇㅋ!','👍','ㅇㅇ 알겠어!','ㅋㅋ','확인!']),tm:now()};
+}
+
+function pick(arr){return arr[Math.floor(Math.random()*arr.length)]}
 
 // ═══ TOKENS ═══
 function addSt(e,l){const c=curChat;for(let i=c.msgs.length-1;i>=0;i--){if(c.msgs[i].s!=='me'){if(!c.msgs[i].rx)c.msgs[i].rx=[];c.msgs[i].rx.push({e,c:1,note:l});renderMsgs();break}}}
