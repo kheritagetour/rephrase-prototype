@@ -242,11 +242,34 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Pretendard','Noto Sans KR',sa
 
 <script>
 // ═══ SHARED DATA ═══
+// Context-dependent emoji data: same emoji, different interpretation by context
+const ED_CTX={
+  work_formal:{ // 상사/교수 → 부하 (Q-06, Q-25: revision cycle)
+    '🙂':{v:'r',m:'미소 — 맥락에 따라 해석 분산 큼',d:[{l:'형식적 마무리',p:40,t:'neu'},{l:'불만/냉소',p:35,t:'neg'},{l:'진짜 미소',p:25,t:'pos'}],a:'상사의 🙂는 형식적이거나 불만의 신호일 수 있음'},
+    '👍':{v:'y',m:'확인 — 무성의 가능성',d:[{l:'단순 확인',p:50,t:'neu'},{l:'긍정/동의',p:35,t:'pos'},{l:'무성의/귀찮음',p:15,t:'neg'}],a:'업무 맥락에서 최소한의 확인 신호'},
+    '🤔':{v:'y',m:'의문 — 재검토 요청 가능',d:[{l:'재검토 요청',p:45,t:'neg'},{l:'궁금/관심',p:35,t:'neu'},{l:'흥미',p:20,t:'pos'}],a:'상사의 🤔는 수정 요청의 간접 표현일 수 있음'},
+  },
+  work_peer:{ // 동료 간 (Q-13: 같은 이모지 다중 해석)
+    '🙂':{v:'r',m:'미소 — "got it" 또는 비꼼',d:[{l:'친근함/OK',p:35,t:'pos'},{l:'어색함',p:30,t:'neu'},{l:'비꼼/냉소',p:35,t:'neg'}],a:'동료의 🙂는 "uncomfortable but friendly"와 "I\'m fucked" 사이'},
+    '👀':{v:'r',m:'관심 — 또는 "지켜보고 있다"',d:[{l:'흥미/관심',p:35,t:'pos'},{l:'지켜보는 중',p:40,t:'neu'},{l:'의심/압박',p:25,t:'neg'}],a:'동료의 👀은 흥미와 감시 사이'},
+    '😅':{v:'y',m:'곤란 — 진짜 미안 또는 짜증',d:[{l:'진짜 민망',p:45,t:'neu'},{l:'가볍게 넘기기',p:30,t:'pos'},{l:'사실은 짜증',p:25,t:'neg'}],a:'동료의 😅는 진심 사과와 가벼운 회피 사이'},
+  },
+  personal:{ // 친구/가족 (Q-09: 단일 이모지 확대 회피)
+    '😂':{v:'g',m:'ㅋㅋㅋ — 진짜 웃김',d:[{l:'진짜 웃김',p:70,t:'pos'},{l:'과장/리액션',p:25,t:'neu'},{l:'비웃음',p:5,t:'neg'}],a:'친구 간 😂는 대부분 진심 웃음'},
+    '👍':{v:'g',m:'ㅇㅋ — 가벼운 확인',d:[{l:'알겠어/ㅇㅋ',p:75,t:'pos'},{l:'귀찮음',p:20,t:'neu'},{l:'무시',p:5,t:'neg'}],a:'친구 간 👍은 가벼운 확인'},
+    '🙂':{v:'y',m:'미소 — 또는 "할 말 없다"',d:[{l:'그냥 미소',p:40,t:'pos'},{l:'할 말 없음',p:35,t:'neu'},{l:'삐짐/서운함',p:25,t:'neg'}],a:'친구의 🙂는 "더 할 말 없다"는 신호일 수 있음'},
+  },
+  cross_cultural:{ // 해외팀 (Q-15: 🙏=racism, 👍=give up)
+    '🙏':{v:'r',m:'기도? 감사? high-five?',d:[{l:'감사/부탁',p:40,t:'pos'},{l:'기도/소원',p:25,t:'neu'},{l:'high-five/racism',p:35,t:'neg'}],c:'Q-15 [U6]: 파리 협업 시 🙏가 racism으로, 👍가 "give up"으로 해석된 사례',a:'문화권별 해석 차이가 가장 큰 이모지'},
+    '👍':{v:'r',m:'OK? — 또는 "포기"',d:[{l:'OK/좋아요',p:45,t:'pos'},{l:'형식적 동의',p:25,t:'neu'},{l:'포기/비꼼',p:30,t:'neg'}],c:'Q-15: 일부 문화권에서 👍은 "give up" 또는 모욕적 제스처',a:'문화권에 따라 긍정과 부정이 뒤바뀔 수 있음'},
+  },
+};
+// Fallback global data
 const ED={
   '✔':{v:'g',m:'확인 · 완료',d:[{l:'완료/확인',p:85,t:'pos'},{l:'무성의',p:10,t:'neu'},{l:'짜증',p:5,t:'neg'}],a:'작업 완료를 확인하는 기능적 신호'},
   '👍':{v:'y',m:'좋아요 · 알겠어요',d:[{l:'긍정/동의',p:60,t:'pos'},{l:'무관심',p:25,t:'neu'},{l:'비꼼',p:15,t:'neg'}],a:'동의 또는 승인의 표시'},
   '🙂':{v:'r',m:'미소 · 괜찮아요',d:[{l:'친근함',p:35,t:'pos'},{l:'어색함',p:35,t:'neu'},{l:'비꼼/냉소',p:30,t:'neg'}],a:'표면적 미소 — 냉소 가능성'},
-  '🙏':{v:'y',m:'감사 · 부탁',d:[{l:'감사',p:50,t:'pos'},{l:'부탁',p:35,t:'neu'},{l:'문화차이',p:15,t:'neg'}],c:'일부 문화권에서 "high-five"로 해석. 파리 협업 시 racism 오해 가능 (Q-15)',a:'감사 또는 부탁 — 문화권별 해석 차이'},
+  '🙏':{v:'y',m:'감사 · 부탁',d:[{l:'감사',p:50,t:'pos'},{l:'부탁',p:35,t:'neu'},{l:'문화차이',p:15,t:'neg'}],c:'일부 문화권에서 "high-five"로 해석 (Q-15 [U6])',a:'감사 또는 부탁 — 문화권별 해석 차이'},
   '😅':{v:'y',m:'곤란 · 민망',d:[{l:'민망',p:50,t:'neu'},{l:'유머',p:30,t:'pos'},{l:'짜증',p:20,t:'neg'}],a:'곤란한 상황의 가벼운 표현'},
   '👀':{v:'r',m:'관심 · 감시',d:[{l:'관심',p:40,t:'pos'},{l:'감시',p:35,t:'neu'},{l:'의심',p:25,t:'neg'}],a:'주시 또는 관심 — 의심 가능'},
   '😂':{v:'r',m:'웃김 · 조롱',d:[{l:'진짜 웃김',p:40,t:'pos'},{l:'과장',p:30,t:'neu'},{l:'조롱',p:30,t:'neg'}],a:'강한 웃음 — 진심 또는 조롱'},
@@ -256,6 +279,15 @@ const ED={
   '💀':{v:'r',m:'웃겨죽겠 · 충격',d:[{l:'웃김',p:45,t:'pos'},{l:'충격',p:30,t:'neu'},{l:'부정적',p:25,t:'neg'}],a:'극단적 웃음 또는 충격'},
   '🤔':{v:'y',m:'생각 중 · 의심',d:[{l:'궁금',p:55,t:'neu'},{l:'의심',p:30,t:'neg'},{l:'흥미',p:15,t:'pos'}],a:'생각 중이거나 의문'},
 };
+// Get context-appropriate emoji data
+function getED(emoji){
+  const c=getCur();
+  let ctx='work_peer';
+  if(c.type==='personal') ctx='personal';
+  else if(c.formal) ctx='work_formal';
+  else if(c.name?.includes('Sarah')) ctx='cross_cultural';
+  return ED_CTX[ctx]?.[emoji]||ED[emoji];
+}
 const WE=['✔','👍','🙏','🙂','😊','🤔','😅','👀'];
 const PE=['😂','❤️','🔥','💀','😊','👍','🙂','😅','👀','🤔'];
 const WP=['✔','👍','🙏'],PP=['❤️','🔥','😂'];
@@ -289,22 +321,27 @@ const PD=[
   // P1
   {name:'박동료',av:'박',col:'#f97316',desc:'업무 채팅',formal:false,type:'work',group:false,
    msgs:[{s:'박동료',t:'어제 리뷰 피드백 반영했어!',tm:'1:05 PM'},{s:'박동료',t:'확인해봐 🙂',tm:'1:06 PM'},{s:'me',t:'고마워~ 👍',tm:'1:10 PM'},{s:'박동료',t:'근데 이거 좀 봐줘 👀',tm:'1:12 PM'},{s:'박동료',t:'😅 미안 갑자기 부탁해서',tm:'1:13 PM'},{s:'박동료',t:'🙏',tm:'1:14 PM'}],
-   replies:[{a:7,r:[{t:'ㅋㅋ 고마워!',d:1500},{t:'아 그리고 Sarah가 🙏 보냈는데 이거 무슨 뜻이야?',d:3500}]},{a:9,r:[{t:'아 그런 뜻이었어? 나는 좀 다르게 이해했었는데 👀',d:2000}]},{a:11,r:[{t:'ㅇㅋ 알겠어! 이모지 진짜 헷갈리네 😅',d:1500}]}]},
+   rpool:['ㅋㅋ 고마워!','아 그리고 Sarah가 🙏 보냈는데 이거 무슨 뜻이야?','아 그런 뜻이었어? 나는 좀 다르게 이해했었는데 👀','이모지 진짜 헷갈리네 😅','맞아 나도 🙂 받으면 기분 좋은 건지 비꼬는 건지 모르겠어','ㅇㅋ 알겠어!','아까 팀장님이 👍 보냈는데 진짜 OK인 거 맞겠지?','ㅋㅋ 그건 괜찮을 듯','근데 해외팀은 이모지 해석이 진짜 다르더라','ㅇㅇ 확인했어 🙂'],rpi:0},
   // P2
   {name:'김교수님',av:'김',col:'#6366f1',desc:'업무 채팅 · 위계 감지됨',formal:true,type:'work',group:false,
    msgs:[{s:'김교수님',t:'다음 주 월요일까지 중간보고서 초안 보내주세요.',tm:'10:23'},{s:'김교수님',t:'분석 프레임워크 부분은 특히 신경 써주세요.',tm:'10:24'},{s:'김교수님',t:'진행 상황은 어떤가요?',tm:'10:30'}],
-   replies:[{a:4,r:[{t:'네 확인했어요.',d:1500},{t:'혹시 분석 프레임워크 관련해서 참고할 논문 있나요?',d:3500}]},{a:6,r:[{t:'좋습니다. 그 방향으로 진행해주세요 👍',d:2000}]},{a:8,r:[{t:'네 수고하세요 🙂',d:1500}]}]},
+   rpool:['네 확인했어요.','혹시 분석 프레임워크 관련해서 참고할 논문 있나요?','좋습니다. 그 방향으로 진행해주세요 👍','수고하세요 🙂','발표 자료도 같이 준비해주세요.','다음 주 수요일에 중간 점검 예정입니다.','네, 알겠습니다.','진행 상황 공유 부탁드립니다 🤔','참고 자료 메일로 보내드렸습니다.'],rpi:0},
   // P3 personal
   {name:'최친구',av:'최',col:'#a855f7',desc:'개인 채팅',formal:false,type:'personal',group:false,
    msgs:[{s:'최친구',t:'주말에 뭐해?',tm:'7:30 PM'},{s:'최친구',t:'😂😂 아까 그거 봤어?',tm:'7:31 PM'},{s:'me',t:'ㅋㅋㅋ 뭔데',tm:'7:32 PM'},{s:'최친구',t:'👍',tm:'7:33 PM'}],
-   replies:[{a:5,r:[{t:'ㅋㅋㅋ 진짜?',d:1200},{t:'😂😂',d:2500}]},{a:7,r:[{t:'아 주말에 같이 밥 먹자!',d:1800},{t:'❤️',d:3000}]}],
+   rpool:['ㅋㅋㅋ 진짜?','😂😂','아 주말에 같이 밥 먹자!','❤️','ㅇㅇ 좋아!','어디서 먹을까?','ㅋㅋ 알겠어','👍','아 맞다 그거 봤어?','ㅋㅋㅋ 대박'],rpi:0,
    alt:{name:'이팀장님',av:'이',col:'#ec4899',desc:'업무 채팅',type:'work',
      msgs:[{s:'이팀장님',t:'오늘 회의 자료 검토 부탁합니다.',tm:'2:10 PM'},{s:'이팀장님',t:'3시까지 코멘트 남겨주세요 👍',tm:'2:11 PM'}],
-     replies:[{a:3,r:[{t:'감사합니다. 확인했어요 👍',d:1500}]},{a:5,r:[{t:'코멘트 남겼습니다. 확인 부탁드립니다 🙂',d:2000}]}]}},
+     rpool:['감사합니다. 확인했어요 👍','코멘트 남겼습니다. 확인 부탁드립니다 🙂','네, 알겠습니다.','내일까지 정리해서 공유드리겠습니다.','수고하셨습니다 🙏','회의록 공유 부탁드립니다.'],rpi:0}},
   // P4
   {name:'프로젝트 채널',av:'#',col:'#3b82f6',desc:'업무 채팅 · 6명',formal:false,type:'work',group:true,
    msgs:[{s:'김대리',t:'API 연동 완료했습니다.',tm:'4:20 PM',rx:[{e:'✔',c:3},{e:'👍',c:2}]},{s:'이사원',t:'프론트 작업은 내일까지 걸릴 것 같아요.',tm:'4:25 PM'},{s:'박과장',t:'일정 괜찮을까요? 확인 부탁드립니다.',tm:'4:30 PM'},{s:'정인턴',t:'디자인 시안 올렸습니다.',tm:'4:35 PM',rx:[{e:'🔥',c:1}]}],
-   replies:[{a:5,r:[{s:'이사원',t:'확인했습니다! 바로 반영할게요.',d:1500},{s:'김대리',t:'👍',d:2500}]},{a:7,r:[{s:'박과장',t:'프론트 일정 내일 오전 중 재확인 부탁드립니다.',d:2000}]},{a:8,r:[{s:'정인턴',t:'넵 확인했습니다!',d:1200},{s:'김대리',t:'디자인 시안 검토 완료했습니다. 수정 사항 있어요.',d:3000}]}]},
+   rpool:[
+     {s:'이사원',t:'확인했습니다! 바로 반영할게요.'},{s:'김대리',t:'👍'},{s:'박과장',t:'프론트 일정 내일 오전 중 재확인 부탁드립니다.'},
+     {s:'정인턴',t:'넵 확인했습니다!'},{s:'김대리',t:'디자인 시안 검토 완료했습니다. 수정 사항 있어요.'},
+     {s:'이사원',t:'수정본 올렸습니다 🙏'},{s:'박과장',t:'네 확인하겠습니다.'},{s:'김대리',t:'✔'},
+     {s:'정인턴',t:'혹시 컬러 가이드 있을까요? 🤔'},{s:'이사원',t:'공유드리겠습니다!'},
+   ],rpi:0},
 ];
 
 let curP=0,lt=null,noteIdx=null,noteEmoji='👍',a11yOn=false,p3work=false;
@@ -457,9 +494,12 @@ function renderMsgs(){
 
 // ═══ TOOLTIP (P1) ═══
 function showTT(emoji){
-  const d=ED[emoji];if(!d)return;
+  const d=getED(emoji);if(!d)return;
+  const c=getCur();
+  const ctxLabel=c.type==='personal'?'개인 대화':c.formal?'공식/위계 대화':c.name?.includes('Sarah')?'해외팀 대화':'업무 동료 대화';
   const card=document.getElementById('ttC');
-  card.innerHTML=`<div class="tbig">${emoji}</div><div class="tmean">${d.m}</div><div class="tsub">해석 분포</div>
+  card.innerHTML=`<div class="tbig">${emoji}</div><div class="tmean">${d.m}</div>
+    <div class="tsub">현재 맥락: <b>${ctxLabel}</b></div>
     <div class="dbar">${d.d.map(x=>`<div class="sg ${x.t}" style="width:${x.p}%">${x.p}%</div>`).join('')}</div>
     <div class="dlg">${d.d.map(x=>`<span class="${x.t}">${x.l} ${x.p}%</span>`).join('')}</div>
     ${d.c?`<div class="ttcul">🌍 <b>문화 차이 주의</b><br>${d.c}</div>`:''}
@@ -510,9 +550,12 @@ function onInp(){
   // P2: emoji warning
   if(curP===1&&getCur().formal){
     const em=v.match(/(\p{Emoji_Presentation}|\p{Emoji}\uFE0F)/u);
-    if(em&&ED[em[0]]&&(ED[em[0]].v==='r'||ED[em[0]].v==='y')){
-      document.getElementById('wt').textContent=`⚠️ "${em[0]}" — 수신자에 따라 다르게 읽힐 수 있습니다 (${ED[em[0]].d.map(x=>x.l+' '+x.p+'%').join(', ')})`;
-      document.getElementById('wb').classList.add('show');
+    if(em){
+      const ed=getED(em[0]);
+      if(ed&&(ed.v==='r'||ed.v==='y')){
+        document.getElementById('wt').textContent=`⚠️ "${em[0]}" — 이 맥락에서: ${ed.d.map(x=>x.l+' '+x.p+'%').join(', ')}`;
+        document.getElementById('wb').classList.add('show');
+      } else document.getElementById('wb')?.classList.remove('show');
     } else document.getElementById('wb')?.classList.remove('show');
   }
 
@@ -564,16 +607,17 @@ function doSend(){
   document.getElementById('rpv')?.classList.remove('show');
   document.getElementById('pkr')?.classList.remove('show');
 
-  // Auto replies
-  const sc=c.replies?.find(r=>r.a===c.msgs.length);
-  if(sc){
-    const sender=c.group?null:c.name;
-    sc.r.forEach(r=>{
-      setTimeout(()=>{
-        c.msgs.push({s:r.s||sender,t:r.t,tm:now()});
-        renderMsgs();
-      },r.d);
-    });
+  // Auto replies from pool — always respond
+  if(c.rpool&&c.rpool.length){
+    const idx=c.rpi%c.rpool.length;
+    const r=c.rpool[idx];
+    c.rpi=(c.rpi||0)+1;
+    const sender=typeof r==='string'?c.name:r.s;
+    const text=typeof r==='string'?r:r.t;
+    setTimeout(()=>{
+      c.msgs.push({s:sender,t:text,tm:now()});
+      renderMsgs();
+    },1200+Math.random()*1500);
   }
 }
 
