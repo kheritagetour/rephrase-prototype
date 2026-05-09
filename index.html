@@ -292,28 +292,35 @@ const WE=['✔','👍','🙏','🙂','😊','🤔','😅','👀'];
 const PE=['😂','❤️','🔥','💀','😊','👍','🙂','😅','👀','🤔'];
 const WP=['✔','👍','🙏'],PP=['❤️','🔥','😂'];
 const CFG={emojiSize:true,panelSwitch:true,recentFilter:true,renderPreview:true};
+// Relationship-aware tone transformation
 const TONES=[
-  {m:v=>['네','넵','넹','ㅇㅇ','ㅇㅋ','ok','응','넴','ㅋ'].some(s=>v.includes(s)),i:'확인/동의',
+  {m:v=>['네','넵','넹','ㅇㅇ','ㅇㅋ','ok','응','넴','ㅋ','웅'].some(s=>v.includes(s)),i:'확인/동의',
    L:['ㅇㅋ','넵!','네, 확인했습니다!','네, 알겠습니다. 확인하겠습니다.','네, 말씀 감사합니다. 확인 후 바로 진행하겠습니다.'],
-   A:[['ㅇㅇ'],['알겠어요~'],['알겠습니다!'],['검토 후 말씀드리겠습니다.','안내 감사드립니다.'],['말씀대로 진행하겠습니다.','검토 후 회신드리겠습니다.']]},
-  {m:v=>['감사','ㄱㅅ','고마','thx','ㄳ'].some(s=>v.includes(s)),i:'감사',
+   A:[['ㅇㅇ','알겠어~'],['알겠어요~','넵넵!'],['알겠습니다!','확인했어요!'],['검토 후 말씀드리겠습니다.','안내 감사드립니다.'],['말씀대로 진행하겠습니다.','검토 후 회신드리겠습니다.']]},
+  {m:v=>['감사','ㄱㅅ','고마','thx','ㄳ','땡큐'].some(s=>v.includes(s)),i:'감사',
    L:['ㄳㄳ','고마워요!','감사합니다!','감사합니다, 참고하겠습니다.','진심으로 감사드립니다. 꼼꼼히 반영하겠습니다.'],
-   A:[['ㄱㅅ!'],['감사!'],['감사합니다~'],['말씀 감사드립니다.'],['감사드립니다. 반영하겠습니다.']]},
-  {m:v=>['죄송','미안','ㅈㅅ','sorry'].some(s=>v.includes(s)),i:'사과',
+   A:[['ㄱㅅ!','고마워~'],['감사!','고마워요~'],['감사합니다~','덕분에 도움됐어요!'],['말씀 감사드립니다.','참고하겠습니다.'],['감사드립니다.','소중한 피드백 감사합니다.']]},
+  {m:v=>['죄송','미안','ㅈㅅ','sorry','쏘리'].some(s=>v.includes(s)),i:'사과',
    L:['ㅈㅅ','미안해요!','죄송합니다!','죄송합니다, 바로 수정하겠습니다.','죄송합니다. 확인하여 빠르게 보완하겠습니다.'],
-   A:[['미안~'],['미안해요~'],['죄송해요!'],['빠르게 반영하겠습니다.'],['즉시 조치하겠습니다.']]},
-  {m:v=>['확인','봤','체크','검토'].some(s=>v.includes(s)),i:'확인/검토',
+   A:[['미안~','ㅈㅅㅈㅅ'],['미안해요~','죄송!'],['죄송해요!','바로 고칠게요!'],['빠르게 반영하겠습니다.','죄송합니다, 확인하겠습니다.'],['즉시 조치하겠습니다.','재발 방지에 유의하겠습니다.']]},
+  {m:v=>['확인','봤','체크','검토','읽었','열어봤'].some(s=>v.includes(s)),i:'확인/검토',
    L:['ㅇㅇ 봤어','확인했어요!','확인했습니다!','확인했습니다, 검토 후 말씀드리겠습니다.','확인했습니다. 꼼꼼히 검토 후 의견 전달드리겠습니다.'],
-   A:[['봤어~'],['봤어요!'],['검토했습니다!'],['검토 완료했습니다.'],['의견 정리 후 회신드리겠습니다.']]},
-  {m:v=>['보내','제출','올리','전달'].some(s=>v.includes(s)),i:'제출/전달',
+   A:[['봤어~','ㅇㅋ 확인'],['봤어요!','체크했어요~'],['검토했습니다!','확인 완료!'],['검토 완료했습니다.','피드백 정리 중입니다.'],['의견 정리 후 회신드리겠습니다.','검토 마쳤습니다.']]},
+  {m:v=>['보내','제출','올리','전달','첨부','공유'].some(s=>v.includes(s)),i:'제출/전달',
    L:['보냈어','보냈어요!','보내드렸습니다!','보내드렸습니다, 확인 부탁드립니다.','보내드렸습니다. 검토 후 피드백 부탁드리겠습니다.'],
-   A:[['올렸어~'],['올렸어요!'],['전달드렸습니다!'],['첨부 확인 부탁드립니다.'],['검토 부탁드리겠습니다.']]},
-  {m:v=>/[\p{Emoji}]/u.test(v),i:'이모지→텍스트',
+   A:[['올렸어~','보냄'],['올렸어요!','전달했어요~'],['전달드렸습니다!','제출했습니다!'],['첨부 확인 부탁드립니다.','검토 부탁드립니다.'],['검토 부탁드리겠습니다.','말씀하신 자료 송부드립니다.']]},
+  {m:v=>['수고','고생','힘들','애썼'].some(s=>v.includes(s)),i:'수고/격려',
+   L:['수고~','수고했어요!','수고하셨습니다!','수고 많으셨습니다.','정말 수고 많으셨습니다. 큰 도움이 되었습니다.'],
+   A:[['ㅋㅋ 수고','고생했어~'],['고생했어요!','수고요~'],['수고하셨습니다~','고생하셨어요!'],['잘 확인하겠습니다.','감사합니다.'],['노고에 감사드립니다.','꼼꼼히 검토하겠습니다.']]},
+  {m:v=>['언제','시간','일정','기한','데드라인','마감'].some(s=>v.includes(s)),i:'일정 확인',
+   L:['언제?','언제까지예요?','일정 확인 부탁드립니다!','일정 관련 확인 부탁드리겠습니다.','일정 관련하여 확인 부탁드리겠습니다. 조율이 필요하면 말씀해 주세요.'],
+   A:[['언제까지?','마감 언제야?'],['언제까지예요?','일정 알려주세요~'],['일정 공유 부탁드려요!','마감일 확인할게요!'],['기한 확인 부탁드립니다.','일정 조율 가능할까요?'],['일정 조율 관련 회신 부탁드리겠습니다.','기한 내 진행 어려울 시 사전 공유 부탁드립니다.']]},
+  {m:v=>/^[\p{Emoji}\uFE0F\s]{1,8}$/u.test(v),i:'이모지 → 텍스트 변환',
    L:[v=>v,'알겠어요!','확인했습니다!','네, 알겠습니다. 감사합니다.','말씀 확인했습니다. 감사합니다.'],
-   A:[[],['넵!'],['감사합니다!'],['말씀대로 하겠습니다.'],['안내 감사드립니다.']]},
-  {m:()=>true,i:'일반',
-   L:[v=>v,v=>v,'확인했습니다!','네, 알겠습니다.','네, 말씀 감사합니다. 확인하겠습니다.'],
-   A:[[],[],['알겠습니다~'],['감사합니다.'],['말씀대로 진행하겠습니다.']]},
+   A:[[],['넵!','ㅇㅋ!'],['감사합니다!','확인!'],['말씀대로 하겠습니다.','확인했습니다.'],['안내 감사드립니다.','참고하겠습니다.']]},
+  {m:()=>true,i:'일반 응답',
+   L:[v=>v,v=>v,v=>v+' — 확인했습니다!',v=>'네, '+v.replace(/\s*$/,'')+(v.endsWith('.')?'':'.') +' 확인하겠습니다.',v=>'말씀하신 "'+v.slice(0,15)+(v.length>15?'...':'')+'" 관련 확인했습니다. 검토 후 회신드리겠습니다.'],
+   A:[[],[],[],['감사합니다.','확인하겠습니다.'],['말씀대로 진행하겠습니다.','안내 감사드립니다.']]},
 ];
 
 // ═══ PROTOTYPE DATA ═══
@@ -379,17 +386,18 @@ function render(){
   const c=getCur();
   const ct=document.getElementById('content');
   const isP1=curP===0,isP2=curP===1,isP3=curP===2,isP4=curP===3;
-  const showTT=isP1;
-  const showFormal=isP2;
   const showTokens=isP4;
   const showSettings=isP3;
+  // Relationship-based auto formality: 교수=5, 팀장=4, 해외공식=4, 동료=2, 친구=1
+  const autoFormal = c.name?.includes('교수')?5 : c.name?.includes('팀장')?4 : c.name?.includes('Sarah')?4 : c.formal?4 : c.type==='personal'?1 : 2;
+  const showTone = c.type==='work'; // 업무 채팅이면 항상 톤 제안
 
   ct.innerHTML=`<div class="phone" id="phone">
     <div class="hdr">
       <div class="av" style="background:${c.col}">${c.av}</div>
       <div class="hinfo"><h4>${c.name}</h4><p>${c.desc}</p></div>
       ${c.formal?'<div class="hchip">🏢 공식</div>':''}
-      ${showSettings?'<button class="hbtn" onclick="openSet()">⚙️</button>':''}
+      <button class="hbtn" onclick="openSet()" style="display:flex;margin-left:auto">⚙️</button>
       ${isP4?'<button class="hbtn" onclick="tglA11y()" id="a11b">♿</button>':''}
     </div>
     <div class="ov" id="ttOv" onclick="if(event.target===this)this.classList.remove('show')"><div class="ttc" id="ttC"></div></div>
@@ -399,8 +407,8 @@ function render(){
     <div class="msgs" id="ma"></div>
     ${isP3?'<div class="rpv" id="rpv"><div class="rpl">👁 상대방에게 보이는 모습</div><div id="rpc"></div></div>':''}
     <div class="carea">
-      ${showFormal?`<div class="fctrl show" id="fc"><label>정중함</label><input type="range" min="1" max="5" value="4" id="fr" oninput="onFR()"><span class="fv" id="fv">높임</span></div>`:''}
-      ${showFormal?'<div class="tpv" id="tpv"></div>':''}
+      ${showTone?`<div class="fctrl show" id="fc"><label>정중함</label><input type="range" min="1" max="5" value="${autoFormal}" id="fr" oninput="onFR()"><span class="fv" id="fv">${['','반말','약간 반말','보통','높임','매우 높임'][autoFormal]}</span></div>`:''}
+      <div class="tpv" id="tpv"></div>
       <div class="wbar" id="wb"><span id="wt"></span><button class="wd" onclick="this.parentElement.classList.remove('show')">무시</button></div>
       ${showTokens?`<div class="tkbar show"><div class="tklbl">📌 빠른 반응 &nbsp;&nbsp; 📊 상태 표시</div>
         <button class="tk" onclick="ins('✔')">✔ 확인</button><button class="tk" onclick="ins('👍')">👍 좋아요</button><button class="tk" onclick="ins('🙏')">🙏 감사</button>
@@ -409,7 +417,7 @@ function render(){
       </div>`:''}
       <div class="crow">
         <button class="cb eb" onclick="tglPkr()">😊</button>
-        <textarea id="inp" rows="1" placeholder="메시지 입력..." oninput="onInp()"></textarea>
+        <textarea id="inp" rows="1" placeholder="${c.formal?c.name+'님에게 답장...':'메시지 입력...'}" oninput="onInp()"></textarea>
         <button class="cb sb" onclick="doSend()">↑</button>
       </div>
     </div>
@@ -540,15 +548,16 @@ function onInp(){
   el.style.height=Math.min(el.scrollHeight,80)+'px';
   const v=el.value.trim();
 
-  // P2: tone preview
-  if(curP===1&&getCur().formal&&v.length>0){
+  // Tone preview — works in ALL work chats
+  const c=getCur();
+  if(c.type==='work'&&v.length>0){
     updateTone(v);
   } else {
     document.getElementById('tpv')?.classList.remove('show');
   }
 
-  // P2: emoji warning
-  if(curP===1&&getCur().formal){
+  // Emoji warning — works in all formal chats
+  if(c.formal){
     const em=v.match(/(\p{Emoji_Presentation}|\p{Emoji}\uFE0F)/u);
     if(em){
       const ed=getED(em[0]);
@@ -582,17 +591,21 @@ function onFR(){
 
 function updateTone(raw){
   const tp=document.getElementById('tpv');if(!tp)return;
-  const lv=parseInt(document.getElementById('fr')?.value||4);
+  const lv=parseInt(document.getElementById('fr')?.value||3);
   const low=raw.toLowerCase();
   const matched=TONES.find(t=>t.m(low));
   const idx=lv-1;
   let main=matched.L[idx];if(typeof main==='function')main=main(raw);
   let alts=(matched.A[idx]||[]).map(a=>typeof a==='function'?a(raw):a).filter(a=>a&&a!==main);
-  tp.innerHTML=`<div class="tl">✨ ${matched.i} · 정중함 ${lv}단계</div><div class="tmo" onclick="useTone(this.textContent)">${main}</div>${alts.length?`<div class="tas">${alts.map(a=>`<div class="ta" onclick="useTone(this.textContent)">${a}</div>`).join('')}</div>`:''}`;
+  const c=getCur();
+  const rel=c.name?.includes('교수')?'교수님':'팀장'?c.name?.includes('팀장')?'팀장님':c.name?.includes('Sarah')?'해외팀':'동료':'동료';
+  // Don't show if main is same as raw (no transformation needed)
+  if(main===raw&&!alts.length){tp.classList.remove('show');return;}
+  tp.innerHTML=`<div class="tl">✨ ${rel}에게 · ${matched.i} · 정중함 ${lv}</div><div class="tmo" onclick="useTone(this)">${main}</div>${alts.length?`<div class="tas">${alts.map(a=>`<div class="ta" onclick="useTone(this)">${a}</div>`).join('')}</div>`:''}`;
   tp.classList.add('show');
 }
 
-function useTone(t){document.getElementById('inp').value=t;document.getElementById('tpv')?.classList.remove('show');document.getElementById('wb')?.classList.remove('show');document.getElementById('inp').focus()}
+function useTone(el){document.getElementById('inp').value=el.textContent;document.getElementById('tpv')?.classList.remove('show');document.getElementById('wb')?.classList.remove('show');document.getElementById('inp').focus()}
 
 // ═══ SEND ═══
 function doSend(){
