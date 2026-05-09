@@ -81,6 +81,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Pretendard','Noto San
 .side-search input{width:100%;padding:7px 10px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--surface2);font-size:12px;outline:none;transition:var(--transition)}
 .side-search input:focus{border-color:var(--blue);background:var(--surface)}
 .ch-list{flex:1;overflow-y:auto}
+.side-footer{padding:10px 12px;border-top:1px solid var(--border-light)}
+.side-footer .sf-btn{width:100%;padding:8px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--surface);font-size:11px;font-weight:500;color:var(--text2);cursor:pointer;transition:var(--transition);display:flex;align-items:center;justify-content:center;gap:5px}
+.side-footer .sf-btn:hover{background:var(--blue-soft);border-color:var(--blue);color:var(--blue)}
 .ch-item{display:flex;align-items:center;gap:10px;padding:10px 16px;cursor:pointer;transition:var(--transition);border-left:3px solid transparent}
 .ch-item:hover{background:var(--surface2)}
 .ch-item.active{background:var(--blue-soft);border-left-color:var(--blue)}
@@ -340,6 +343,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Pretendard','Noto San
     <div class="side-hdr"><div class="s-logo">Re<span>:</span>Phrase</div><button class="s-gear" onclick="openSettings()">⚙</button></div>
     <div class="side-search"><input placeholder="Search" type="text"></div>
     <div class="ch-list" id="chList"></div>
+    <div class="side-footer"><button class="sf-btn" onclick="backToScenarios()">🎯 시나리오 선택으로 돌아가기</button></div>
   </div>
   <div class="main" id="mainArea"><div class="empty"><h3>Re:Phrase</h3><p>대화를 선택하세요</p></div></div>
 </div>
@@ -499,6 +503,12 @@ function trackE(e){const t=curChat?.type||'work';const a=recentEmoji[t];const i=
 // ── Navigation ──
 function toLanding(){document.getElementById('landing').classList.add('hide');document.getElementById('onb').classList.remove('hide')}
 function goSkip(){document.getElementById('onb').classList.add('hide');document.getElementById('app').classList.add('show');renderList()}
+function backToScenarios(){
+  document.getElementById('tour').classList.remove('show');
+  document.getElementById('app').classList.remove('show');
+  document.getElementById('onb').classList.remove('hide');
+  curChat=null;
+}
 function goScenario(id){document.getElementById('onb').classList.add('hide');document.getElementById('app').classList.add('show');renderList();const c=CHATS.find(x=>x.id===id);if(c){openChat(c);showTour(id)}}
 function showTour(id){
   const T={prof:{h:'톤 자동 조절',b:'아래 편안↔정중 슬라이더를 조절해보세요.<br>"네"라고 입력하면 정중함에 맞게 변환됩니다.',s:'bottom:150px;left:340px'},peer:{h:'이모지 해석 확인',b:'메시지의 이모지를 클릭해보세요.<br>🙂🙃 — 맥락에 따라 해석이 달라요.',s:'top:200px;left:400px'},sarah:{h:'문화별 이모지 차이',b:'🙏를 클릭해보세요.<br>국가별로 전혀 다른 의미로 해석됩니다.',s:'top:200px;left:400px'},friend:{h:'이모지 해석 토론',b:'🙂 메시지를 클릭해보세요.<br>"화난 거야?" — 해석 불확실성 체험.',s:'top:260px;left:400px'}};
