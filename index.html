@@ -6,162 +6,148 @@
 <title>Re:Phrase</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-:root{--bg:#ece5dd;--mine:#dcf8c6;--other:#fff;--navy:#1b2a4a;--blue:#3b82f6;--green:#22c55e;--yellow:#eab308;--red:#ef4444;--purple:#8b5cf6;--text:#111;--text2:#666;--text3:#999;--border:#e5e5e5}
-body{font-family:-apple-system,BlinkMacSystemFont,'Pretendard','Noto Sans KR',sans-serif;height:100vh;overflow:hidden;background:#f5f0e8}
+:root{--bg:#f5f5f5;--card:#fff;--blue:#4F6CFF;--blue2:#3b5bdb;--bluel:#EEF1FF;--green:#22c55e;--yellow:#eab308;--red:#ef4444;--purple:#7c3aed;--mine:#4F6CFF;--other:#fff;--text:#111;--t2:#777;--t3:#aaa;--border:#ebebeb;--chatbg:#F0EDE8}
+body{font-family:-apple-system,BlinkMacSystemFont,'Pretendard','Noto Sans KR',sans-serif;height:100vh;overflow:hidden;background:var(--bg)}
 
-/* ── Landing ── */
-.landing{position:fixed;inset:0;background:var(--navy);z-index:500;display:flex;align-items:center;justify-content:center;transition:opacity .4s,transform .4s}
-.landing.hide{opacity:0;transform:scale(1.05);pointer-events:none}
-.land-inner{text-align:center;color:#fff;max-width:600px;padding:40px 24px}
-.land-inner h1{font-size:42px;font-weight:800;margin-bottom:6px}
-.land-inner h1 span{color:#e74c3c}
-.land-inner .sub{font-size:15px;opacity:.6;margin-bottom:36px}
-.land-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;text-align:left;margin-bottom:36px}
-.land-card{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:16px;cursor:pointer;transition:.2s}
-.land-card:hover{background:rgba(255,255,255,.12);transform:translateY(-2px)}
-.land-card .ltag{display:inline-block;font-size:9px;font-weight:700;padding:2px 8px;border-radius:5px;color:#fff;margin-bottom:6px}
-.land-card h3{font-size:15px;font-weight:700;margin-bottom:3px}
-.land-card p{font-size:11px;opacity:.65;line-height:1.4}
-.land-btn{padding:14px 44px;border-radius:28px;background:#e74c3c;color:#fff;font-size:16px;font-weight:700;border:none;cursor:pointer;transition:.2s}
-.land-btn:hover{transform:scale(1.04);background:#c0392b}
+/* ═══ LANDING ═══ */
+.landing{position:fixed;inset:0;z-index:500;background:#fff;display:flex;align-items:center;justify-content:center;transition:opacity .4s}
+.landing.hide{opacity:0;pointer-events:none}
+.land{text-align:center;padding:40px;max-width:400px}
+.land .logo{font-size:38px;font-weight:900;color:var(--blue);margin-bottom:6px;letter-spacing:-1px}
+.land .logo span{color:var(--red)}
+.land .tagline{font-size:15px;color:var(--t2);line-height:1.5;margin-bottom:36px}
+.land .login{width:100%;padding:14px;border-radius:14px;background:var(--blue);color:#fff;font-size:15px;font-weight:700;border:none;cursor:pointer;transition:.2s;margin-bottom:10px}
+.land .login:hover{background:var(--blue2)}
+.land .skip{font-size:12px;color:var(--t3);cursor:pointer;text-decoration:underline}
 
-/* ── App Shell ── */
-.app{display:none;height:100vh;flex-direction:column}
+/* ═══ APP ═══ */
+.app{display:none;height:100vh;flex-direction:row}
 .app.show{display:flex}
 
-/* Top bar */
-.topbar{height:50px;background:var(--navy);display:flex;align-items:center;padding:0 20px;flex-shrink:0}
-.topbar .logo{font-size:18px;font-weight:800;color:#fff;cursor:pointer}
-.topbar .logo span{color:#e74c3c}
-.tabs{display:flex;margin-left:24px;gap:2px}
-.tab{padding:8px 16px;font-size:12px;font-weight:600;color:rgba(255,255,255,.5);cursor:pointer;border-radius:8px 8px 0 0;transition:.15s;border-bottom:2px solid transparent}
-.tab:hover{color:#fff}
-.tab.active{color:#fff;background:rgba(255,255,255,.1);border-bottom-color:#e74c3c}
-.tab .tdot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:4px}
+/* Sidebar */
+.side{width:320px;background:var(--card);border-right:1px solid var(--border);display:flex;flex-direction:column}
+.side-top{padding:16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.side-top .slogo{font-size:17px;font-weight:800;color:var(--blue)}
+.side-top .slogo span{color:var(--red)}
+.side-top .gear{margin-left:auto;width:30px;height:30px;border-radius:50%;border:none;background:var(--bg);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center}
+.cl{flex:1;overflow-y:auto}
+.ci{display:flex;align-items:center;gap:10px;padding:12px 16px;cursor:pointer;border-bottom:1px solid #fafafa;transition:.1s}
+.ci:hover{background:#fafafa}.ci.act{background:var(--bluel)}
+.ci .av{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;flex-shrink:0}
+.ci .meta{flex:1;min-width:0}
+.ci .nm{font-size:13px;font-weight:600;display:flex;align-items:center;gap:5px}
+.ci .pv{font-size:11px;color:var(--t2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px}
+.ci .tm{font-size:9px;color:var(--t3);margin-left:auto;flex-shrink:0}
+.badge{font-size:8px;padding:1px 5px;border-radius:4px;font-weight:600}
+.badge.w{background:var(--bluel);color:var(--blue)}.badge.p{background:#dcfce7;color:#166534}
+.unr{width:16px;height:16px;border-radius:50%;background:var(--blue);color:#fff;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 
-/* Content */
-.content{flex:1;display:flex;align-items:center;justify-content:center;overflow:hidden;padding:16px}
+/* Main */
+.main{flex:1;display:flex;flex-direction:column;position:relative}
+.empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--t3);gap:6px}
+.empty .eic{font-size:40px}.empty h3{font-size:16px;color:var(--text)}.empty p{font-size:12px}
 
-/* Phone */
-.phone{width:390px;height:100%;max-height:700px;background:#fff;border-radius:28px;box-shadow:0 8px 40px rgba(0,0,0,.15);display:flex;flex-direction:column;overflow:hidden;border:1px solid #d0d0d0;position:relative}
-
-/* Header */
-.hdr{background:var(--navy);color:#fff;padding:12px 16px;display:flex;align-items:center;gap:10px;flex-shrink:0}
-.hdr .av{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700}
-.hdr .hinfo h4{font-size:14px;font-weight:600}
-.hdr .hinfo p{font-size:10px;opacity:.7}
-.hdr .hchip{margin-left:auto;padding:3px 8px;border-radius:6px;font-size:9px;font-weight:600;background:rgba(255,255,255,.15)}
-.hdr .hbtn{margin-left:6px;width:28px;height:28px;border-radius:50%;border:1px solid rgba(255,255,255,.25);background:none;color:#fff;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center}
+/* Chat header */
+.chdr{height:52px;background:var(--card);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 16px;gap:10px}
+.chdr .av{width:32px;height:32px;font-size:12px}
+.chdr h4{font-size:14px;font-weight:600}.chdr .csub{font-size:10px;color:var(--t3)}
+.chdr .rel-chip{margin-left:auto;display:flex;align-items:center;gap:6px}
+.chdr .rel-badge{padding:3px 8px;border-radius:6px;font-size:9px;font-weight:600;background:var(--bluel);color:var(--blue)}
 
 /* Messages */
-.msgs{flex:1;overflow-y:auto;padding:12px 14px;display:flex;flex-direction:column;gap:4px;background:var(--bg)}
-.dsep{text-align:center;font-size:10px;color:var(--text3);background:rgba(255,255,255,.7);display:inline-block;align-self:center;padding:2px 10px;border-radius:6px;margin:4px 0}
-.msg{max-width:72%;padding:7px 11px;border-radius:11px;font-size:13px;line-height:1.5;animation:fi .2s}
+.msgs{flex:1;overflow-y:auto;padding:12px 50px;display:flex;flex-direction:column;gap:4px;background:var(--chatbg)}
+.dsep{text-align:center;font-size:10px;color:var(--t3);background:rgba(255,255,255,.7);display:inline-block;align-self:center;padding:2px 10px;border-radius:6px;margin:4px 0}
+.msg{max-width:70%;padding:8px 12px;border-radius:14px;font-size:13px;line-height:1.55;animation:fi .2s ease}
 @keyframes fi{from{opacity:0;transform:translateY(3px)}to{opacity:1}}
-.msg.o{background:var(--other);align-self:flex-start;border-bottom-left-radius:3px;box-shadow:0 1px 2px rgba(0,0,0,.06)}
-.msg.m{background:var(--mine);align-self:flex-end;border-bottom-right-radius:3px}
-.msg .sn{font-size:9px;font-weight:600;color:var(--text2);margin-bottom:1px}
-.msg .tm{font-size:8px;color:var(--text3);text-align:right;margin-top:2px}
-.msg .hint{font-size:9px;color:var(--blue);margin-top:3px;cursor:pointer;padding:3px 6px;background:#eff6ff;border-radius:4px;display:inline-block}
-.msg .hint:hover{background:#dbeafe}
-.ehl{cursor:pointer;border-radius:3px;transition:.1s}
-.ehl:hover{background:rgba(59,130,246,.15)}
-.msg.emoji-l{background:transparent!important;box-shadow:none!important;font-size:38px;padding:2px;text-align:center}
+.msg.o{background:var(--other);align-self:flex-start;border-bottom-left-radius:3px;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+.msg.m{background:var(--mine);color:#fff;align-self:flex-end;border-bottom-right-radius:3px}
+.msg .sn{font-size:9px;font-weight:600;color:var(--t2);margin-bottom:1px}
+.msg .tm{font-size:8px;opacity:.5;text-align:right;margin-top:2px}
+.ehl{cursor:pointer;border-radius:3px;padding:0 1px;transition:.1s}.ehl:hover{background:rgba(79,108,255,.15)}
+.msg .hint{font-size:9px;color:var(--blue);margin-top:3px;cursor:pointer;padding:2px 6px;background:var(--bluel);border-radius:4px;display:inline-block}
 .msg.emoji-s{font-size:13px}
-.msg .a11y-l{font-size:9px;color:var(--purple);margin-top:3px;padding:3px 6px;background:#f5f3ff;border-radius:4px;display:none}
-.msg .a11y-l.show{display:block}
 
 /* Reactions */
 .rxr{display:flex;gap:2px;margin-top:3px;flex-wrap:wrap}
-.rx{display:inline-flex;align-items:center;gap:2px;padding:2px 6px;border-radius:10px;background:rgba(0,0,0,.05);font-size:11px;cursor:pointer;border:1px solid transparent}
-.rx:hover{background:rgba(0,0,0,.08);border-color:#ccc}
-.rx .rn{font-size:8px;color:var(--text2);max-width:70px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.rxa{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:rgba(0,0,0,.04);font-size:10px;cursor:pointer;border:1px dashed #ccc}
+.rx{display:inline-flex;align-items:center;gap:2px;padding:2px 6px;border-radius:10px;background:rgba(0,0,0,.05);font-size:11px;cursor:pointer}
+.rx:hover{background:rgba(0,0,0,.08)}
+.rx .rn{font-size:8px;color:var(--t2);max-width:60px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rxa{width:20px;height:20px;border-radius:50%;background:rgba(0,0,0,.04);font-size:10px;cursor:pointer;border:1px dashed #ccc;display:inline-flex;align-items:center;justify-content:center}
 
-/* ── Composer area ── */
-.carea{border-top:1px solid var(--border);background:#fff;flex-shrink:0}
+/* ═══ COMPOSER ═══ */
+.carea{border-top:1px solid var(--border);background:var(--card)}
 
-/* Formality slider */
-.fctrl{display:none;padding:7px 14px 3px;border-bottom:1px solid #f0f0f0;align-items:center;gap:8px}
-.fctrl.show{display:flex}
-.fctrl label{font-size:11px;color:var(--text2);font-weight:600;white-space:nowrap}
-.fctrl input[type=range]{flex:1;accent-color:var(--blue);cursor:pointer}
-.fctrl .fv{font-size:11px;font-weight:700;color:var(--blue);min-width:50px;text-align:right}
+/* Formality slider — relationship-aware */
+.fbar{display:none;padding:8px 16px;align-items:center;gap:8px;border-bottom:1px solid #f5f5f5}
+.fbar.show{display:flex}
+.fbar label{font-size:11px;color:var(--t2);font-weight:600;white-space:nowrap}
+.fbar input[type=range]{flex:1;accent-color:var(--blue);cursor:pointer}
+.fbar .fv{font-size:11px;font-weight:700;color:var(--blue);min-width:50px;text-align:right}
 
-/* Tone preview */
-.tpv{display:none;padding:8px 14px;background:#f8faff;border-bottom:1px solid #e8eeff}
-.tpv.show{display:block}
-.tpv .tl{font-size:9px;color:var(--blue);font-weight:600;margin-bottom:4px}
-.tpv .tmo{font-size:13px;padding:8px 12px;background:#fff;border:1.5px solid var(--blue);border-radius:10px;cursor:pointer;transition:.15s}
-.tpv .tmo:hover{background:#eff6ff}
-.tpv .tas{display:flex;gap:5px;margin-top:5px;overflow-x:auto}
-.tpv .ta{padding:6px 11px;border-radius:14px;font-size:11px;border:1px solid var(--border);color:var(--text2);background:#fff;cursor:pointer;white-space:nowrap;flex-shrink:0}
-.tpv .ta:hover{border-color:var(--blue);color:var(--blue)}
+/* Tone suggestion */
+.tsug{display:none;padding:6px 16px 4px}
+.tsug.show{display:block}
+.tsug .tl{font-size:9px;color:var(--blue);font-weight:600;margin-bottom:4px}
+.tsug .topt{padding:8px 12px;background:var(--bluel);border:1.5px solid var(--blue);border-radius:10px;font-size:13px;cursor:pointer;transition:.15s;margin-bottom:4px}
+.tsug .topt:hover{background:#dde3ff}
+.tsug .talts{display:flex;gap:4px;overflow-x:auto;padding-bottom:2px}
+.tsug .talt{padding:5px 10px;border-radius:12px;font-size:11px;border:1px solid var(--border);color:var(--t2);background:#fff;cursor:pointer;white-space:nowrap;flex-shrink:0}
+.tsug .talt:hover{border-color:var(--blue);color:var(--blue)}
+
+/* Emoji recommendation — based on content */
+.erec{display:none;padding:4px 16px;gap:4px;align-items:center}
+.erec.show{display:flex}
+.erec .erl{font-size:9px;color:var(--t2);flex-shrink:0}
+.erec .erb{padding:4px 8px;border-radius:8px;font-size:16px;cursor:pointer;border:1px solid var(--border);background:#fff;transition:.1s}
+.erec .erb:hover{background:var(--bluel);border-color:var(--blue);transform:scale(1.1)}
 
 /* Warning */
-.wbar{display:none;padding:5px 14px;font-size:11px;color:#b45309;background:#fef3c7;align-items:center;gap:5px;border-bottom:1px solid #fde68a}
+.wbar{display:none;padding:4px 14px;font-size:10px;color:#b45309;background:#fef3c7;align-items:center;gap:4px}
 .wbar.show{display:flex}
 .wbar .wd{margin-left:auto;font-size:9px;padding:1px 6px;border-radius:4px;border:1px solid #b45309;background:none;color:#b45309;cursor:pointer}
 
 /* Token bar */
-.tkbar{display:none;padding:5px 12px 3px;border-bottom:1px solid #f0f0f0;gap:3px;flex-wrap:wrap}
+.tkbar{display:none;padding:4px 12px;gap:3px;flex-wrap:wrap;border-bottom:1px solid #f5f5f5}
 .tkbar.show{display:flex}
-.tkbar .tklbl{font-size:9px;color:var(--text3);width:100%;margin-bottom:2px}
-.tk{padding:4px 9px;border-radius:8px;font-size:11px;border:1px solid var(--border);background:#fff;cursor:pointer;display:inline-flex;align-items:center;gap:3px}
-.tk:hover{border-color:var(--blue);background:#eff6ff}
-.tk.st{border-color:#fbbf24;background:#fffbeb}
-.tk.st:hover{background:#fef3c7}
-.tksep{width:1px;height:16px;background:var(--border)}
+.tk{padding:4px 8px;border-radius:7px;font-size:10px;border:1px solid var(--border);background:#fff;cursor:pointer;display:inline-flex;align-items:center;gap:2px}
+.tk:hover{border-color:var(--blue);background:var(--bluel)}
+.tk.st{border-color:#fbbf24;background:#fffbeb}.tk.st:hover{background:#fef3c7}
+.tksep{width:1px;height:14px;background:var(--border)}
 
 /* Render preview */
-.rpv{display:none;padding:6px 14px;background:#fafaf5;border-top:1px solid #eee}
+.rpv{display:none;padding:4px 16px;background:#faf9f6;border-top:1px solid #eee;font-size:10px;color:var(--t2)}
 .rpv.show{display:block}
-.rpv .rpl{font-size:9px;color:var(--text3);margin-bottom:3px}
-.rpv .rpm{display:inline-block;padding:5px 10px;border-radius:10px;background:var(--mine);font-size:12px}
-.rpv .rpn{font-size:9px;color:var(--text3);margin-top:2px}
-
-/* Chat switch (P3) */
-.csw{display:none;gap:4px;padding:6px 12px;border-bottom:1px solid var(--border);background:#fff}
-.csw.show{display:flex}
-.csb{flex:1;padding:6px;border-radius:8px;font-size:11px;font-weight:600;text-align:center;cursor:pointer;border:1.5px solid var(--border);background:#fff}
-.csb:hover{border-color:var(--blue)}
-.csb.act{background:#eff6ff;border-color:var(--blue);color:var(--blue)}
+.rpv .rpm{display:inline-block;padding:4px 8px;border-radius:8px;background:var(--mine);color:#fff;font-size:12px;margin:2px 0}
 
 .crow{display:flex;align-items:flex-end;padding:6px 10px 10px;gap:5px}
-.crow textarea{flex:1;resize:none;border:1px solid var(--border);border-radius:18px;padding:8px 12px;font-size:12px;font-family:inherit;outline:none;min-height:34px;max-height:80px}
+.crow textarea{flex:1;resize:none;border:1.5px solid var(--border);border-radius:20px;padding:8px 14px;font-size:13px;font-family:inherit;outline:none;min-height:36px;max-height:80px}
 .crow textarea:focus{border-color:var(--blue)}
-.cb{width:32px;height:32px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
-.cb.eb{background:none;font-size:18px;border:1px solid var(--border)}
-.cb.eb:hover{border-color:var(--blue)}
-.cb.sb{background:var(--blue);color:#fff;font-size:14px}
+.cb{width:34px;height:34px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.cb.eb{background:none;font-size:18px;border:1.5px solid var(--border)}.cb.eb:hover{border-color:var(--blue)}
+.cb.sb{background:var(--blue);color:#fff;font-size:14px}.cb.sb:hover{opacity:.9}
 
 /* Picker */
 .pkr{display:none;border-top:1px solid var(--border);background:#fff;max-height:180px;overflow-y:auto}
 .pkr.show{display:block}
 .pktabs{display:flex;border-bottom:1px solid var(--border)}
-.pkt{flex:1;padding:6px;font-size:11px;font-weight:600;text-align:center;cursor:pointer;color:var(--text3);border-bottom:2px solid transparent}
+.pkt{flex:1;padding:7px;font-size:11px;font-weight:600;text-align:center;cursor:pointer;color:var(--t3);border-bottom:2px solid transparent}
 .pkt.act{color:var(--blue);border-bottom-color:var(--blue)}
 .pkb{padding:8px 10px}
-.pkst{font-size:9px;font-weight:600;color:var(--text3);margin:6px 0 4px}
-.pkst:first-child{margin-top:0}
+.pkst{font-size:9px;font-weight:600;color:var(--t3);margin:6px 0 3px}.pkst:first-child{margin-top:0}
 .pkg{display:flex;flex-wrap:wrap;gap:1px}
 .ec{width:34px;height:34px;display:flex;align-items:center;justify-content:center;font-size:20px;border-radius:7px;cursor:pointer;position:relative;transition:.1s}
 .ec:hover{background:#eee;transform:scale(1.1)}
 .vd{position:absolute;top:0;right:1px;width:6px;height:6px;border-radius:50%;border:1.5px solid #fff}
 .vd.g{background:var(--green)}.vd.y{background:var(--yellow)}.vd.r{background:var(--red)}
-.pkleg{display:flex;gap:8px;margin-top:6px;padding:4px 6px;background:#f8f8f8;border-radius:6px;font-size:9px;color:var(--text2)}
-.pkleg span{display:flex;align-items:center;gap:3px}
-.pkleg .dot{width:6px;height:6px;border-radius:50%}
 
-/* ── Overlays (inside phone, position:absolute) ── */
-.ov{display:none;position:absolute;inset:0;background:rgba(0,0,0,.45);z-index:50;align-items:center;justify-content:center}
+/* ═══ OVERLAYS ═══ */
+.ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:200;align-items:center;justify-content:center}
 .ov.show{display:flex}
+.ovc{background:#fff;border-radius:18px;padding:24px;width:300px;text-align:center;box-shadow:0 16px 50px rgba(0,0,0,.15)}
 
 /* Tooltip */
-.ttc{background:#fff;border-radius:18px;padding:24px 20px;width:270px;text-align:center;box-shadow:0 16px 50px rgba(0,0,0,.2)}
-.ttc .tbig{font-size:48px;margin-bottom:4px}
-.ttc .tmean{font-size:15px;font-weight:700}
-.ttc .tsub{font-size:11px;color:var(--text3);margin:1px 0 10px}
+.ovc .tbig{font-size:48px;margin-bottom:4px}
+.ovc .tmn{font-size:15px;font-weight:700}.ovc .tsb{font-size:11px;color:var(--t2);margin:2px 0 10px}
 .dbar{display:flex;border-radius:6px;overflow:hidden;height:24px;margin-bottom:6px}
 .dbar .sg{display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#fff}
 .sg.pos{background:var(--green)}.sg.neu{background:var(--yellow)}.sg.neg{background:var(--red)}
@@ -169,519 +155,355 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Pretendard','Noto Sans KR',sa
 .dlg span{font-size:9px;padding:2px 6px;border-radius:5px}
 .dlg .pos{background:#dcfce7;color:#166534}.dlg .neu{background:#fef9c3;color:#854d0e}.dlg .neg{background:#fee2e2;color:#991b1b}
 .ttcul{margin-top:8px;padding:8px;border-radius:8px;background:#fef3c7;font-size:10px;color:#92400e;text-align:left;line-height:1.4}
-.tta11{margin-top:6px;padding:8px;border-radius:8px;background:#eff6ff;font-size:10px;color:#1e40af;text-align:left;line-height:1.4}
-.ttcl{margin-top:10px;padding:6px 20px;border-radius:8px;border:1px solid var(--border);background:#fff;font-size:12px;cursor:pointer}
-.ttcl:hover{background:#f5f5f5}
+.tta11{margin-top:6px;padding:8px;border-radius:8px;background:var(--bluel);font-size:10px;color:var(--blue);text-align:left;line-height:1.4}
+.cls{margin-top:10px;padding:6px 20px;border-radius:8px;border:1px solid var(--border);background:#fff;font-size:12px;cursor:pointer}.cls:hover{background:#f5f5f5}
 
 /* Note modal */
-.ntc{background:#fff;border-radius:16px;padding:20px;width:260px}
-.ntc h4{font-size:14px;font-weight:700;margin-bottom:3px}
-.ntc .nsub{font-size:10px;color:var(--text3);margin-bottom:10px}
-.ntc .epk{display:flex;gap:3px;margin-bottom:10px;flex-wrap:wrap}
+.ntc{text-align:left}
+.ntc h4{font-size:14px;font-weight:700;margin-bottom:8px}
+.ntc .epk{display:flex;gap:3px;margin-bottom:8px;flex-wrap:wrap}
 .ntc .epk button{padding:5px 8px;border-radius:8px;border:1.5px solid var(--border);background:#fff;font-size:16px;cursor:pointer}
-.ntc .epk button:hover{border-color:var(--blue);background:#eff6ff}
-.ntc .epk button.sel{border-color:var(--blue);background:#dbeafe}
+.ntc .epk button:hover{border-color:var(--blue)}.ntc .epk button.sel{border-color:var(--blue);background:var(--bluel)}
 .ntc input{width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:12px;outline:none;margin-bottom:10px;font-family:inherit}
 .ntc input:focus{border-color:var(--blue)}
 .nbtns{display:flex;gap:6px;justify-content:flex-end}
 .nbtns button{padding:6px 14px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;border:none}
 .nbtns .nc{background:#eee}.nbtns .no{background:var(--blue);color:#fff}
 
-/* Settings sheet */
-.ov.set{align-items:flex-end}
-.stsh{background:#fff;border-radius:16px 16px 0 0;padding:20px;width:100%}
+/* Settings */
+.ov.set{align-items:flex-end;justify-content:center}
+.stsh{background:#fff;border-radius:16px 16px 0 0;padding:20px;width:100%;max-width:400px}
 .stsh h4{font-size:14px;font-weight:700;margin-bottom:10px}
-.sr{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f5f5f5}
-.sr:last-of-type{border:none}
-.sr .si .sn{font-size:12px}.sr .si .sd{font-size:9px;color:var(--text3);margin-top:1px}
+.sr{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f5f5f5}.sr:last-of-type{border:none}
+.sr .sn{font-size:12px}.sr .sd{font-size:9px;color:var(--t3);margin-top:1px}
 .tgl{width:40px;height:22px;border-radius:11px;background:#ddd;position:relative;cursor:pointer;transition:.3s;flex-shrink:0}
 .tgl.on{background:var(--blue)}
-.tgl::after{content:'';position:absolute;width:18px;height:18px;border-radius:50%;background:#fff;top:2px;left:2px;transition:.3s;box-shadow:0 1px 2px rgba(0,0,0,.15)}
+.tgl::after{content:'';position:absolute;width:18px;height:18px;border-radius:50%;background:#fff;top:2px;left:2px;transition:.3s;box-shadow:0 1px 2px rgba(0,0,0,.1)}
 .tgl.on::after{left:20px}
 .stcl{width:100%;padding:8px;border:none;background:#f5f5f5;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;margin-top:10px}
-
-/* Onboarding hint */
-.ob{position:absolute;bottom:90px;left:50%;transform:translateX(-50%);background:var(--navy);color:#fff;padding:8px 16px;border-radius:10px;font-size:11px;font-weight:500;z-index:40;white-space:nowrap;box-shadow:0 4px 16px rgba(0,0,0,.2);animation:obIn .3s ease,obOut .3s ease 3.5s forwards;pointer-events:none}
-@keyframes obIn{from{opacity:0;transform:translateX(-50%) translateY(10px)}to{opacity:1;transform:translateX(-50%)}}
-@keyframes obOut{from{opacity:1}to{opacity:0}}
-.ob::after{content:'';position:absolute;bottom:-6px;left:50%;transform:translateX(-50%);border-left:6px solid transparent;border-right:6px solid transparent;border-top:6px solid var(--navy)}
 
 ::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:#ccc;border-radius:2px}
 </style>
 </head>
 <body>
 
-<!-- ═══ Landing ═══ -->
+<!-- LANDING -->
 <div class="landing" id="landing">
-  <div class="land-inner">
-    <h1>Re<span>:</span>Phrase</h1>
-    <p class="sub">이모지 해석 격차를 줄이는 메시징 보조 시스템 &middot; Team 3</p>
-    <div class="land-grid">
-      <div class="land-card" onclick="enterApp(0)"><div class="ltag" style="background:#22c55e">P1</div><h3>Pragmatic Dictionary</h3><p>이모지 길게 눌러 의미 확인, 해석 분포, 문화 차이 경고</p></div>
-      <div class="land-card" onclick="enterApp(1)"><div class="ltag" style="background:#3b82f6">P2</div><h3>Generative Context Aid</h3><p>정중함 슬라이더로 톤 실시간 조절, 정중한 대안 즉시 변환</p></div>
-      <div class="land-card" onclick="enterApp(2)"><div class="ltag" style="background:#f59e0b">P3</div><h3>Friction Minimization</h3><p>이모지 크기 고정, Work/Personal 패널 전환, 발신 미리보기</p></div>
-      <div class="land-card" onclick="enterApp(3)"><div class="ltag" style="background:#8b5cf6">P4</div><h3>Token & Accessibility</h3><p>기능 토큰 바, 상태 토큰, 리액션+메모, 접근성 번역</p></div>
-    </div>
-    <button class="land-btn" onclick="enterApp(0)">프로토타입 시작</button>
+  <div class="land">
+    <div class="logo">Re<span>:</span>Phrase</div>
+    <p class="tagline">같은 이모지, 다른 해석.<br>관계와 맥락을 이해하는 스마트 메신저.</p>
+    <button class="login" onclick="startApp()">시작하기</button>
+    <div class="skip" onclick="startApp()">둘러보기</div>
   </div>
 </div>
 
-<!-- ═══ App Shell ═══ -->
+<!-- OVERLAYS -->
+<div class="ov" id="ttOv" onclick="if(event.target===this)this.classList.remove('show')"><div class="ovc" id="ttC"></div></div>
+<div class="ov" id="ntOv" onclick="if(event.target===this)this.classList.remove('show')"><div class="ovc ntc" id="ntC"></div></div>
+<div class="ov set" id="stOv" onclick="if(event.target===this)this.classList.remove('show')"><div class="stsh" id="stC"></div></div>
+
+<!-- APP -->
 <div class="app" id="app">
-  <div class="topbar">
-    <div class="logo" onclick="backToLanding()">Re<span>:</span>Phrase</div>
-    <div class="tabs" id="tabs">
-      <div class="tab active" onclick="switchP(0)"><span class="tdot" style="background:#22c55e"></span>P1 Dictionary</div>
-      <div class="tab" onclick="switchP(1)"><span class="tdot" style="background:#3b82f6"></span>P2 Context Aid</div>
-      <div class="tab" onclick="switchP(2)"><span class="tdot" style="background:#f59e0b"></span>P3 Friction</div>
-      <div class="tab" onclick="switchP(3)"><span class="tdot" style="background:#8b5cf6"></span>P4 Token</div>
+  <div class="side">
+    <div class="side-top">
+      <div class="slogo">Re<span>:</span>Phrase</div>
+      <button class="gear" onclick="openSet()">⚙️</button>
     </div>
+    <div class="cl" id="chatList"></div>
   </div>
-  <div class="content" id="content"></div>
+  <div class="main" id="mainArea">
+    <div class="empty"><div class="eic">💬</div><h3>Re:Phrase</h3><p>대화를 선택하세요</p></div>
+  </div>
 </div>
 
 <script>
-// ═══ SHARED DATA ═══
-// Context-dependent emoji data: same emoji, different interpretation by context
+// ═══ DATA ═══
+const CFG={emojiSize:true,panelSwitch:true,renderPreview:true,toneAid:true};
+
+// Context-dependent emoji interpretation
 const ED_CTX={
-  work_formal:{ // 상사/교수 → 부하 (Q-06, Q-25: revision cycle)
-    '🙂':{v:'r',m:'미소 — 맥락에 따라 해석 분산 큼',d:[{l:'형식적 마무리',p:40,t:'neu'},{l:'불만/냉소',p:35,t:'neg'},{l:'진짜 미소',p:25,t:'pos'}],a:'상사의 🙂는 형식적이거나 불만의 신호일 수 있음'},
-    '👍':{v:'y',m:'확인 — 무성의 가능성',d:[{l:'단순 확인',p:50,t:'neu'},{l:'긍정/동의',p:35,t:'pos'},{l:'무성의/귀찮음',p:15,t:'neg'}],a:'업무 맥락에서 최소한의 확인 신호'},
-    '🤔':{v:'y',m:'의문 — 재검토 요청 가능',d:[{l:'재검토 요청',p:45,t:'neg'},{l:'궁금/관심',p:35,t:'neu'},{l:'흥미',p:20,t:'pos'}],a:'상사의 🤔는 수정 요청의 간접 표현일 수 있음'},
-  },
-  work_peer:{ // 동료 간 (Q-13: 같은 이모지 다중 해석)
-    '🙂':{v:'r',m:'미소 — "got it" 또는 비꼼',d:[{l:'친근함/OK',p:35,t:'pos'},{l:'어색함',p:30,t:'neu'},{l:'비꼼/냉소',p:35,t:'neg'}],a:'동료의 🙂는 "uncomfortable but friendly"와 "I\'m fucked" 사이'},
-    '👀':{v:'r',m:'관심 — 또는 "지켜보고 있다"',d:[{l:'흥미/관심',p:35,t:'pos'},{l:'지켜보는 중',p:40,t:'neu'},{l:'의심/압박',p:25,t:'neg'}],a:'동료의 👀은 흥미와 감시 사이'},
-    '😅':{v:'y',m:'곤란 — 진짜 미안 또는 짜증',d:[{l:'진짜 민망',p:45,t:'neu'},{l:'가볍게 넘기기',p:30,t:'pos'},{l:'사실은 짜증',p:25,t:'neg'}],a:'동료의 😅는 진심 사과와 가벼운 회피 사이'},
-  },
-  personal:{ // 친구/가족 (Q-09: 단일 이모지 확대 회피)
-    '😂':{v:'g',m:'ㅋㅋㅋ — 진짜 웃김',d:[{l:'진짜 웃김',p:70,t:'pos'},{l:'과장/리액션',p:25,t:'neu'},{l:'비웃음',p:5,t:'neg'}],a:'친구 간 😂는 대부분 진심 웃음'},
-    '👍':{v:'g',m:'ㅇㅋ — 가벼운 확인',d:[{l:'알겠어/ㅇㅋ',p:75,t:'pos'},{l:'귀찮음',p:20,t:'neu'},{l:'무시',p:5,t:'neg'}],a:'친구 간 👍은 가벼운 확인'},
-    '🙂':{v:'y',m:'미소 — 또는 "할 말 없다"',d:[{l:'그냥 미소',p:40,t:'pos'},{l:'할 말 없음',p:35,t:'neu'},{l:'삐짐/서운함',p:25,t:'neg'}],a:'친구의 🙂는 "더 할 말 없다"는 신호일 수 있음'},
-  },
-  cross_cultural:{ // 해외팀 (Q-15: 🙏=racism, 👍=give up)
-    '🙏':{v:'r',m:'기도? 감사? high-five?',d:[{l:'감사/부탁',p:40,t:'pos'},{l:'기도/소원',p:25,t:'neu'},{l:'high-five/racism',p:35,t:'neg'}],c:'Q-15 [U6]: 파리 협업 시 🙏가 racism으로, 👍가 "give up"으로 해석된 사례',a:'문화권별 해석 차이가 가장 큰 이모지'},
-    '👍':{v:'r',m:'OK? — 또는 "포기"',d:[{l:'OK/좋아요',p:45,t:'pos'},{l:'형식적 동의',p:25,t:'neu'},{l:'포기/비꼼',p:30,t:'neg'}],c:'Q-15: 일부 문화권에서 👍은 "give up" 또는 모욕적 제스처',a:'문화권에 따라 긍정과 부정이 뒤바뀔 수 있음'},
-  },
+  formal:{'🙂':{v:'r',m:'미소 — 형식적 또는 불만',d:[{l:'형식적 마무리',p:40,t:'neu'},{l:'불만/냉소',p:35,t:'neg'},{l:'진짜 미소',p:25,t:'pos'}]},'👍':{v:'y',m:'확인 — 무성의 가능성',d:[{l:'단순 확인',p:50,t:'neu'},{l:'긍정',p:35,t:'pos'},{l:'귀찮음',p:15,t:'neg'}]},'🤔':{v:'y',m:'의문 — 재검토 요청',d:[{l:'재검토 요청',p:45,t:'neg'},{l:'궁금',p:35,t:'neu'},{l:'흥미',p:20,t:'pos'}]}},
+  peer:{'🙂':{v:'r',m:'OK 또는 비꼼',d:[{l:'OK/친근',p:35,t:'pos'},{l:'어색함',p:30,t:'neu'},{l:'비꼼',p:35,t:'neg'}]},'👀':{v:'r',m:'관심 또는 압박',d:[{l:'흥미',p:35,t:'pos'},{l:'지켜봄',p:40,t:'neu'},{l:'압박',p:25,t:'neg'}]},'😅':{v:'y',m:'미안 또는 짜증',d:[{l:'진짜 민망',p:45,t:'neu'},{l:'가볍게',p:30,t:'pos'},{l:'짜증',p:25,t:'neg'}]}},
+  personal:{'😂':{v:'g',m:'ㅋㅋㅋ 진짜 웃김',d:[{l:'진짜 웃김',p:70,t:'pos'},{l:'리액션',p:25,t:'neu'},{l:'비웃음',p:5,t:'neg'}]},'👍':{v:'g',m:'ㅇㅋ',d:[{l:'알겠어',p:75,t:'pos'},{l:'귀찮',p:20,t:'neu'},{l:'무시',p:5,t:'neg'}]},'🙂':{v:'y',m:'미소 또는 할 말 없음',d:[{l:'미소',p:40,t:'pos'},{l:'할 말 없음',p:35,t:'neu'},{l:'삐짐',p:25,t:'neg'}]}},
+  cultural:{'🙏':{v:'r',m:'기도? 감사? high-five?',d:[{l:'감사',p:40,t:'pos'},{l:'기도',p:25,t:'neu'},{l:'racism 오해',p:35,t:'neg'}],c:'파리 협업 시 racism으로, 일부 문화권에서 high-five로 해석'},'👍':{v:'r',m:'OK 또는 포기',d:[{l:'OK',p:45,t:'pos'},{l:'형식적',p:25,t:'neu'},{l:'포기/모욕',p:30,t:'neg'}],c:'일부 문화권에서 "give up" 또는 부정적 제스처'}},
 };
-// Fallback global data
-const ED={
-  '✔':{v:'g',m:'확인 · 완료',d:[{l:'완료/확인',p:85,t:'pos'},{l:'무성의',p:10,t:'neu'},{l:'짜증',p:5,t:'neg'}],a:'작업 완료를 확인하는 기능적 신호'},
-  '👍':{v:'y',m:'좋아요 · 알겠어요',d:[{l:'긍정/동의',p:60,t:'pos'},{l:'무관심',p:25,t:'neu'},{l:'비꼼',p:15,t:'neg'}],a:'동의 또는 승인의 표시'},
-  '🙂':{v:'r',m:'미소 · 괜찮아요',d:[{l:'친근함',p:35,t:'pos'},{l:'어색함',p:35,t:'neu'},{l:'비꼼/냉소',p:30,t:'neg'}],a:'표면적 미소 — 냉소 가능성'},
-  '🙏':{v:'y',m:'감사 · 부탁',d:[{l:'감사',p:50,t:'pos'},{l:'부탁',p:35,t:'neu'},{l:'문화차이',p:15,t:'neg'}],c:'일부 문화권에서 "high-five"로 해석 (Q-15 [U6])',a:'감사 또는 부탁 — 문화권별 해석 차이'},
-  '😅':{v:'y',m:'곤란 · 민망',d:[{l:'민망',p:50,t:'neu'},{l:'유머',p:30,t:'pos'},{l:'짜증',p:20,t:'neg'}],a:'곤란한 상황의 가벼운 표현'},
-  '👀':{v:'r',m:'관심 · 감시',d:[{l:'관심',p:40,t:'pos'},{l:'감시',p:35,t:'neu'},{l:'의심',p:25,t:'neg'}],a:'주시 또는 관심 — 의심 가능'},
-  '😂':{v:'r',m:'웃김 · 조롱',d:[{l:'진짜 웃김',p:40,t:'pos'},{l:'과장',p:30,t:'neu'},{l:'조롱',p:30,t:'neg'}],a:'강한 웃음 — 진심 또는 조롱'},
-  '😊':{v:'g',m:'기쁨 · 따뜻함',d:[{l:'따뜻함',p:80,t:'pos'},{l:'형식적',p:15,t:'neu'},{l:'어색함',p:5,t:'neg'}],a:'따뜻한 감정'},
-  '🔥':{v:'g',m:'멋짐 · 열정',d:[{l:'멋있다',p:75,t:'pos'},{l:'열정',p:20,t:'pos'},{l:'과장',p:5,t:'neu'}],a:'칭찬 또는 열정'},
-  '❤️':{v:'g',m:'사랑 · 좋아요',d:[{l:'애정',p:70,t:'pos'},{l:'좋아요',p:25,t:'pos'},{l:'과함',p:5,t:'neu'}],a:'애정 또는 강한 호감'},
-  '💀':{v:'r',m:'웃겨죽겠 · 충격',d:[{l:'웃김',p:45,t:'pos'},{l:'충격',p:30,t:'neu'},{l:'부정적',p:25,t:'neg'}],a:'극단적 웃음 또는 충격'},
-  '🤔':{v:'y',m:'생각 중 · 의심',d:[{l:'궁금',p:55,t:'neu'},{l:'의심',p:30,t:'neg'},{l:'흥미',p:15,t:'pos'}],a:'생각 중이거나 의문'},
-};
-// Get context-appropriate emoji data
-function getED(emoji){
-  const c=getCur();
-  let ctx='work_peer';
-  if(c.type==='personal') ctx='personal';
-  else if(c.formal) ctx='work_formal';
-  else if(c.name?.includes('Sarah')) ctx='cross_cultural';
-  return ED_CTX[ctx]?.[emoji]||ED[emoji];
-}
+const ED={'✔':{v:'g',m:'확인',d:[{l:'완료',p:85,t:'pos'},{l:'무성의',p:10,t:'neu'},{l:'짜증',p:5,t:'neg'}]},'👍':{v:'y',m:'좋아요',d:[{l:'긍정',p:60,t:'pos'},{l:'무관심',p:25,t:'neu'},{l:'비꼼',p:15,t:'neg'}]},'🙂':{v:'r',m:'미소',d:[{l:'친근',p:35,t:'pos'},{l:'어색',p:35,t:'neu'},{l:'냉소',p:30,t:'neg'}]},'🙏':{v:'y',m:'감사/부탁',d:[{l:'감사',p:50,t:'pos'},{l:'부탁',p:35,t:'neu'},{l:'문화차이',p:15,t:'neg'}],c:'일부 문화권에서 high-five 또는 부정적 해석'},'😅':{v:'y',m:'곤란',d:[{l:'민망',p:50,t:'neu'},{l:'유머',p:30,t:'pos'},{l:'짜증',p:20,t:'neg'}]},'👀':{v:'r',m:'관심/감시',d:[{l:'관심',p:40,t:'pos'},{l:'감시',p:35,t:'neu'},{l:'의심',p:25,t:'neg'}]},'😂':{v:'r',m:'웃김',d:[{l:'웃김',p:40,t:'pos'},{l:'과장',p:30,t:'neu'},{l:'조롱',p:30,t:'neg'}]},'😊':{v:'g',m:'따뜻함',d:[{l:'따뜻함',p:80,t:'pos'},{l:'형식적',p:15,t:'neu'},{l:'어색',p:5,t:'neg'}]},'🔥':{v:'g',m:'멋짐',d:[{l:'멋있다',p:75,t:'pos'},{l:'열정',p:20,t:'pos'},{l:'과장',p:5,t:'neu'}]},'❤️':{v:'g',m:'좋아요',d:[{l:'애정',p:70,t:'pos'},{l:'좋아요',p:25,t:'pos'},{l:'과함',p:5,t:'neu'}]},'💀':{v:'r',m:'충격',d:[{l:'웃김',p:45,t:'pos'},{l:'충격',p:30,t:'neu'},{l:'부정',p:25,t:'neg'}]},'🤔':{v:'y',m:'생각중',d:[{l:'궁금',p:55,t:'neu'},{l:'의심',p:30,t:'neg'},{l:'흥미',p:15,t:'pos'}]}};
+
+function getED(e){const c=curChat;if(!c)return ED[e];let ctx=c.type==='personal'?'personal':c.formal?'formal':c.name?.includes('Sarah')?'cultural':'peer';return ED_CTX[ctx]?.[e]||ED[e]}
+
 const WE=['✔','👍','🙏','🙂','😊','🤔','😅','👀'];
 const PE=['😂','❤️','🔥','💀','😊','👍','🙂','😅','👀','🤔'];
-const WP=['✔','👍','🙏'],PP=['❤️','🔥','😂'];
-const CFG={emojiSize:true,panelSwitch:true,recentFilter:true,renderPreview:true};
-// Relationship-aware tone transformation
+
+// Content → emoji recommendation map
+const EMOJI_REC={
+  '감사':['🙏','😊','❤️'],'고마':['🙏','😊'],'수고':['👍','🙏','😊'],
+  '확인':['✔','👍'],'알겠':['👍','✔'],'네':['👍','✔'],
+  '웃':['😂','🔥'],'ㅋㅋ':['😂','💀','🔥'],'재밌':['😂','🔥'],
+  '미안':['🙏','😅'],'죄송':['🙏','😅'],'곤란':['😅','🤔'],
+  '좋':['👍','🔥','❤️'],'멋':['🔥','👍'],'최고':['🔥','❤️'],
+  '궁금':['🤔','👀'],'질문':['🤔'],'혹시':['🤔','🙂'],
+  '화이팅':['🔥','💪','👍'],'파이팅':['🔥','💪'],
+  '사랑':['❤️','😊'],'보고싶':['❤️','🙂'],
+};
+
+// Tone transformation
 const TONES=[
-  {m:v=>['네','넵','넹','ㅇㅇ','ㅇㅋ','ok','응','넴','ㅋ','웅'].some(s=>v.includes(s)),i:'확인/동의',
+  {m:v=>['네','넵','넹','ㅇㅇ','ㅇㅋ','ok','응'].some(s=>v.includes(s)),i:'확인',
    L:['ㅇㅋ','넵!','네, 확인했습니다!','네, 알겠습니다. 확인하겠습니다.','네, 말씀 감사합니다. 확인 후 바로 진행하겠습니다.'],
-   A:[['ㅇㅇ','알겠어~'],['알겠어요~','넵넵!'],['알겠습니다!','확인했어요!'],['검토 후 말씀드리겠습니다.','안내 감사드립니다.'],['말씀대로 진행하겠습니다.','검토 후 회신드리겠습니다.']]},
-  {m:v=>['감사','ㄱㅅ','고마','thx','ㄳ','땡큐'].some(s=>v.includes(s)),i:'감사',
-   L:['ㄳㄳ','고마워요!','감사합니다!','감사합니다, 참고하겠습니다.','진심으로 감사드립니다. 꼼꼼히 반영하겠습니다.'],
-   A:[['ㄱㅅ!','고마워~'],['감사!','고마워요~'],['감사합니다~','덕분에 도움됐어요!'],['말씀 감사드립니다.','참고하겠습니다.'],['감사드립니다.','소중한 피드백 감사합니다.']]},
-  {m:v=>['죄송','미안','ㅈㅅ','sorry','쏘리'].some(s=>v.includes(s)),i:'사과',
-   L:['ㅈㅅ','미안해요!','죄송합니다!','죄송합니다, 바로 수정하겠습니다.','죄송합니다. 확인하여 빠르게 보완하겠습니다.'],
-   A:[['미안~','ㅈㅅㅈㅅ'],['미안해요~','죄송!'],['죄송해요!','바로 고칠게요!'],['빠르게 반영하겠습니다.','죄송합니다, 확인하겠습니다.'],['즉시 조치하겠습니다.','재발 방지에 유의하겠습니다.']]},
-  {m:v=>['확인','봤','체크','검토','읽었','열어봤'].some(s=>v.includes(s)),i:'확인/검토',
-   L:['ㅇㅇ 봤어','확인했어요!','확인했습니다!','확인했습니다, 검토 후 말씀드리겠습니다.','확인했습니다. 꼼꼼히 검토 후 의견 전달드리겠습니다.'],
-   A:[['봤어~','ㅇㅋ 확인'],['봤어요!','체크했어요~'],['검토했습니다!','확인 완료!'],['검토 완료했습니다.','피드백 정리 중입니다.'],['의견 정리 후 회신드리겠습니다.','검토 마쳤습니다.']]},
-  {m:v=>['보내','제출','올리','전달','첨부','공유'].some(s=>v.includes(s)),i:'제출/전달',
-   L:['보냈어','보냈어요!','보내드렸습니다!','보내드렸습니다, 확인 부탁드립니다.','보내드렸습니다. 검토 후 피드백 부탁드리겠습니다.'],
-   A:[['올렸어~','보냄'],['올렸어요!','전달했어요~'],['전달드렸습니다!','제출했습니다!'],['첨부 확인 부탁드립니다.','검토 부탁드립니다.'],['검토 부탁드리겠습니다.','말씀하신 자료 송부드립니다.']]},
-  {m:v=>['수고','고생','힘들','애썼'].some(s=>v.includes(s)),i:'수고/격려',
+   A:[['ㅇㅇ'],['알겠어요~'],['알겠습니다!'],['검토 후 말씀드리겠습니다.'],['검토 후 회신드리겠습니다.']]},
+  {m:v=>['감사','고마','thx','ㄳ'].some(s=>v.includes(s)),i:'감사',
+   L:['ㄳ','고마워요!','감사합니다!','감사합니다, 참고하겠습니다.','진심으로 감사드립니다. 반영하겠습니다.'],
+   A:[['ㄱㅅ!'],['감사!'],['감사합니다~'],['말씀 감사드립니다.'],['감사드립니다.']]},
+  {m:v=>['죄송','미안','ㅈㅅ','sorry'].some(s=>v.includes(s)),i:'사과',
+   L:['ㅈㅅ','미안해요!','죄송합니다!','죄송합니다, 바로 수정하겠습니다.','죄송합니다. 빠르게 보완하겠습니다.'],
+   A:[['미안~'],['미안해요~'],['죄송해요!'],['빠르게 반영하겠습니다.'],['즉시 조치하겠습니다.']]},
+  {m:v=>['확인','봤','체크'].some(s=>v.includes(s)),i:'확인',
+   L:['ㅇㅇ 봤어','확인했어요!','확인했습니다!','확인했습니다, 검토 후 말씀드리겠습니다.','확인했습니다. 검토 후 의견 전달드리겠습니다.'],
+   A:[['봤어~'],['봤어요!'],['검토했습니다!'],['검토 완료했습니다.'],['회신드리겠습니다.']]},
+  {m:v=>['보내','제출','올리','전달'].some(s=>v.includes(s)),i:'전달',
+   L:['보냈어','보냈어요!','보내드렸습니다!','보내드렸습니다, 확인 부탁드립니다.','보내드렸습니다. 피드백 부탁드리겠습니다.'],
+   A:[['올렸어~'],['올렸어요!'],['전달드렸습니다!'],['확인 부탁드립니다.'],['검토 부탁드리겠습니다.']]},
+  {m:v=>['수고','고생'].some(s=>v.includes(s)),i:'격려',
    L:['수고~','수고했어요!','수고하셨습니다!','수고 많으셨습니다.','정말 수고 많으셨습니다. 큰 도움이 되었습니다.'],
-   A:[['ㅋㅋ 수고','고생했어~'],['고생했어요!','수고요~'],['수고하셨습니다~','고생하셨어요!'],['잘 확인하겠습니다.','감사합니다.'],['노고에 감사드립니다.','꼼꼼히 검토하겠습니다.']]},
-  {m:v=>['언제','시간','일정','기한','데드라인','마감'].some(s=>v.includes(s)),i:'일정 확인',
-   L:['언제?','언제까지예요?','일정 확인 부탁드립니다!','일정 관련 확인 부탁드리겠습니다.','일정 관련하여 확인 부탁드리겠습니다. 조율이 필요하면 말씀해 주세요.'],
-   A:[['언제까지?','마감 언제야?'],['언제까지예요?','일정 알려주세요~'],['일정 공유 부탁드려요!','마감일 확인할게요!'],['기한 확인 부탁드립니다.','일정 조율 가능할까요?'],['일정 조율 관련 회신 부탁드리겠습니다.','기한 내 진행 어려울 시 사전 공유 부탁드립니다.']]},
-  {m:v=>/^[\p{Emoji}\uFE0F\s]{1,8}$/u.test(v),i:'이모지 → 텍스트 변환',
-   L:[v=>v,'알겠어요!','확인했습니다!','네, 알겠습니다. 감사합니다.','말씀 확인했습니다. 감사합니다.'],
-   A:[[],['넵!','ㅇㅋ!'],['감사합니다!','확인!'],['말씀대로 하겠습니다.','확인했습니다.'],['안내 감사드립니다.','참고하겠습니다.']]},
-  {m:()=>true,i:'일반 응답',
-   L:[v=>v,v=>v,v=>v+' — 확인했습니다!',v=>'네, '+v.replace(/\s*$/,'')+(v.endsWith('.')?'':'.') +' 확인하겠습니다.',v=>'말씀하신 "'+v.slice(0,15)+(v.length>15?'...':'')+'" 관련 확인했습니다. 검토 후 회신드리겠습니다.'],
-   A:[[],[],[],['감사합니다.','확인하겠습니다.'],['말씀대로 진행하겠습니다.','안내 감사드립니다.']]},
+   A:[['고생했어~'],['고생했어요!'],['고생하셨어요!'],['감사합니다.'],['노고에 감사드립니다.']]},
+  {m:v=>/^[\p{Emoji}\uFE0F\s]{1,8}$/u.test(v),i:'이모지→텍스트',
+   L:[v=>v,'알겠어요!','확인했습니다!','네, 감사합니다.','말씀 확인했습니다.'],
+   A:[[],['넵!'],['감사합니다!'],['확인하겠습니다.'],['감사드립니다.']]},
+  {m:()=>true,i:'일반',
+   L:[v=>v,v=>v,v=>v,v=>'네, '+v.replace(/[.!?]*$/,'')+'. 확인하겠습니다.',v=>'말씀하신 내용 확인했습니다. 검토 후 회신드리겠습니다.'],
+   A:[[],[],[],['감사합니다.'],['말씀대로 진행하겠습니다.']]},
 ];
 
-// ═══ PROTOTYPE DATA ═══
-const PD=[
-  // P1
-  {name:'박동료',av:'박',col:'#f97316',desc:'업무 채팅',formal:false,type:'work',group:false,
-   msgs:[{s:'박동료',t:'어제 리뷰 피드백 반영했어!',tm:'1:05 PM'},{s:'박동료',t:'확인해봐 🙂',tm:'1:06 PM'},{s:'me',t:'고마워~ 👍',tm:'1:10 PM'},{s:'박동료',t:'근데 이거 좀 봐줘 👀',tm:'1:12 PM'},{s:'박동료',t:'😅 미안 갑자기 부탁해서',tm:'1:13 PM'},{s:'박동료',t:'🙏',tm:'1:14 PM'}],
-   rpool:['ㅋㅋ 고마워!','아 그리고 Sarah가 🙏 보냈는데 이거 무슨 뜻이야?','아 그런 뜻이었어? 나는 좀 다르게 이해했었는데 👀','이모지 진짜 헷갈리네 😅','맞아 나도 🙂 받으면 기분 좋은 건지 비꼬는 건지 모르겠어','ㅇㅋ 알겠어!','아까 팀장님이 👍 보냈는데 진짜 OK인 거 맞겠지?','ㅋㅋ 그건 괜찮을 듯','근데 해외팀은 이모지 해석이 진짜 다르더라','ㅇㅇ 확인했어 🙂'],rpi:0},
-  // P2
-  {name:'김교수님',av:'김',col:'#6366f1',desc:'업무 채팅 · 위계 감지됨',formal:true,type:'work',group:false,
+// Chat data
+const CHATS=[
+  {id:'prof',name:'김교수님',av:'김',col:'#6366f1',type:'work',formal:true,formalLv:5,
    msgs:[{s:'김교수님',t:'다음 주 월요일까지 중간보고서 초안 보내주세요.',tm:'10:23'},{s:'김교수님',t:'분석 프레임워크 부분은 특히 신경 써주세요.',tm:'10:24'},{s:'김교수님',t:'진행 상황은 어떤가요?',tm:'10:30'}],
-   rpool:['네 확인했어요.','혹시 분석 프레임워크 관련해서 참고할 논문 있나요?','좋습니다. 그 방향으로 진행해주세요 👍','수고하세요 🙂','발표 자료도 같이 준비해주세요.','다음 주 수요일에 중간 점검 예정입니다.','네, 알겠습니다.','진행 상황 공유 부탁드립니다 🤔','참고 자료 메일로 보내드렸습니다.'],rpi:0},
-  // P3 personal
-  {name:'최친구',av:'최',col:'#a855f7',desc:'개인 채팅',formal:false,type:'personal',group:false,
-   msgs:[{s:'최친구',t:'주말에 뭐해?',tm:'7:30 PM'},{s:'최친구',t:'😂😂 아까 그거 봤어?',tm:'7:31 PM'},{s:'me',t:'ㅋㅋㅋ 뭔데',tm:'7:32 PM'},{s:'최친구',t:'👍',tm:'7:33 PM'}],
-   rpool:['ㅋㅋㅋ 진짜?','😂😂','아 주말에 같이 밥 먹자!','❤️','ㅇㅇ 좋아!','어디서 먹을까?','ㅋㅋ 알겠어','👍','아 맞다 그거 봤어?','ㅋㅋㅋ 대박'],rpi:0,
-   alt:{name:'이팀장님',av:'이',col:'#ec4899',desc:'업무 채팅',type:'work',
-     msgs:[{s:'이팀장님',t:'오늘 회의 자료 검토 부탁합니다.',tm:'2:10 PM'},{s:'이팀장님',t:'3시까지 코멘트 남겨주세요 👍',tm:'2:11 PM'}],
-     rpool:['감사합니다. 확인했어요 👍','코멘트 남겼습니다. 확인 부탁드립니다 🙂','네, 알겠습니다.','내일까지 정리해서 공유드리겠습니다.','수고하셨습니다 🙏','회의록 공유 부탁드립니다.'],rpi:0}},
-  // P4
-  {name:'프로젝트 채널',av:'#',col:'#3b82f6',desc:'업무 채팅 · 6명',formal:false,type:'work',group:true,
-   msgs:[{s:'김대리',t:'API 연동 완료했습니다.',tm:'4:20 PM',rx:[{e:'✔',c:3},{e:'👍',c:2}]},{s:'이사원',t:'프론트 작업은 내일까지 걸릴 것 같아요.',tm:'4:25 PM'},{s:'박과장',t:'일정 괜찮을까요? 확인 부탁드립니다.',tm:'4:30 PM'},{s:'정인턴',t:'디자인 시안 올렸습니다.',tm:'4:35 PM',rx:[{e:'🔥',c:1}]}],
-   rpool:[
-     {s:'이사원',t:'확인했습니다! 바로 반영할게요.'},{s:'김대리',t:'👍'},{s:'박과장',t:'프론트 일정 내일 오전 중 재확인 부탁드립니다.'},
-     {s:'정인턴',t:'넵 확인했습니다!'},{s:'김대리',t:'디자인 시안 검토 완료했습니다. 수정 사항 있어요.'},
-     {s:'이사원',t:'수정본 올렸습니다 🙏'},{s:'박과장',t:'네 확인하겠습니다.'},{s:'김대리',t:'✔'},
-     {s:'정인턴',t:'혹시 컬러 가이드 있을까요? 🤔'},{s:'이사원',t:'공유드리겠습니다!'},
-   ],rpi:0},
+   rpool:['네 확인했어요.','참고 논문 있으면 공유 부탁드립니다.','좋습니다, 그 방향으로 진행해주세요 👍','수고하세요 🙂','발표 자료도 같이 준비해주세요.','네, 알겠습니다.','진행 상황 공유 부탁드립니다 🤔'],rpi:0},
+  {id:'boss',name:'이팀장님',av:'이',col:'#ec4899',type:'work',formal:true,formalLv:4,
+   msgs:[{s:'이팀장님',t:'오늘 회의 자료 검토 부탁합니다.',tm:'14:10'},{s:'이팀장님',t:'3시까지 코멘트 남겨주세요 👍',tm:'14:11'}],
+   rpool:['감사합니다 👍','확인했어요, 코멘트 남기겠습니다 🙂','네 좋습니다.','내일까지 정리해서 공유드리겠습니다.','수고하셨습니다 🙏','회의록 공유 부탁드립니다.'],rpi:0},
+  {id:'peer',name:'박동료',av:'박',col:'#f97316',type:'work',formal:false,formalLv:2,
+   msgs:[{s:'박동료',t:'어제 리뷰 피드백 반영했어!',tm:'13:05'},{s:'박동료',t:'확인해봐 🙂',tm:'13:06'},{s:'me',t:'고마워~ 👍',tm:'13:10'},{s:'박동료',t:'근데 이거 좀 봐줘 👀',tm:'13:12'},{s:'박동료',t:'😅 미안 갑자기 부탁해서',tm:'13:13'}],
+   rpool:['ㅋㅋ 고마워!','아 Sarah가 🙏 보냈는데 이거 무슨 뜻이야?','나는 좀 다르게 이해했었는데 👀','이모지 진짜 헷갈리네 😅','ㅇㅋ 알겠어!','팀장님이 👍 보냈는데 진짜 OK인 거 맞겠지?','ㅋㅋ 그건 괜찮을 듯','ㅇㅇ 확인했어'],rpi:0},
+  {id:'sarah',name:'Sarah (해외팀)',av:'S',col:'#22c55e',type:'work',formal:true,formalLv:4,
+   msgs:[{s:'Sarah',t:'Thanks for the update! 🙏',tm:'15:30'},{s:'Sarah',t:'Can we sync tomorrow?',tm:'15:31'}],
+   rpool:['Sounds good 👍','Let me check and get back to you','Thanks! 🙏','Sure, I\'ll send the doc 🙂','Got it, will review today'],rpi:0},
+  {id:'proj',name:'프로젝트 채널',av:'#',col:'#4F6CFF',type:'work',formal:false,formalLv:3,group:true,
+   msgs:[{s:'김대리',t:'API 연동 완료했습니다.',tm:'16:20',rx:[{e:'✔',c:3},{e:'👍',c:2}]},{s:'이사원',t:'프론트 작업은 내일까지 걸릴 것 같아요.',tm:'16:25'},{s:'박과장',t:'일정 괜찮을까요? 확인 부탁드립니다.',tm:'16:30'},{s:'정인턴',t:'디자인 시안 올렸습니다.',tm:'16:35',rx:[{e:'🔥',c:1}]}],
+   rpool:[{s:'이사원',t:'확인했습니다! 반영할게요.'},{s:'김대리',t:'👍'},{s:'박과장',t:'프론트 일정 재확인 부탁드립니다.'},{s:'정인턴',t:'넵 확인했습니다!'},{s:'김대리',t:'디자인 검토 완료. 수정 사항 있어요.'},{s:'이사원',t:'수정본 올렸습니다 🙏'},{s:'박과장',t:'네 확인하겠습니다.'},{s:'정인턴',t:'컬러 가이드 있을까요? 🤔'}],rpi:0},
+  {id:'friend',name:'최친구',av:'최',col:'#a855f7',type:'personal',formal:false,formalLv:1,
+   msgs:[{s:'최친구',t:'주말에 뭐해?',tm:'19:30'},{s:'최친구',t:'😂😂 아까 그거 봤어?',tm:'19:31'},{s:'me',t:'ㅋㅋㅋ 뭔데',tm:'19:32'},{s:'최친구',t:'👍',tm:'19:33'}],
+   rpool:['ㅋㅋㅋ 진짜?','😂😂','아 주말에 같이 밥 먹자!','❤️','ㅇㅇ 좋아!','어디서 먹을까?','ㅋㅋ 알겠어','아 맞다 그거 봤어?','ㅋㅋㅋ 대박','👍'],rpi:0},
+  {id:'mom',name:'엄마',av:'엄',col:'#ef4444',type:'personal',formal:false,formalLv:1,
+   msgs:[{s:'엄마',t:'밥 먹었어?',tm:'18:00'},{s:'me',t:'네~ 먹었어요',tm:'18:05'},{s:'엄마',t:'❤️',tm:'18:06'}],
+   rpool:['잘 먹어~','오늘 뭐 했어?','❤️','주말에 집에 와~','건강 챙겨!','ㅋㅋ 알겠어','엄마도 보고싶어 😊'],rpi:0},
 ];
 
-let curP=0,lt=null,noteIdx=null,noteEmoji='👍',a11yOn=false,p3work=false;
+let curChat=null,lt=null,noteIdx=null,noteEmoji='👍';
 
 function now(){return new Date().toLocaleTimeString('ko-KR',{hour:'numeric',minute:'2-digit'})}
-function getOBHint(){
-  const hints=['💡 이모지를 클릭하면 의미와 해석 분포를 확인할 수 있어요','💡 아래에 짧게 입력해보세요 — 정중함 슬라이더로 톤이 바뀝니다','💡 업무/개인 채팅을 전환해보세요 — 이모지 패널이 자동으로 바뀝니다','💡 상태 토큰으로 리액션하거나, 메시지를 더블클릭해서 메모를 남겨보세요'];
-  return `<div class="ob">${hints[curP]}</div>`;
-}
-function getCur(){
-  if(curP===2&&p3work) return PD[2].alt;
-  return PD[curP];
+
+// ═══ NAV ═══
+function startApp(){document.getElementById('landing').classList.add('hide');document.getElementById('app').classList.add('show');renderList()}
+
+function renderList(){
+  const el=document.getElementById('chatList');el.innerHTML='';
+  CHATS.forEach(c=>{
+    const last=c.msgs[c.msgs.length-1];
+    const div=document.createElement('div');
+    div.className='ci'+(curChat?.id===c.id?' act':'');
+    div.innerHTML=`<div class="av" style="background:${c.col}">${c.av}</div><div class="meta"><div class="nm">${c.name} <span class="badge ${c.type==='work'?'w':'p'}">${c.type==='work'?'업무':'개인'}</span></div><div class="pv">${last.t}</div></div><span class="tm">${last.tm}</span>`;
+    div.onclick=()=>openChat(c);
+    el.appendChild(div);
+  });
 }
 
-// ═══ NAVIGATION ═══
-function enterApp(idx){
-  document.getElementById('landing').classList.add('hide');
-  document.getElementById('app').classList.add('show');
-  switchP(idx);
-}
-function backToLanding(){
-  document.getElementById('landing').classList.remove('hide');
-  document.getElementById('app').classList.remove('show');
-}
-function switchP(idx){
-  curP=idx;
-  if(idx===2) p3work=false;
-  a11yOn=false;
-  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',i===idx));
-  render();
-}
-
-// ═══ RENDER ═══
-function render(){
-  const c=getCur();
-  const ct=document.getElementById('content');
-  const isP1=curP===0,isP2=curP===1,isP3=curP===2,isP4=curP===3;
-  const showTokens=isP4;
-  const showSettings=isP3;
-  // Relationship-based auto formality: 교수=5, 팀장=4, 해외공식=4, 동료=2, 친구=1
-  const autoFormal = c.name?.includes('교수')?5 : c.name?.includes('팀장')?4 : c.name?.includes('Sarah')?4 : c.formal?4 : c.type==='personal'?1 : 2;
-  const showTone = c.type==='work'; // 업무 채팅이면 항상 톤 제안
-
-  ct.innerHTML=`<div class="phone" id="phone">
-    <div class="hdr">
-      <div class="av" style="background:${c.col}">${c.av}</div>
-      <div class="hinfo"><h4>${c.name}</h4><p>${c.desc}</p></div>
-      ${c.formal?'<div class="hchip">🏢 공식</div>':''}
-      <button class="hbtn" onclick="openSet()" style="display:flex;margin-left:auto">⚙️</button>
-      ${isP4?'<button class="hbtn" onclick="tglA11y()" id="a11b">♿</button>':''}
+function openChat(c){
+  curChat=c;renderList();
+  const m=document.getElementById('mainArea');
+  const isWork=c.type==='work';
+  const showTokens=isWork&&c.group;
+  m.innerHTML=`
+    <div class="chdr"><div class="av" style="background:${c.col}">${c.av}</div><div><h4>${c.name}</h4><div class="csub">${isWork?'업무':'개인'}${c.formal?' · 공식':''}${c.group?' · 그룹':''}</div></div>
+      <div class="rel-chip">${c.formal?'<span class="rel-badge">🏢 공식</span>':''}</div>
     </div>
-    <div class="ov" id="ttOv" onclick="if(event.target===this)this.classList.remove('show')"><div class="ttc" id="ttC"></div></div>
-    <div class="ov" id="ntOv" onclick="if(event.target===this)this.classList.remove('show')"><div class="ntc" id="ntC"></div></div>
-    <div class="ov set" id="stOv" onclick="if(event.target===this)this.classList.remove('show')"><div class="stsh" id="stC"></div></div>
-    ${isP3?`<div class="csw show"><div class="csb ${p3work?'':'act'}" onclick="p3work=false;render()">🏠 최친구 (개인)</div><div class="csb ${p3work?'act':''}" onclick="p3work=true;render()">🏢 이팀장님 (업무)</div></div>`:''}
     <div class="msgs" id="ma"></div>
-    ${isP3?'<div class="rpv" id="rpv"><div class="rpl">👁 상대방에게 보이는 모습</div><div id="rpc"></div></div>':''}
+    ${CFG.renderPreview?'<div class="rpv" id="rpv"></div>':''}
     <div class="carea">
-      ${showTone?`<div class="fctrl show" id="fc"><label>정중함</label><input type="range" min="1" max="5" value="${autoFormal}" id="fr" oninput="onFR()"><span class="fv" id="fv">${['','반말','약간 반말','보통','높임','매우 높임'][autoFormal]}</span></div>`:''}
-      <div class="tpv" id="tpv"></div>
+      ${isWork&&CFG.toneAid?`<div class="fbar show"><label>정중함</label><input type="range" min="1" max="5" value="${c.formalLv}" id="fr" oninput="onFR()"><span class="fv" id="fv">${['','반말','약간 반말','보통','높임','매우 높임'][c.formalLv]}</span></div>`:''}
+      <div class="tsug" id="tsug"></div>
+      <div class="erec" id="erec"></div>
       <div class="wbar" id="wb"><span id="wt"></span><button class="wd" onclick="this.parentElement.classList.remove('show')">무시</button></div>
-      ${showTokens?`<div class="tkbar show"><div class="tklbl">📌 빠른 반응 &nbsp;&nbsp; 📊 상태 표시</div>
-        <button class="tk" onclick="ins('✔')">✔ 확인</button><button class="tk" onclick="ins('👍')">👍 좋아요</button><button class="tk" onclick="ins('🙏')">🙏 감사</button>
-        <div class="tksep"></div>
-        <button class="tk st" onclick="addSt('⏳','확인 중')">⏳ 확인 중</button><button class="tk st" onclick="addSt('🚫','블로킹')">🚫 블로킹</button><button class="tk st" onclick="addSt('⚠️','지연')">⚠️ 지연</button><button class="tk st" onclick="addSt('✅','완료')">✅ 완료</button>
+      ${showTokens?`<div class="tkbar show">
+        <button class="tk" onclick="ins('✔')">✔</button><button class="tk" onclick="ins('👍')">👍</button><button class="tk" onclick="ins('🙏')">🙏</button><div class="tksep"></div>
+        <button class="tk st" onclick="addSt('⏳','확인 중')">⏳ 확인 중</button><button class="tk st" onclick="addSt('🚫','블로킹')">🚫</button><button class="tk st" onclick="addSt('⚠️','지연')">⚠️</button><button class="tk st" onclick="addSt('✅','완료')">✅</button>
       </div>`:''}
       <div class="crow">
-        <button class="cb eb" onclick="tglPkr()">😊</button>
+        <button class="cb eb" onclick="document.getElementById('pkr').classList.toggle('show')">😊</button>
         <textarea id="inp" rows="1" placeholder="${c.formal?c.name+'님에게 답장...':'메시지 입력...'}" oninput="onInp()"></textarea>
         <button class="cb sb" onclick="doSend()">↑</button>
       </div>
     </div>
-    <div class="pkr" id="pkr">${buildPkr()}</div>
-    ${getOBHint()}
-  </div>`;
+    <div class="pkr" id="pkr">
+      <div class="pktabs"><div class="pkt ${isWork?'act':''}" onclick="bldPkr('work',this)">🏢 업무</div><div class="pkt ${!isWork?'act':''}" onclick="bldPkr('personal',this)">🏠 개인</div></div>
+      <div class="pkb" id="pkb"></div>
+    </div>`;
   renderMsgs();
+  bldPkr(isWork?'work':'personal');
   const inp=document.getElementById('inp');
-  if(inp&&!inp._bound){
-    inp._bound=true;
-    inp.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();doSend()}});
-  }
+  if(inp&&!inp._b){inp._b=true;inp.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();doSend()}})}
 }
 
+// ═══ MESSAGES ═══
 function renderMsgs(){
   const el=document.getElementById('ma');if(!el)return;
-  const c=getCur();
-  el.innerHTML='<div class="dsep">오늘</div>';
+  const c=curChat;el.innerHTML='<div class="dsep">오늘</div>';
   c.msgs.forEach((msg,idx)=>{
-    const me=msg.s==='me';
-    const div=document.createElement('div');
+    const me=msg.s==='me';const div=document.createElement('div');
     const se=/^[\p{Emoji_Presentation}\p{Emoji}\uFE0F]{1,4}$/u.test(msg.t.trim())&&msg.t.trim().length<=8;
-    let cls='msg '+(me?'m':'o');
-    if(se){
-      if(curP===2) cls+=CFG.emojiSize?' emoji-s':' emoji-l';
-      else cls+=' emoji-s';
-    }
-    div.className=cls;
-
-    let html=msg.t;
-    if(curP===0&&!me){
-      html=msg.t.replace(/([\p{Emoji_Presentation}\p{Emoji}\uFE0F]+)/gu,(m)=>{
-        if(ED[m])return `<span class="ehl" data-e="${m}" onclick="showTT('${m}')">${m}</span>`;
-        return m;
-      });
-    }
-
+    div.className=`msg ${me?'m':'o'}${se&&CFG.emojiSize?' emoji-s':''}`;
+    let html=msg.t.replace(/([\p{Emoji_Presentation}\p{Emoji}\uFE0F]+)/gu,(m)=>ED[m]?`<span class="ehl" onclick="showTT('${m}')">${m}</span>`:m);
     let rxH='';
-    if(msg.rx?.length){
-      rxH='<div class="rxr">'+msg.rx.map(r=>{
-        const n=r.note?`<span class="rn">${r.note}</span>`:'';
-        return `<span class="rx">${r.e}${r.c>1?' '+r.c:''}${n}</span>`;
-      }).join('')+`<span class="rxa" onclick="openNote(${idx})">+</span></div>`;
-    } else if(!me&&curP===3){
-      rxH=`<div class="rxr"><span class="rxa" onclick="openNote(${idx})">+</span></div>`;
-    }
-
-    // A11y labels for P4 (curP===3)
-    let a11H='';
-    if(curP===3&&a11yOn){
-      const ems=msg.t.match(/([\p{Emoji_Presentation}\p{Emoji}\uFE0F])/gu);
-      if(ems){const ls=ems.map(e=>ED[e]?.a).filter(Boolean);if(ls.length)a11H=`<div class="a11y-l show">♿ ${ls.join(' · ')}</div>`;}
-    }
-
-    // P1: hint for risky emoji (only on first occurrence)
+    if(msg.rx?.length){rxH='<div class="rxr">'+msg.rx.map(r=>`<span class="rx">${r.e}${r.c>1?' '+r.c:''}${r.note?`<span class="rn">${r.note}</span>`:''}</span>`).join('')+`<span class="rxa" onclick="openNote(${idx})">+</span></div>`}
+    else if(!me){rxH=`<div class="rxr"><span class="rxa" onclick="openNote(${idx})">+</span></div>`}
     let hintH='';
-    if(curP===0&&!me&&idx===1){
-      const ems=msg.t.match(/([\p{Emoji_Presentation}\p{Emoji}\uFE0F])/gu);
-      if(ems?.some(e=>ED[e]&&(ED[e].v==='r'||ED[e].v==='y'))){
-        const e=ems.find(e=>ED[e]);
-        hintH=`<div class="hint" onclick="showTT('${e}')">이모지를 눌러 의미 확인</div>`;
-      }
-    }
-
-    div.innerHTML=`${!me&&c.group?`<div class="sn">${msg.s}</div>`:''}${html}${a11H}${hintH}${rxH}<div class="tm">${msg.tm}</div>`;
-
-    // P4: dblclick for reaction
-    if(curP===3&&!me){div.addEventListener('dblclick',()=>openNote(idx));div.addEventListener('contextmenu',e=>{e.preventDefault();openNote(idx)});div.style.cursor='pointer';}
-
-    // P1: long press
-    if(curP===0&&!me){
-      div.querySelectorAll('.ehl').forEach(s=>{
-        s.addEventListener('mousedown',()=>{lt=setTimeout(()=>showTT(s.dataset.e),400)});
-        s.addEventListener('mouseup',()=>clearTimeout(lt));
-        s.addEventListener('mouseleave',()=>clearTimeout(lt));
-      });
-    }
+    if(!me&&idx<3){const ems=msg.t.match(/([\p{Emoji_Presentation}\p{Emoji}\uFE0F])/gu);if(ems?.some(e=>getED(e)&&(getED(e).v==='r'||getED(e).v==='y'))){const e=ems.find(e=>getED(e));hintH=`<div class="hint" onclick="showTT('${e}')">이모지 의미 확인</div>`}}
+    div.innerHTML=`${!me&&c.group?`<div class="sn">${msg.s}</div>`:''}${html}${hintH}${rxH}<div class="tm">${msg.tm}</div>`;
+    if(!me){div.addEventListener('contextmenu',e=>{e.preventDefault();openNote(idx)});div.addEventListener('dblclick',()=>openNote(idx))}
     el.appendChild(div);
   });
   el.scrollTop=el.scrollHeight;
 }
 
-// ═══ TOOLTIP (P1) ═══
+// ═══ TOOLTIP ═══
 function showTT(emoji){
   const d=getED(emoji);if(!d)return;
-  const c=getCur();
-  const ctxLabel=c.type==='personal'?'개인 대화':c.formal?'공식/위계 대화':c.name?.includes('Sarah')?'해외팀 대화':'업무 동료 대화';
-  const card=document.getElementById('ttC');
-  card.innerHTML=`<div class="tbig">${emoji}</div><div class="tmean">${d.m}</div>
-    <div class="tsub">현재 맥락: <b>${ctxLabel}</b></div>
+  const ctx=curChat.type==='personal'?'개인 대화':curChat.formal?'공식 대화':curChat.name?.includes('Sarah')?'해외팀':'동료 대화';
+  document.getElementById('ttC').innerHTML=`<div class="tbig">${emoji}</div><div class="tmn">${d.m}</div><div class="tsb">현재 맥락: ${ctx}</div>
     <div class="dbar">${d.d.map(x=>`<div class="sg ${x.t}" style="width:${x.p}%">${x.p}%</div>`).join('')}</div>
     <div class="dlg">${d.d.map(x=>`<span class="${x.t}">${x.l} ${x.p}%</span>`).join('')}</div>
-    ${d.c?`<div class="ttcul">🌍 <b>문화 차이 주의</b><br>${d.c}</div>`:''}
-    ${d.a?`<div class="tta11">♿ <b>접근성 의미</b><br>${d.a}</div>`:''}
-    <button class="ttcl" onclick="document.getElementById('ttOv').classList.remove('show')">닫기</button>`;
+    ${d.c?`<div class="ttcul">🌍 ${d.c}</div>`:''}
+    <button class="cls" onclick="document.getElementById('ttOv').classList.remove('show')">닫기</button>`;
   document.getElementById('ttOv').classList.add('show');
 }
 
 // ═══ PICKER ═══
-function buildPkr(){
-  const c=getCur();
-  const isWork=c.type==='work';
-  const emojis=isWork?WE:PE;
-  const pins=isWork?WP:PP;
-  const showVdots=curP===0;
-  let h=`<div class="pkb"><div class="pkst">📌 ${isWork?'업무':'개인'} 고정</div><div class="pkg">`;
-  pins.forEach(e=>{h+=ec(e,showVdots)});
-  h+=`</div><div class="pkst">전체</div><div class="pkg">`;
-  emojis.forEach(e=>{h+=ec(e,showVdots)});
-  h+=`</div>`;
-  if(showVdots) h+=`<div class="pkleg"><span><div class="dot" style="background:var(--green)"></div>안정</span><span><div class="dot" style="background:var(--yellow)"></div>주의</span><span><div class="dot" style="background:var(--red)"></div>분산 높음</span></div>`;
-  h+=`</div>`;
-  return h;
+function bldPkr(mode,el){
+  if(el){document.querySelectorAll('.pkt').forEach(t=>t.classList.remove('act'));el.classList.add('act')}
+  const b=document.getElementById('pkb');if(!b)return;
+  const emojis=mode==='work'?WE:PE;const pins=mode==='work'?['✔','👍','🙏']:['❤️','🔥','😂'];
+  b.innerHTML=`<div class="pkst">📌 고정</div><div class="pkg">${pins.map(e=>`<div class="ec" onclick="pickE('${e}')">${e}${ED[e]?`<span class="vd ${ED[e].v}"></span>`:''}</div>`).join('')}</div>
+    <div class="pkst">전체</div><div class="pkg">${emojis.map(e=>`<div class="ec" onclick="pickE('${e}')" onmousedown="lt=setTimeout(()=>showTT('${e}'),400)" onmouseup="clearTimeout(lt)" onmouseleave="clearTimeout(lt)">${e}${ED[e]?`<span class="vd ${ED[e].v}"></span>`:''}</div>`).join('')}</div>`;
 }
-function ec(e,vd){
-  const d=ED[e];
-  const dot=vd&&d?`<span class="vd ${d.v}"></span>`:'';
-  return `<div class="ec" onclick="pickE('${e}')" onmousedown="lt=setTimeout(()=>showTT('${e}'),400)" onmouseup="clearTimeout(lt)" onmouseleave="clearTimeout(lt)">${e}${dot}</div>`;
-}
-function tglPkr(){document.getElementById('pkr')?.classList.toggle('show')}
-function pickE(e){const i=document.getElementById('inp');i.value+=e;i.dispatchEvent(new Event('input'));document.getElementById('pkr')?.classList.remove('show')}
-function ins(e){const i=document.getElementById('inp');i.value+=e;i.focus()}
+function pickE(e){document.getElementById('inp').value+=e;document.getElementById('inp').dispatchEvent(new Event('input'));document.getElementById('pkr').classList.remove('show')}
+function ins(e){document.getElementById('inp').value+=e;document.getElementById('inp').focus()}
 
 // ═══ COMPOSER ═══
 function onInp(){
   const el=document.getElementById('inp');
-  el.style.height='auto';
-  el.style.height=Math.min(el.scrollHeight,80)+'px';
-  const v=el.value.trim();
+  el.style.height='auto';el.style.height=Math.min(el.scrollHeight,80)+'px';
+  const v=el.value.trim();const c=curChat;if(!c)return;
 
-  // Tone preview — works in ALL work chats
-  const c=getCur();
-  if(c.type==='work'&&v.length>0){
-    updateTone(v);
-  } else {
-    document.getElementById('tpv')?.classList.remove('show');
-  }
+  // Tone suggestion
+  if(c.type==='work'&&CFG.toneAid&&v.length>0){updateTone(v)}
+  else{document.getElementById('tsug')?.classList.remove('show')}
 
-  // Emoji warning — works in all formal chats
+  // Emoji recommendation based on content
+  if(v.length>=1){
+    const low=v.toLowerCase();
+    let recs=[];
+    for(const[k,emojis]of Object.entries(EMOJI_REC)){if(low.includes(k)){recs.push(...emojis);break}}
+    const erec=document.getElementById('erec');
+    if(recs.length&&erec){
+      const unique=[...new Set(recs)].slice(0,4);
+      erec.innerHTML=`<span class="erl">추천</span>${unique.map(e=>`<button class="erb" onclick="pickE('${e}')">${e}</button>`).join('')}`;
+      erec.classList.add('show');
+    } else erec?.classList.remove('show');
+  } else document.getElementById('erec')?.classList.remove('show');
+
+  // Emoji warning
   if(c.formal){
     const em=v.match(/(\p{Emoji_Presentation}|\p{Emoji}\uFE0F)/u);
-    if(em){
-      const ed=getED(em[0]);
-      if(ed&&(ed.v==='r'||ed.v==='y')){
-        document.getElementById('wt').textContent=`⚠️ "${em[0]}" — 이 맥락에서: ${ed.d.map(x=>x.l+' '+x.p+'%').join(', ')}`;
-        document.getElementById('wb').classList.add('show');
-      } else document.getElementById('wb')?.classList.remove('show');
-    } else document.getElementById('wb')?.classList.remove('show');
+    if(em){const ed=getED(em[0]);if(ed&&(ed.v==='r'||ed.v==='y')){document.getElementById('wt').textContent=`⚠️ "${em[0]}" — ${ed.d.map(x=>x.l+' '+x.p+'%').join(', ')}`;document.getElementById('wb').classList.add('show')}else document.getElementById('wb')?.classList.remove('show')}else document.getElementById('wb')?.classList.remove('show');
   }
 
-  // P3: render preview
-  if(curP===2&&CFG.renderPreview&&v){
+  // Render preview
+  const rpv=document.getElementById('rpv');
+  if(CFG.renderPreview&&v&&rpv){
     const se=/^[\p{Emoji_Presentation}\p{Emoji}\uFE0F]{1,4}$/u.test(v)&&v.length<=8;
-    const rc=document.getElementById('rpc');
-    if(rc){
-      if(se&&CFG.emojiSize) rc.innerHTML=`<div class="rpm" style="font-size:13px">${v}</div><div class="rpn">표준 크기로 전송됩니다</div>`;
-      else if(se) rc.innerHTML=`<div class="rpm" style="font-size:38px;background:transparent">${v}</div><div class="rpn">확대 표시됩니다</div>`;
-      else rc.innerHTML=`<div class="rpm">${v}</div>`;
-      document.getElementById('rpv')?.classList.add('show');
-    }
-  } else document.getElementById('rpv')?.classList.remove('show');
+    if(se&&CFG.emojiSize)rpv.innerHTML=`👁 <span class="rpm" style="font-size:12px">${v}</span> 표준 크기`;
+    else if(se)rpv.innerHTML=`👁 <span class="rpm" style="font-size:32px;background:none;color:inherit">${v}</span> 확대 표시`;
+    else rpv.innerHTML=`👁 <span class="rpm">${v}</span>`;
+    rpv.classList.add('show');
+  } else rpv?.classList.remove('show');
 }
 
 function onFR(){
   const labels=['','반말','약간 반말','보통','높임','매우 높임'];
-  const v=document.getElementById('fr').value;
-  document.getElementById('fv').textContent=labels[v];
-  const t=document.getElementById('inp')?.value.trim();
-  if(t) updateTone(t);
+  document.getElementById('fv').textContent=labels[document.getElementById('fr').value];
+  const v=document.getElementById('inp')?.value.trim();
+  if(v) updateTone(v);
 }
 
 function updateTone(raw){
-  const tp=document.getElementById('tpv');if(!tp)return;
+  const ts=document.getElementById('tsug');if(!ts)return;
   const lv=parseInt(document.getElementById('fr')?.value||3);
   const low=raw.toLowerCase();
   const matched=TONES.find(t=>t.m(low));
   const idx=lv-1;
   let main=matched.L[idx];if(typeof main==='function')main=main(raw);
+  if(main===raw){ts.classList.remove('show');return}
   let alts=(matched.A[idx]||[]).map(a=>typeof a==='function'?a(raw):a).filter(a=>a&&a!==main);
-  const c=getCur();
-  const rel=c.name?.includes('교수')?'교수님':'팀장'?c.name?.includes('팀장')?'팀장님':c.name?.includes('Sarah')?'해외팀':'동료':'동료';
-  // Don't show if main is same as raw (no transformation needed)
-  if(main===raw&&!alts.length){tp.classList.remove('show');return;}
-  tp.innerHTML=`<div class="tl">✨ ${rel}에게 · ${matched.i} · 정중함 ${lv}</div><div class="tmo" onclick="useTone(this)">${main}</div>${alts.length?`<div class="tas">${alts.map(a=>`<div class="ta" onclick="useTone(this)">${a}</div>`).join('')}</div>`:''}`;
-  tp.classList.add('show');
+  ts.innerHTML=`<div class="tl">✨ ${matched.i} · 정중함 ${lv}</div><div class="topt" onclick="useTone(this)">${main}</div>${alts.length?`<div class="talts">${alts.map(a=>`<div class="talt" onclick="useTone(this)">${a}</div>`).join('')}</div>`:''}`;
+  ts.classList.add('show');
 }
-
-function useTone(el){document.getElementById('inp').value=el.textContent;document.getElementById('tpv')?.classList.remove('show');document.getElementById('wb')?.classList.remove('show');document.getElementById('inp').focus()}
+function useTone(el){document.getElementById('inp').value=el.textContent;document.getElementById('tsug')?.classList.remove('show');document.getElementById('wb')?.classList.remove('show');document.getElementById('inp').focus()}
 
 // ═══ SEND ═══
 function doSend(){
-  const el=document.getElementById('inp');
-  const v=el.value.trim();if(!v)return;
-  const c=getCur();
-  c.msgs.push({s:'me',t:v,tm:now()});
-  el.value='';el.style.height='auto';
-  renderMsgs();
-  document.getElementById('tpv')?.classList.remove('show');
+  const el=document.getElementById('inp');const v=el.value.trim();if(!v||!curChat)return;
+  curChat.msgs.push({s:'me',t:v,tm:now()});
+  el.value='';el.style.height='auto';renderMsgs();renderList();
+  document.getElementById('tsug')?.classList.remove('show');
+  document.getElementById('erec')?.classList.remove('show');
   document.getElementById('wb')?.classList.remove('show');
   document.getElementById('rpv')?.classList.remove('show');
   document.getElementById('pkr')?.classList.remove('show');
-
-  // Auto replies from pool — always respond
-  if(c.rpool&&c.rpool.length){
-    const idx=c.rpi%c.rpool.length;
-    const r=c.rpool[idx];
-    c.rpi=(c.rpi||0)+1;
+  // Auto reply
+  const c=curChat;
+  if(c.rpool?.length){
+    const r=c.rpool[c.rpi%c.rpool.length];c.rpi++;
     const sender=typeof r==='string'?c.name:r.s;
     const text=typeof r==='string'?r:r.t;
-    setTimeout(()=>{
-      c.msgs.push({s:sender,t:text,tm:now()});
-      renderMsgs();
-    },1200+Math.random()*1500);
+    setTimeout(()=>{c.msgs.push({s:sender,t:text,tm:now()});renderMsgs();renderList()},1200+Math.random()*1500);
   }
 }
 
-// ═══ P4: Status & Notes ═══
-function addSt(emoji,label){
-  const c=getCur();
-  for(let i=c.msgs.length-1;i>=0;i--){
-    if(c.msgs[i].s!=='me'){
-      if(!c.msgs[i].rx)c.msgs[i].rx=[];
-      c.msgs[i].rx.push({e:emoji,c:1,note:label});
-      renderMsgs();break;
-    }
-  }
-}
+// ═══ TOKENS ═══
+function addSt(e,l){const c=curChat;for(let i=c.msgs.length-1;i>=0;i--){if(c.msgs[i].s!=='me'){if(!c.msgs[i].rx)c.msgs[i].rx=[];c.msgs[i].rx.push({e,c:1,note:l});renderMsgs();break}}}
+
+// ═══ NOTE ═══
 function openNote(idx){
   noteIdx=idx;noteEmoji='👍';
-  const card=document.getElementById('ntC');
   const qe=['👍','✔','❤️','🙏','😊','🔥','⏳','✅','🚫','⚠️'];
-  card.innerHTML=`<h4>리액션 추가</h4><p class="nsub">이모지를 선택하고 메모를 남길 수 있어요</p>
-    <div class="epk">${qe.map(e=>`<button class="${e==='👍'?'sel':''}" onclick="noteEmoji='${e}';this.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('sel'));this.classList.add('sel')">${e}</button>`).join('')}</div>
-    <input type="text" id="ni" placeholder="메모 (선택)">
-    <div class="nbtns"><button class="nc" onclick="document.getElementById('ntOv').classList.remove('show')">취소</button><button class="no" onclick="doNote()">추가</button></div>`;
+  document.getElementById('ntC').innerHTML=`<h4>리액션 추가</h4><div class="epk">${qe.map(e=>`<button class="${e==='👍'?'sel':''}" onclick="noteEmoji='${e}';this.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('sel'));this.classList.add('sel')">${e}</button>`).join('')}</div><input type="text" id="ni" placeholder="메모 (선택)"><div class="nbtns"><button class="nc" onclick="document.getElementById('ntOv').classList.remove('show')">취소</button><button class="no" onclick="doNote()">추가</button></div>`;
   document.getElementById('ntOv').classList.add('show');
   setTimeout(()=>document.getElementById('ni')?.focus(),100);
 }
-function doNote(){
-  const note=document.getElementById('ni')?.value.trim()||'';
-  const c=getCur();
-  if(noteIdx!==null&&c.msgs[noteIdx]){
-    if(!c.msgs[noteIdx].rx)c.msgs[noteIdx].rx=[];
-    c.msgs[noteIdx].rx.push({e:noteEmoji,c:1,note});
-    renderMsgs();
-  }
-  document.getElementById('ntOv').classList.remove('show');
-}
+function doNote(){const n=document.getElementById('ni')?.value.trim()||'';if(noteIdx!==null&&curChat.msgs[noteIdx]){if(!curChat.msgs[noteIdx].rx)curChat.msgs[noteIdx].rx=[];curChat.msgs[noteIdx].rx.push({e:noteEmoji,c:1,note:n});renderMsgs()}document.getElementById('ntOv').classList.remove('show')}
 
-// ═══ P4: A11Y ═══
-function tglA11y(){a11yOn=!a11yOn;document.getElementById('a11b')?.style.setProperty('background',a11yOn?'rgba(255,255,255,.2)':'none');renderMsgs()}
-
-// ═══ P3: Settings ═══
+// ═══ SETTINGS ═══
 function openSet(){
-  const card=document.getElementById('stC');
-  card.innerHTML=`<h4>채팅 설정</h4>
-    <div class="sr"><div class="si"><div class="sn">단일 이모지 크기 고정</div><div class="sd">확대 표시하지 않기</div></div><div class="tgl ${CFG.emojiSize?'on':''}" onclick="tglCfg(this,'emojiSize')"></div></div>
-    <div class="sr"><div class="si"><div class="sn">채팅별 패널 자동 전환</div><div class="sd">업무/개인에 따라 이모지 변경</div></div><div class="tgl ${CFG.panelSwitch?'on':''}" onclick="tglCfg(this,'panelSwitch')"></div></div>
-    <div class="sr"><div class="si"><div class="sn">최근 사용 이모지 필터</div><div class="sd">채팅 유형에 맞는 이모지만</div></div><div class="tgl ${CFG.recentFilter?'on':''}" onclick="tglCfg(this,'recentFilter')"></div></div>
-    <div class="sr"><div class="si"><div class="sn">발신 미리보기</div><div class="sd">상대에게 어떻게 보이는지</div></div><div class="tgl ${CFG.renderPreview?'on':''}" onclick="tglCfg(this,'renderPreview')"></div></div>
+  document.getElementById('stC').innerHTML=`<h4>설정</h4>
+    <div class="sr"><div><div class="sn">이모지 크기 고정</div><div class="sd">단일 이모지 확대 표시 안 함</div></div><div class="tgl ${CFG.emojiSize?'on':''}" onclick="CFG.emojiSize=!CFG.emojiSize;this.classList.toggle('on');if(curChat)renderMsgs()"></div></div>
+    <div class="sr"><div><div class="sn">채팅별 이모지 패널 전환</div><div class="sd">업무/개인에 따라 추천 변경</div></div><div class="tgl ${CFG.panelSwitch?'on':''}" onclick="CFG.panelSwitch=!CFG.panelSwitch;this.classList.toggle('on')"></div></div>
+    <div class="sr"><div><div class="sn">발신 미리보기</div><div class="sd">상대에게 어떻게 보이는지 미리 확인</div></div><div class="tgl ${CFG.renderPreview?'on':''}" onclick="CFG.renderPreview=!CFG.renderPreview;this.classList.toggle('on')"></div></div>
+    <div class="sr"><div><div class="sn">톤 제안</div><div class="sd">입력 내용에 맞는 정중한 표현 추천</div></div><div class="tgl ${CFG.toneAid?'on':''}" onclick="CFG.toneAid=!CFG.toneAid;this.classList.toggle('on')"></div></div>
     <button class="stcl" onclick="document.getElementById('stOv').classList.remove('show')">닫기</button>`;
   document.getElementById('stOv').classList.add('show');
 }
-function tglCfg(el,k){CFG[k]=!CFG[k];el.classList.toggle('on',CFG[k]);renderMsgs()}
+
+renderList();
 </script>
 </body>
 </html>
