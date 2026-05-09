@@ -62,8 +62,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Pretendard','Noto Sans KR',sa
 .msg.m{background:var(--mine);align-self:flex-end;border-bottom-right-radius:3px}
 .msg .sn{font-size:9px;font-weight:600;color:var(--text2);margin-bottom:1px}
 .msg .tm{font-size:8px;color:var(--text3);text-align:right;margin-top:2px}
-.msg .hint{font-size:9px;color:var(--blue);margin-top:3px;cursor:pointer}
-.msg .hint:hover{text-decoration:underline}
+.msg .hint{font-size:9px;color:var(--blue);margin-top:3px;cursor:pointer;padding:3px 6px;background:#eff6ff;border-radius:4px;display:inline-block}
+.msg .hint:hover{background:#dbeafe}
 .ehl{cursor:pointer;border-radius:3px;transition:.1s}
 .ehl:hover{background:rgba(59,130,246,.15)}
 .msg.emoji-l{background:transparent!important;box-shadow:none!important;font-size:38px;padding:2px;text-align:center}
@@ -200,6 +200,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Pretendard','Noto Sans KR',sa
 .tgl.on::after{left:20px}
 .stcl{width:100%;padding:8px;border:none;background:#f5f5f5;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;margin-top:10px}
 
+/* Onboarding hint */
+.ob{position:absolute;bottom:90px;left:50%;transform:translateX(-50%);background:var(--navy);color:#fff;padding:8px 16px;border-radius:10px;font-size:11px;font-weight:500;z-index:40;white-space:nowrap;box-shadow:0 4px 16px rgba(0,0,0,.2);animation:obIn .3s ease,obOut .3s ease 3.5s forwards;pointer-events:none}
+@keyframes obIn{from{opacity:0;transform:translateX(-50%) translateY(10px)}to{opacity:1;transform:translateX(-50%)}}
+@keyframes obOut{from{opacity:1}to{opacity:0}}
+.ob::after{content:'';position:absolute;bottom:-6px;left:50%;transform:translateX(-50%);border-left:6px solid transparent;border-right:6px solid transparent;border-top:6px solid var(--navy)}
+
 ::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:#ccc;border-radius:2px}
 </style>
 </head>
@@ -283,11 +289,11 @@ const PD=[
   // P1
   {name:'박동료',av:'박',col:'#f97316',desc:'업무 채팅',formal:false,type:'work',group:false,
    msgs:[{s:'박동료',t:'어제 리뷰 피드백 반영했어!',tm:'1:05 PM'},{s:'박동료',t:'확인해봐 🙂',tm:'1:06 PM'},{s:'me',t:'고마워~ 👍',tm:'1:10 PM'},{s:'박동료',t:'근데 이거 좀 봐줘 👀',tm:'1:12 PM'},{s:'박동료',t:'😅 미안 갑자기 부탁해서',tm:'1:13 PM'},{s:'박동료',t:'🙏',tm:'1:14 PM'}],
-   replies:[{a:7,r:[{t:'ㅋㅋ 고마워!',d:1500},{t:'아 그리고 내일 미팅 시간 바뀌었대 🤔',d:3000}]},{a:9,r:[{t:'ㅇㅋ 확인했어 🙂',d:1500},{t:'근데 이 부분은 좀 이상한데? 😅',d:3000}]},{a:11,r:[{t:'아 맞다 Sarah가 🙏 보냈는데 이거 뭔 뜻이야?',d:2000}]}]},
+   replies:[{a:7,r:[{t:'ㅋㅋ 고마워!',d:1500},{t:'아 그리고 Sarah가 🙏 보냈는데 이거 무슨 뜻이야?',d:3500}]},{a:9,r:[{t:'아 그런 뜻이었어? 나는 좀 다르게 이해했었는데 👀',d:2000}]},{a:11,r:[{t:'ㅇㅋ 알겠어! 이모지 진짜 헷갈리네 😅',d:1500}]}]},
   // P2
   {name:'김교수님',av:'김',col:'#6366f1',desc:'업무 채팅 · 위계 감지됨',formal:true,type:'work',group:false,
    msgs:[{s:'김교수님',t:'다음 주 월요일까지 중간보고서 초안 보내주세요.',tm:'10:23'},{s:'김교수님',t:'분석 프레임워크 부분은 특히 신경 써주세요.',tm:'10:24'},{s:'김교수님',t:'진행 상황은 어떤가요?',tm:'10:30'}],
-   replies:[{a:4,r:[{t:'네, 확인했습니다.',d:1500},{t:'Double Diamond 기반으로 정리하면 될까요? 🤔',d:3500}]},{a:6,r:[{t:'좋습니다. 그 방향으로 진행해주세요.',d:2000},{t:'참고 자료 보내드릴게요 👍',d:3500}]},{a:8,r:[{t:'수고하세요 🙂',d:1500}]}]},
+   replies:[{a:4,r:[{t:'네 확인했어요.',d:1500},{t:'혹시 분석 프레임워크 관련해서 참고할 논문 있나요?',d:3500}]},{a:6,r:[{t:'좋습니다. 그 방향으로 진행해주세요 👍',d:2000}]},{a:8,r:[{t:'네 수고하세요 🙂',d:1500}]}]},
   // P3 personal
   {name:'최친구',av:'최',col:'#a855f7',desc:'개인 채팅',formal:false,type:'personal',group:false,
    msgs:[{s:'최친구',t:'주말에 뭐해?',tm:'7:30 PM'},{s:'최친구',t:'😂😂 아까 그거 봤어?',tm:'7:31 PM'},{s:'me',t:'ㅋㅋㅋ 뭔데',tm:'7:32 PM'},{s:'최친구',t:'👍',tm:'7:33 PM'}],
@@ -304,6 +310,10 @@ const PD=[
 let curP=0,lt=null,noteIdx=null,noteEmoji='👍',a11yOn=false,p3work=false;
 
 function now(){return new Date().toLocaleTimeString('ko-KR',{hour:'numeric',minute:'2-digit'})}
+function getOBHint(){
+  const hints=['💡 이모지를 클릭하면 의미와 해석 분포를 확인할 수 있어요','💡 아래에 짧게 입력해보세요 — 정중함 슬라이더로 톤이 바뀝니다','💡 업무/개인 채팅을 전환해보세요 — 이모지 패널이 자동으로 바뀝니다','💡 상태 토큰으로 리액션하거나, 메시지를 더블클릭해서 메모를 남겨보세요'];
+  return `<div class="ob">${hints[curP]}</div>`;
+}
 function getCur(){
   if(curP===2&&p3work) return PD[2].alt;
   return PD[curP];
@@ -367,10 +377,14 @@ function render(){
       </div>
     </div>
     <div class="pkr" id="pkr">${buildPkr()}</div>
+    ${getOBHint()}
   </div>`;
   renderMsgs();
   const inp=document.getElementById('inp');
-  inp?.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();doSend()}});
+  if(inp&&!inp._bound){
+    inp._bound=true;
+    inp.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();doSend()}});
+  }
 }
 
 function renderMsgs(){
@@ -402,26 +416,24 @@ function renderMsgs(){
         const n=r.note?`<span class="rn">${r.note}</span>`:'';
         return `<span class="rx">${r.e}${r.c>1?' '+r.c:''}${n}</span>`;
       }).join('')+`<span class="rxa" onclick="openNote(${idx})">+</span></div>`;
-    } else if(!me&&(curP===3||curP===0)){
-      // no reactions yet
     } else if(!me&&curP===3){
       rxH=`<div class="rxr"><span class="rxa" onclick="openNote(${idx})">+</span></div>`;
     }
 
-    // A11y labels for P4
+    // A11y labels for P4 (curP===3)
     let a11H='';
     if(curP===3&&a11yOn){
       const ems=msg.t.match(/([\p{Emoji_Presentation}\p{Emoji}\uFE0F])/gu);
       if(ems){const ls=ems.map(e=>ED[e]?.a).filter(Boolean);if(ls.length)a11H=`<div class="a11y-l show">♿ ${ls.join(' · ')}</div>`;}
     }
 
-    // P1: hint for risky emoji
+    // P1: hint for risky emoji (only on first occurrence)
     let hintH='';
-    if(curP===0&&!me){
+    if(curP===0&&!me&&idx===1){
       const ems=msg.t.match(/([\p{Emoji_Presentation}\p{Emoji}\uFE0F])/gu);
       if(ems?.some(e=>ED[e]&&(ED[e].v==='r'||ED[e].v==='y'))){
         const e=ems.find(e=>ED[e]);
-        hintH=`<div class="hint" onclick="showTT('${e}')">💡 이모지를 눌러 의미를 확인하세요</div>`;
+        hintH=`<div class="hint" onclick="showTT('${e}')">이모지를 눌러 의미 확인</div>`;
       }
     }
 
