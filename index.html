@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Re:Phrase — Prototypes</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Pretendard','Noto Sans KR',sans-serif;min-height:100vh;background:#f5f0e8;display:flex;align-items:center;justify-content:center;padding:40px}
+.wrap{max-width:900px;width:100%;text-align:center}
+h1{font-size:36px;font-weight:800;color:#1b2a4a;margin-bottom:4px}
+h1 span{color:#e74c3c}
+.sub{font-size:14px;color:#666;margin-bottom:40px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.card{background:#fff;border-radius:16px;padding:28px 24px;text-align:left;box-shadow:0 2px 12px rgba(0,0,0,.06);border:2px solid transparent;cursor:pointer;transition:.2s;text-decoration:none;color:inherit}
+.card:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,.1)}
+.card .tag{display:inline-block;font-size:10px;font-weight:700;padding:3px 10px;border-radius:6px;color:#fff;margin-bottom:10px}
+.card h2{font-size:18px;font-weight:700;margin-bottom:4px;color:#1b2a4a}
+.card .persona{font-size:12px;color:#888;margin-bottom:8px}
+.card p{font-size:13px;color:#555;line-height:1.5;margin-bottom:12px}
+.card .uc{font-size:11px;color:#1b2a4a;background:#f0f0f0;padding:6px 10px;border-radius:8px;line-height:1.5}
+.card .funcs{margin-top:10px;display:flex;flex-wrap:wrap;gap:4px}
+.card .funcs span{font-size:9px;padding:2px 6px;border-radius:4px;background:#e8e8e8;color:#555;font-weight:600}
+.card:nth-child(1):hover{border-color:#22c55e}
+.card:nth-child(2):hover{border-color:#3b82f6}
+.card:nth-child(3):hover{border-color:#f59e0b}
+.card:nth-child(4):hover{border-color:#8b5cf6}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Re<span>:</span>Phrase</h1>
+  <p class="sub">이모지 해석 격차를 줄이는 메시징 보조 시스템 · Team 3</p>
+  <div class="grid">
+    <a class="card" href="p1_dictionary.html">
+      <div class="tag" style="background:#22c55e">P1 · DICTIONARY</div>
+      <h2>Opt-in Pragmatic Dictionary</h2>
+      <div class="persona">Persona: Cautious Chloe — 해석 민감</div>
+      <p>이모지를 길게 눌러 의미 확인, 해석 분포 시각화, 문화 차이 경고, 접근성 번역까지</p>
+      <div class="uc"><b>Hero UC4:</b> 동료에게 받은 🙂👍😅의 진짜 의미 디코딩</div>
+      <div class="funcs"><span>F-B1</span><span>F-B2</span><span>F-B3</span><span>F-B5</span><span>F-B6</span></div>
+    </a>
+    <a class="card" href="p2_context_aid.html">
+      <div class="tag" style="background:#3b82f6">P2 · CONTEXT AID</div>
+      <h2>Generative Context Aid</h2>
+      <div class="persona">Persona: Adaptive Alice — 맥락 적응</div>
+      <p>정중함 슬라이더로 톤을 실시간 조절하고, 위계 채팅에서 정중한 대안을 즉시 변환</p>
+      <div class="uc"><b>Hero UC1:</b> 교수님 메시지에 30초 내 정중하게 답신</div>
+      <div class="funcs"><span>F-A1</span><span>F-A2</span><span>F-A3</span><span>F-A4</span><span>F-A5</span><span>F-B4</span></div>
+    </a>
+    <a class="card" href="p3_friction.html">
+      <div class="tag" style="background:#f59e0b">P3 · FRICTION</div>
+      <h2>Friction Minimization Settings</h2>
+      <div class="persona">Persona: Pragmatic Paul — 기능 지향</div>
+      <p>이모지 크기 고정, Work/Personal 패널 자동 전환, 발신 미리보기로 플랫폼 강제 UX 탈출</p>
+      <div class="uc"><b>Hero UC2/UC7:</b> 확대 없는 이모지 ack + 컨텍스트 전환</div>
+      <div class="funcs"><span>F-C1</span><span>F-C2</span><span>F-C3</span><span>F-C4</span><span>F-C5</span></div>
+    </a>
+    <a class="card" href="p4_tokens.html">
+      <div class="tag" style="background:#8b5cf6">P4 · TOKEN & A11Y</div>
+      <h2>Functional Token & Accessibility</h2>
+      <div class="persona">Persona: Pragmatic Paul + Cautious Chloe</div>
+      <p>✔👍🙏 원탭 기능 토큰, 상태 토큰(확인 중/블로킹/지연/완료), 리액션+메모, 접근성 번역</p>
+      <div class="uc"><b>Hero UC8:</b> ✔/👍보다 풍부한 progress state 표현</div>
+      <div class="funcs"><span>F-D1</span><span>F-D2</span><span>F-D3</span><span>F-B6</span></div>
+    </a>
+  </div>
+</div>
+</body>
+</html>

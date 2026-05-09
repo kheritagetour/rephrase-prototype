@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>P4 — Functional Token & Accessibility Aid</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#ece5dd;--mine:#dcf8c6;--other:#fff;--blue:#3b82f6;--green:#22c55e;--yellow:#eab308;--red:#ef4444;--purple:#8b5cf6;--text:#111;--text2:#666;--text3:#999;--border:#e5e5e5}
+body{font-family:-apple-system,BlinkMacSystemFont,'Pretendard','Noto Sans KR',sans-serif;height:100vh;display:flex;align-items:center;justify-content:center;background:#f0f0f0}
+
+.phone{width:390px;height:740px;background:#fff;border-radius:32px;box-shadow:0 8px 40px rgba(0,0,0,.15);display:flex;flex-direction:column;overflow:hidden;border:1px solid #d0d0d0;position:relative}
+
+.hdr{background:#1b2a4a;color:#fff;padding:14px 20px;display:flex;align-items:center;gap:10px}
+.hdr .av{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700}
+.hdr h3{font-size:15px;font-weight:600}
+.hdr p{font-size:10px;opacity:.7}
+.hdr .a11y-btn{margin-left:auto;padding:4px 10px;border-radius:8px;font-size:10px;font-weight:600;border:1px solid rgba(255,255,255,.3);background:none;color:#fff;cursor:pointer}
+.hdr .a11y-btn.on{background:rgba(255,255,255,.2)}
+
+.msgs{flex:1;overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:5px;background:var(--bg)}
+.msg{max-width:72%;padding:8px 12px;border-radius:12px;font-size:14px;line-height:1.5;position:relative;animation:fin .25s}
+@keyframes fin{from{opacity:0;transform:translateY(4px)}to{opacity:1}}
+.msg.other{background:var(--other);align-self:flex-start;border-bottom-left-radius:4px;box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.msg.mine{background:var(--mine);align-self:flex-end;border-bottom-right-radius:4px}
+.msg .sender{font-size:10px;font-weight:600;color:var(--text2);margin-bottom:2px}
+.msg .time{font-size:9px;color:var(--text3);text-align:right;margin-top:2px}
+.msg .a11y-label{font-size:10px;color:var(--purple);margin-top:4px;padding:4px 8px;background:#f5f3ff;border-radius:6px;display:none}
+.msg .a11y-label.show{display:block}
+.date-sep{text-align:center;font-size:11px;color:var(--text3);background:rgba(255,255,255,.7);display:inline-block;align-self:center;padding:3px 12px;border-radius:8px;margin:6px 0}
+
+/* Reactions */
+.rx-row{display:flex;gap:3px;margin-top:4px;flex-wrap:wrap}
+.rx{display:inline-flex;align-items:center;gap:3px;padding:3px 8px;border-radius:12px;background:rgba(0,0,0,.06);font-size:12px;cursor:pointer;border:1px solid transparent;transition:.15s}
+.rx:hover{background:rgba(0,0,0,.1);border-color:#ccc}
+.rx .rx-note{font-size:9px;color:var(--text2);max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rx-add{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:rgba(0,0,0,.04);font-size:13px;cursor:pointer;border:1px dashed #ccc}
+.rx-add:hover{background:rgba(0,0,0,.08)}
+
+/* Token bar */
+.token-bar{padding:8px 14px 4px;border-bottom:1px solid #f0f0f0;background:#fff}
+.token-bar .label{font-size:10px;color:var(--text3);font-weight:600;margin-bottom:6px}
+.token-row{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:6px}
+.tk{padding:6px 12px;border-radius:10px;font-size:12px;border:1px solid var(--border);background:#fff;cursor:pointer;display:inline-flex;align-items:center;gap:4px;transition:.15s}
+.tk:hover{border-color:var(--blue);background:#eff6ff}
+.tk.status{border-color:#fbbf24;background:#fffbeb}
+.tk.status:hover{background:#fef3c7;border-color:#f59e0b}
+
+.comp-wrap{border-top:1px solid var(--border);background:#fff}
+.comp{display:flex;align-items:flex-end;padding:8px 12px 12px;gap:6px}
+.comp textarea{flex:1;resize:none;border:1px solid var(--border);border-radius:20px;padding:9px 14px;font-size:13px;font-family:inherit;outline:none;min-height:38px;max-height:80px}
+.comp textarea:focus{border-color:var(--blue)}
+.btn{width:36px;height:36px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.send-b{background:var(--blue);color:#fff}
+
+/* Note modal */
+.note-ov{display:none;position:absolute;inset:0;background:rgba(0,0,0,.5);z-index:100;align-items:center;justify-content:center}
+.note-ov.show{display:flex}
+.note-card{background:#fff;border-radius:20px;padding:24px;width:300px}
+.note-card h4{font-size:15px;font-weight:700;margin-bottom:4px}
+.note-card .sub{font-size:11px;color:var(--text3);margin-bottom:12px}
+.note-card .emoji-pick{display:flex;gap:4px;margin-bottom:12px;flex-wrap:wrap}
+.note-card .emoji-pick button{padding:7px 10px;border-radius:10px;border:1.5px solid var(--border);background:#fff;font-size:18px;cursor:pointer;transition:.15s}
+.note-card .emoji-pick button:hover{border-color:var(--blue);background:#eff6ff}
+.note-card .emoji-pick button.sel{border-color:var(--blue);background:#dbeafe}
+.note-card input{width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:10px;font-size:13px;outline:none;margin-bottom:14px;font-family:inherit}
+.note-card input:focus{border-color:var(--blue)}
+.note-btns{display:flex;gap:8px;justify-content:flex-end}
+.note-btns button{padding:8px 18px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;border:none}
+.note-btns .cancel{background:#f0f0f0;color:var(--text)}
+.note-btns .ok{background:var(--blue);color:#fff}
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="hdr">
+    <div class="av">#</div>
+    <div><h3>프로젝트 채널</h3><p>업무 채팅 · 6명</p></div>
+    <button class="a11y-btn" id="a11yBtn" onclick="toggleA11y()">♿ 접근성</button>
+  </div>
+  <div class="note-ov" id="noteOv" onclick="if(event.target===this)this.classList.remove('show')">
+    <div class="note-card">
+      <h4>리액션 추가</h4>
+      <p class="sub">이모지를 선택하고 메모를 남길 수 있어요</p>
+      <div class="emoji-pick" id="emojiPick"></div>
+      <input type="text" id="noteInput" placeholder="메모 (선택)">
+      <div class="note-btns">
+        <button class="cancel" onclick="closeNote()">취소</button>
+        <button class="ok" onclick="confirmNote()">추가</button>
+      </div>
+    </div>
+  </div>
+  <div class="msgs" id="msgs"></div>
+  <div class="token-bar">
+    <div class="label">📌 빠른 반응</div>
+    <div class="token-row">
+      <button class="tk" onclick="insertToken('✔')">✔ 확인</button>
+      <button class="tk" onclick="insertToken('👍')">👍 좋아요</button>
+      <button class="tk" onclick="insertToken('🙏')">🙏 감사</button>
+    </div>
+    <div class="label">📊 상태 표시</div>
+    <div class="token-row">
+      <button class="tk status" onclick="addStatus('⏳','확인 중')">⏳ 확인 중</button>
+      <button class="tk status" onclick="addStatus('🚫','블로킹')">🚫 블로킹</button>
+      <button class="tk status" onclick="addStatus('⚠️','지연')">⚠️ 지연</button>
+      <button class="tk status" onclick="addStatus('✅','완료')">✅ 완료</button>
+    </div>
+  </div>
+  <div class="comp-wrap">
+    <div class="comp">
+      <textarea id="input" rows="1" placeholder="메시지 입력..."></textarea>
+      <button class="btn send-b" onclick="send()">↑</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const A11Y_MAP={
+  '✔':'작업 완료 확인','👍':'동의/승인','🙏':'감사 표현','🔥':'칭찬 — 멋있다',
+  '⏳':'확인 중 — 아직 처리되지 않음','🚫':'블로킹 — 진행 불가','⚠️':'지연 — 기한 초과 위험','✅':'완료 — 작업 종료',
+  '😊':'따뜻한 감정','🙂':'표면적 미소 — 맥락 확인 필요','😅':'곤란/민망한 상황'
+};
+
+const msgs=[
+  {s:'김대리',t:'API 연동 완료했습니다.',time:'4:20 PM',rx:[{e:'✔',c:3},{e:'👍',c:2}]},
+  {s:'이사원',t:'프론트 작업은 내일까지 걸릴 것 같아요.',time:'4:25 PM'},
+  {s:'박과장',t:'일정 괜찮을까요? 확인 부탁드립니다.',time:'4:30 PM'},
+  {s:'정인턴',t:'디자인 시안 올렸습니다.',time:'4:35 PM',rx:[{e:'🔥',c:1}]},
+];
+
+let noteIdx=null,noteEmoji='👍',a11yOn=false;
+
+function init(){renderMsgs()}
+
+function renderMsgs(){
+  const el=document.getElementById('msgs');
+  el.innerHTML='<div class="date-sep">오늘</div>';
+  msgs.forEach((msg,idx)=>{
+    const me=msg.s==='me';
+    const div=document.createElement('div');
+    div.className=`msg ${me?'mine':'other'}`;
+
+    // Reactions
+    let rxH='';
+    if(msg.rx&&msg.rx.length){
+      rxH='<div class="rx-row">'+msg.rx.map(r=>{
+        const noteH=r.note?`<span class="rx-note">${r.note}</span>`:'';
+        const a11yH=a11yOn&&A11Y_MAP[r.e]?` title="${A11Y_MAP[r.e]}"`:'';
+        return `<span class="rx"${a11yH}>${r.e}${r.c>1?' '+r.c:''}${noteH}</span>`;
+      }).join('')+`<span class="rx-add" onclick="openNote(${idx})" title="리액션 추가">+</span></div>`;
+    } else if(!me){
+      rxH=`<div class="rx-row"><span class="rx-add" onclick="openNote(${idx})" title="리액션 추가">+</span></div>`;
+    }
+
+    // A11y labels
+    const emojiInText=msg.t.match(/([\p{Emoji_Presentation}\p{Emoji}\uFE0F])/gu);
+    let a11yH='';
+    if(a11yOn&&emojiInText){
+      const labels=emojiInText.map(e=>A11Y_MAP[e]).filter(Boolean);
+      if(labels.length) a11yH=`<div class="a11y-label show">♿ ${labels.join(' · ')}</div>`;
+    }
+
+    div.innerHTML=`
+      ${!me?`<div class="sender">${msg.s}</div>`:''}
+      ${msg.t}
+      ${a11yH}
+      ${rxH}
+      <div class="time">${msg.time}</div>`;
+
+    // Right click / double click → add reaction
+    if(!me){
+      div.addEventListener('contextmenu',e=>{e.preventDefault();openNote(idx)});
+      div.addEventListener('dblclick',()=>openNote(idx));
+    }
+
+    el.appendChild(div);
+  });
+  el.scrollTop=el.scrollHeight;
+}
+
+function insertToken(e){
+  document.getElementById('input').value+=e;
+  document.getElementById('input').focus();
+}
+
+function addStatus(emoji,label){
+  // Add to last non-me msg
+  for(let i=msgs.length-1;i>=0;i--){
+    if(msgs[i].s!=='me'){
+      if(!msgs[i].rx) msgs[i].rx=[];
+      msgs[i].rx.push({e:emoji,c:1,note:label});
+      renderMsgs();
+      break;
+    }
+  }
+}
+
+function openNote(idx){
+  noteIdx=idx;noteEmoji='👍';
+  const pick=document.getElementById('emojiPick');
+  const quickE=['👍','✔','❤️','🙏','😊','🔥','⏳','✅','🚫','⚠️'];
+  pick.innerHTML=quickE.map(e=>`<button class="${e==='👍'?'sel':''}" onclick="selEmoji(this,'${e}')">${e}</button>`).join('');
+  document.getElementById('noteInput').value='';
+  document.getElementById('noteOv').classList.add('show');
+  setTimeout(()=>document.getElementById('noteInput').focus(),100);
+}
+
+function selEmoji(el,e){
+  noteEmoji=e;
+  el.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('sel'));
+  el.classList.add('sel');
+}
+
+function closeNote(){document.getElementById('noteOv').classList.remove('show')}
+
+function confirmNote(){
+  const note=document.getElementById('noteInput').value.trim();
+  if(noteIdx!==null){
+    const msg=msgs[noteIdx];
+    if(!msg.rx) msg.rx=[];
+    msg.rx.push({e:noteEmoji,c:1,note:note||''});
+    renderMsgs();
+  }
+  closeNote();
+}
+
+function toggleA11y(){
+  a11yOn=!a11yOn;
+  document.getElementById('a11yBtn').classList.toggle('on',a11yOn);
+  renderMsgs();
+}
+
+const SENDERS=['김대리','이사원','박과장','정인턴'];
+const REPLIES=[
+  {after:5, replies:[
+    {s:'이사원',t:'확인했습니다! 바로 반영할게요.',delay:1500},
+    {s:'김대리',t:'👍',delay:2500},
+  ]},
+  {after:7, replies:[
+    {s:'박과장',t:'프론트 쪽 일정은 내일 오전 중으로 재확인 부탁드립니다.',delay:2000},
+  ]},
+  {after:8, replies:[
+    {s:'정인턴',t:'넵 확인했습니다!',delay:1200},
+    {s:'김대리',t:'디자인 시안 검토 완료했습니다. 한 가지 수정 사항 있어요.',delay:3000},
+  ]},
+  {after:10, replies:[
+    {s:'이사원',t:'수정본 올렸습니다. 확인 부탁드립니다 🙏',delay:2000},
+  ]},
+  {after:11, replies:[
+    {s:'박과장',t:'좋습니다. 내일 스프린트 리뷰 때 최종 확인하죠.',delay:2500},
+  ]},
+];
+
+function send(){
+  const el=document.getElementById('input');
+  const v=el.value.trim();if(!v)return;
+  msgs.push({s:'me',t:v,time:new Date().toLocaleTimeString('ko-KR',{hour:'numeric',minute:'2-digit'})});
+  el.value='';renderMsgs();
+
+  const scenario=REPLIES.find(r=>r.after===msgs.length);
+  if(scenario){
+    scenario.replies.forEach(r=>{
+      setTimeout(()=>{
+        msgs.push({s:r.s,t:r.t,time:new Date().toLocaleTimeString('ko-KR',{hour:'numeric',minute:'2-digit'})});
+        renderMsgs();
+      },r.delay);
+    });
+  }
+}
+
+document.getElementById('input').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send()}});
+init();
+</script>
+</body>
+</html>

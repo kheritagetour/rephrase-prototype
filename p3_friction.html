@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>P3 — Friction Minimization Settings</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#ece5dd;--mine:#dcf8c6;--other:#fff;--blue:#3b82f6;--green:#22c55e;--text:#111;--text2:#666;--text3:#999;--border:#e5e5e5}
+body{font-family:-apple-system,BlinkMacSystemFont,'Pretendard','Noto Sans KR',sans-serif;height:100vh;display:flex;align-items:center;justify-content:center;background:#f0f0f0;gap:24px}
+
+.phone{width:390px;height:740px;background:#fff;border-radius:32px;box-shadow:0 8px 40px rgba(0,0,0,.15);display:flex;flex-direction:column;overflow:hidden;border:1px solid #d0d0d0;position:relative}
+
+.hdr{background:#1b2a4a;color:#fff;padding:14px 20px;display:flex;align-items:center;gap:10px}
+.hdr .av{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700}
+.hdr h3{font-size:15px;font-weight:600}
+.hdr p{font-size:10px;opacity:.7}
+.hdr .gear{margin-left:auto;width:30px;height:30px;border-radius:50%;border:1px solid rgba(255,255,255,.3);background:none;color:#fff;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center}
+
+.msgs{flex:1;overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:5px;background:var(--bg)}
+.msg{max-width:72%;padding:8px 12px;border-radius:12px;font-size:14px;line-height:1.5;animation:fin .25s}
+@keyframes fin{from{opacity:0;transform:translateY(4px)}to{opacity:1}}
+.msg.other{background:var(--other);align-self:flex-start;border-bottom-left-radius:4px;box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.msg.mine{background:var(--mine);align-self:flex-end;border-bottom-right-radius:4px}
+.msg .time{font-size:9px;color:var(--text3);text-align:right;margin-top:2px}
+.msg.emoji-large{background:transparent!important;box-shadow:none!important;font-size:42px;line-height:1.2;padding:4px;text-align:center}
+.msg.emoji-std{font-size:14px}
+.date-sep{text-align:center;font-size:11px;color:var(--text3);background:rgba(255,255,255,.7);display:inline-block;align-self:center;padding:3px 12px;border-radius:8px;margin:6px 0}
+
+/* Render preview */
+.rpreview{display:none;padding:8px 16px;background:#fafaf5;border-top:1px solid #eee}
+.rpreview.show{display:block}
+.rpreview .rp-label{font-size:10px;color:var(--text3);margin-bottom:4px}
+.rpreview .rp-mock{display:inline-block;padding:6px 12px;border-radius:12px;background:var(--mine);font-size:13px}
+.rpreview .rp-note{font-size:10px;color:var(--text3);margin-top:3px}
+
+.comp-wrap{border-top:1px solid var(--border);background:#fff}
+.comp{display:flex;align-items:flex-end;padding:8px 12px 12px;gap:6px}
+.comp textarea{flex:1;resize:none;border:1px solid var(--border);border-radius:20px;padding:9px 14px;font-size:13px;font-family:inherit;outline:none;min-height:38px;max-height:80px}
+.comp textarea:focus{border-color:var(--blue)}
+.btn{width:36px;height:36px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.emoji-b{background:none;font-size:20px;border:1px solid var(--border)}
+.send-b{background:var(--blue);color:#fff}
+
+/* Picker */
+.picker{display:none;border-top:1px solid var(--border);background:#fff;max-height:220px;overflow-y:auto}
+.picker.show{display:block}
+.ptabs{display:flex;border-bottom:1px solid var(--border)}
+.ptab{flex:1;padding:10px;font-size:12px;font-weight:600;text-align:center;cursor:pointer;color:var(--text3);border-bottom:2px solid transparent;transition:.15s}
+.ptab.active{color:var(--blue);border-bottom-color:var(--blue)}
+.pbody{padding:10px 14px}
+.sec-t{font-size:10px;font-weight:600;color:var(--text3);margin-bottom:6px}
+.pgrid{display:flex;flex-wrap:wrap;gap:2px}
+.ecell{width:42px;height:42px;display:flex;align-items:center;justify-content:center;font-size:24px;border-radius:10px;cursor:pointer;transition:.15s}
+.ecell:hover{background:#f0f0f0;transform:scale(1.1)}
+
+/* Settings overlay */
+.settings-ov{display:none;position:absolute;inset:0;background:rgba(0,0,0,.5);z-index:100;align-items:flex-end;justify-content:center}
+.settings-ov.show{display:flex}
+.settings-sheet{background:#fff;border-radius:20px 20px 0 0;padding:24px;width:100%}
+.settings-sheet h3{font-size:16px;font-weight:700;margin-bottom:14px}
+.s-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid #f5f5f5}
+.s-row:last-of-type{border:none}
+.s-name{font-size:13px}
+.s-desc{font-size:10px;color:var(--text3);margin-top:1px}
+.tgl{width:44px;height:24px;border-radius:12px;background:#ddd;position:relative;cursor:pointer;transition:.3s;flex-shrink:0}
+.tgl.on{background:var(--blue)}
+.tgl::after{content:'';position:absolute;width:20px;height:20px;border-radius:50%;background:#fff;top:2px;left:2px;transition:.3s;box-shadow:0 1px 3px rgba(0,0,0,.15)}
+.tgl.on::after{left:22px}
+.s-close{width:100%;padding:10px;border:none;background:#f5f5f5;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;margin-top:14px}
+
+/* Chat switcher */
+.chat-switch{display:flex;gap:6px;padding:8px 16px;border-bottom:1px solid var(--border);background:#fff}
+.cs-btn{flex:1;padding:8px;border-radius:10px;font-size:12px;font-weight:600;text-align:center;cursor:pointer;border:1.5px solid var(--border);background:#fff;transition:.15s}
+.cs-btn:hover{border-color:var(--blue)}
+.cs-btn.active{background:#eff6ff;border-color:var(--blue);color:var(--blue)}
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="hdr">
+    <div class="av" id="chatAv">최</div>
+    <div><h3 id="chatName">최친구</h3><p id="chatDesc">개인 채팅</p></div>
+    <button class="gear" onclick="document.querySelector('.settings-ov').classList.add('show')">⚙️</button>
+  </div>
+  <div class="settings-ov" onclick="if(event.target===this)this.classList.remove('show')">
+    <div class="settings-sheet">
+      <h3>채팅 설정</h3>
+      <div class="s-row"><div><div class="s-name">단일 이모지 크기 고정</div><div class="s-desc">이모지 하나만 보낼 때 확대되지 않도록</div></div><div class="tgl on" id="tgl1" onclick="toggle(this,'emojiSize')"></div></div>
+      <div class="s-row"><div><div class="s-name">채팅별 이모지 패널 자동 전환</div><div class="s-desc">업무/개인에 따라 이모지 추천 변경</div></div><div class="tgl on" id="tgl2" onclick="toggle(this,'panelSwitch')"></div></div>
+      <div class="s-row"><div><div class="s-name">최근 사용 이모지 필터</div><div class="s-desc">현재 채팅 유형에 맞는 이모지만 표시</div></div><div class="tgl on" id="tgl3" onclick="toggle(this,'recentFilter')"></div></div>
+      <div class="s-row"><div><div class="s-name">발신 미리보기</div><div class="s-desc">보내기 전 상대에게 어떻게 보이는지 표시</div></div><div class="tgl on" id="tgl4" onclick="toggle(this,'renderPreview')"></div></div>
+      <button class="s-close" onclick="this.closest('.settings-ov').classList.remove('show')">닫기</button>
+    </div>
+  </div>
+  <div class="chat-switch">
+    <div class="cs-btn" onclick="switchChat('work')">🏢 이팀장님 (업무)</div>
+    <div class="cs-btn active" onclick="switchChat('personal')">🏠 최친구 (개인)</div>
+  </div>
+  <div class="msgs" id="msgs"></div>
+  <div class="rpreview" id="rpreview"><div class="rp-label">👁 상대방에게 보이는 모습</div><div id="rpContent"></div></div>
+  <div class="comp-wrap">
+    <div class="comp">
+      <button class="btn emoji-b" onclick="document.getElementById('picker').classList.toggle('show')">😊</button>
+      <textarea id="input" rows="1" placeholder="메시지 입력..." oninput="onInput()"></textarea>
+      <button class="btn send-b" onclick="send()">↑</button>
+    </div>
+  </div>
+  <div class="picker" id="picker">
+    <div class="ptabs" id="ptabs">
+      <div class="ptab" data-m="work" onclick="setTab('work',this)">🏢 업무</div>
+      <div class="ptab active" data-m="personal" onclick="setTab('personal',this)">🏠 개인</div>
+    </div>
+    <div class="pbody" id="pbody"></div>
+  </div>
+</div>
+
+<script>
+const CFG={emojiSize:true,panelSwitch:true,recentFilter:true,renderPreview:true};
+const WORK_E=['✔','👍','🙏','🙂','😊','🤔','😅'];
+const PERSONAL_E=['😂','❤️','🔥','💀','😊','👍','🙂','😅','👀','🤔'];
+const WORK_PIN=['✔','👍','🙏'];
+const PERSONAL_PIN=['❤️','🔥','😂'];
+
+const chats={
+  personal:{name:'최친구',av:'최',desc:'개인 채팅',type:'personal',color:'#a855f7',
+    msgs:[{s:'최친구',t:'주말에 뭐해?',time:'7:30 PM'},{s:'최친구',t:'😂😂 아까 그거 봤어?',time:'7:31 PM'},{s:'me',t:'ㅋㅋㅋ 뭔데',time:'7:32 PM'},{s:'최친구',t:'👍',time:'7:33 PM'}]},
+  work:{name:'이팀장님',av:'이',desc:'업무 채팅',type:'work',color:'#ec4899',
+    msgs:[{s:'이팀장님',t:'오늘 회의 자료 검토 부탁합니다.',time:'2:10 PM'},{s:'이팀장님',t:'3시까지 코멘트 남겨주세요 👍',time:'2:11 PM'}]},
+};
+let cur='personal';
+
+function init(){renderChat();renderPicker();}
+
+function switchChat(id){
+  cur=id;
+  document.querySelectorAll('.cs-btn').forEach((b,i)=>{b.classList.toggle('active',i===(id==='work'?0:1))});
+  const c=chats[id];
+  document.getElementById('chatAv').textContent=c.av;
+  document.getElementById('chatAv').style.background=c.color||'rgba(255,255,255,.2)';
+  document.getElementById('chatName').textContent=c.name;
+  document.getElementById('chatDesc').textContent=c.desc;
+  renderChat();
+  // Auto-switch picker tab
+  if(CFG.panelSwitch) setTab(c.type,document.querySelector(`.ptab[data-m="${c.type}"]`));
+  document.getElementById('rpreview').classList.remove('show');
+  document.getElementById('input').value='';
+}
+
+function renderChat(){
+  const el=document.getElementById('msgs');
+  const c=chats[cur];
+  el.innerHTML='<div class="date-sep">오늘</div>';
+  c.msgs.forEach(msg=>{
+    const me=msg.s==='me';
+    const div=document.createElement('div');
+    const se=/^[\p{Emoji_Presentation}\p{Emoji}\uFE0F]{1,4}$/u.test(msg.t.trim())&&msg.t.trim().length<=8;
+    let cls='msg '+(me?'mine':'other');
+    if(se) cls+= CFG.emojiSize?' emoji-std':' emoji-large';
+    div.className=cls;
+    div.innerHTML=`${msg.t}<div class="time">${msg.time}</div>`;
+    el.appendChild(div);
+  });
+  el.scrollTop=el.scrollHeight;
+}
+
+function setTab(mode,el){
+  document.querySelectorAll('.ptab').forEach(t=>t.classList.remove('active'));
+  if(el)el.classList.add('active');
+  renderPicker(mode);
+}
+
+function renderPicker(mode){
+  if(!mode) mode=cur==='work'?'work':'personal';
+  const body=document.getElementById('pbody');
+  const emojis=mode==='work'?WORK_E:PERSONAL_E;
+  const pins=mode==='work'?WORK_PIN:PERSONAL_PIN;
+  body.innerHTML=`<div class="sec-t">📌 ${mode==='work'?'업무':'개인'} 고정</div><div class="pgrid">${pins.map(e=>`<div class="ecell" onclick="pickEmoji('${e}')">${e}</div>`).join('')}</div><div class="sec-t">전체</div><div class="pgrid">${emojis.map(e=>`<div class="ecell" onclick="pickEmoji('${e}')">${e}</div>`).join('')}</div>`;
+}
+
+function pickEmoji(e){
+  document.getElementById('input').value+=e;
+  document.getElementById('picker').classList.remove('show');
+  onInput();
+}
+
+function onInput(){
+  const el=document.getElementById('input');
+  el.style.height='auto';
+  el.style.height=Math.min(el.scrollHeight,80)+'px';
+  const v=el.value.trim();
+  const rp=document.getElementById('rpreview');
+  if(CFG.renderPreview&&v){
+    const se=/^[\p{Emoji_Presentation}\p{Emoji}\uFE0F]{1,4}$/u.test(v)&&v.length<=8;
+    const rc=document.getElementById('rpContent');
+    if(se&&CFG.emojiSize){
+      rc.innerHTML=`<div class="rp-mock" style="font-size:14px">${v}</div><div class="rp-note">✓ 표준 크기로 전송됩니다</div>`;
+    } else if(se){
+      rc.innerHTML=`<div class="rp-mock" style="font-size:42px;background:transparent;padding:8px">${v}</div><div class="rp-note">확대 표시됩니다 — 설정에서 크기 고정을 켜보세요</div>`;
+    } else {
+      rc.innerHTML=`<div class="rp-mock">${v}</div>`;
+    }
+    rp.classList.add('show');
+  } else rp.classList.remove('show');
+}
+
+const REPLIES_P={
+  personal:[
+    {after:5, replies:[{t:'ㅋㅋㅋ 진짜?',delay:1200},{t:'😂😂',delay:2500}]},
+    {after:7, replies:[{t:'👍',delay:1000}]},
+    {after:8, replies:[{t:'아 주말에 같이 밥 먹자!',delay:1800},{t:'❤️',delay:3000}]},
+    {after:10, replies:[{t:'ㅇㅋ! 시간 맞춰볼게',delay:1500}]},
+  ],
+  work:[
+    {after:3, replies:[{t:'감사합니다. 확인했어요 👍',delay:1500},{t:'3시 전까지 코멘트 남기겠습니다.',delay:3000}]},
+    {after:5, replies:[{t:'네 좋습니다.',delay:1200}]},
+    {after:6, replies:[{t:'코멘트 남겼습니다. 확인 부탁드립니다 🙂',delay:2000}]},
+  ],
+};
+
+function send(){
+  const el=document.getElementById('input');
+  const v=el.value.trim();if(!v)return;
+  const c=chats[cur];
+  c.msgs.push({s:'me',t:v,time:new Date().toLocaleTimeString('ko-KR',{hour:'numeric',minute:'2-digit'})});
+  el.value='';el.style.height='auto';
+  renderChat();
+  document.getElementById('rpreview').classList.remove('show');
+  document.getElementById('picker').classList.remove('show');
+
+  const scenarios=REPLIES_P[cur]||[];
+  const scenario=scenarios.find(r=>r.after===c.msgs.length);
+  if(scenario){
+    const sender=cur==='personal'?'최친구':'이팀장님';
+    scenario.replies.forEach(r=>{
+      setTimeout(()=>{
+        c.msgs.push({s:sender,t:r.t,time:new Date().toLocaleTimeString('ko-KR',{hour:'numeric',minute:'2-digit'})});
+        renderChat();
+      },r.delay);
+    });
+  }
+}
+
+function toggle(el,key){
+  CFG[key]=!CFG[key];
+  el.classList.toggle('on',CFG[key]);
+  renderChat();
+  if(key==='panelSwitch'&&CFG.panelSwitch){
+    setTab(chats[cur].type, document.querySelector(`.ptab[data-m="${chats[cur].type}"]`));
+  }
+}
+
+document.getElementById('input').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send()}});
+init();
+</script>
+</body>
+</html>

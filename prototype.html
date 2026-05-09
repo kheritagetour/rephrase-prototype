@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Re:Phrase</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#f0f0f0;--sidebar:#fff;--chat-bg:#ece5dd;
+  --mine:#dcf8c6;--other:#fff;
+  --navy:#1b2a4a;--blue:#3b82f6;--green:#22c55e;--yellow:#eab308;--red:#ef4444;
+  --text:#111;--text2:#666;--text3:#999;--border:#e5e5e5;
+  --shadow:0 1px 3px rgba(0,0,0,.1);
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Pretendard','Noto Sans KR',sans-serif;height:100vh;overflow:hidden;display:flex;background:var(--bg);color:var(--text)}
+
+/* ── Sidebar ── */
+.sidebar{width:340px;background:var(--sidebar);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0}
+.sidebar-top{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.sidebar-top h1{font-size:18px;font-weight:800}
+.sidebar-top h1 span{color:var(--blue)}
+.sidebar-top .gear{width:32px;height:32px;border-radius:50%;border:none;background:#f5f5f5;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center}
+.sidebar-top .gear:hover{background:#eee}
+
+.search{padding:8px 16px}
+.search input{width:100%;padding:8px 12px;border-radius:10px;border:none;background:#f5f5f5;font-size:13px;outline:none}
+.search input:focus{background:#ebebeb}
+
+.chat-list{flex:1;overflow-y:auto}
+.chat-item{display:flex;align-items:center;gap:12px;padding:12px 20px;cursor:pointer;transition:.1s;border-bottom:1px solid #f5f5f5}
+.chat-item:hover{background:#f8f8f8}
+.chat-item.active{background:#e8f4fd}
+.avatar{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:#fff;flex-shrink:0}
+.chat-meta{flex:1;min-width:0}
+.chat-meta .name{font-size:14px;font-weight:600;display:flex;align-items:center;gap:6px}
+.chat-meta .preview{font-size:12px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px}
+.chat-meta .time-s{font-size:10px;color:var(--text3);margin-left:auto;flex-shrink:0;align-self:flex-start}
+.ctx-badge{font-size:9px;padding:1px 6px;border-radius:4px;font-weight:600}
+.ctx-badge.work{background:#e0e7ff;color:#3b5998}
+.ctx-badge.personal{background:#dcfce7;color:#166534}
+.unread{width:18px;height:18px;border-radius:50%;background:var(--blue);color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+
+/* ── Main ── */
+.main{flex:1;display:flex;flex-direction:column;position:relative}
+
+/* Chat header */
+.chat-hdr{height:56px;background:#fff;border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:12px;flex-shrink:0}
+.chat-hdr .avatar{width:36px;height:36px;font-size:13px}
+.chat-hdr .hinfo h3{font-size:15px;font-weight:600}
+.chat-hdr .hinfo p{font-size:11px;color:var(--text3)}
+.chat-hdr .formal-chip{margin-left:auto;padding:4px 10px;border-radius:8px;font-size:11px;font-weight:600;background:#fef3c7;color:#92400e;display:none}
+.chat-hdr .formal-chip.show{display:block}
+.chat-hdr .hdr-gear{margin-left:8px;width:32px;height:32px;border-radius:50%;border:none;background:#f5f5f5;cursor:pointer;font-size:14px;display:none;align-items:center;justify-content:center}
+.chat-hdr .hdr-gear:hover{background:#eee}
+
+/* Messages */
+.msg-area{flex:1;overflow-y:auto;padding:12px 60px;display:flex;flex-direction:column;gap:4px;background:var(--chat-bg)}
+.date-sep{text-align:center;font-size:11px;color:var(--text3);margin:8px 0;background:rgba(255,255,255,.7);display:inline-block;align-self:center;padding:3px 12px;border-radius:8px}
+.msg-row{display:flex;flex-direction:column;max-width:65%;animation:fin .25s ease}
+@keyframes fin{from{opacity:0;transform:translateY(4px)}to{opacity:1}}
+.msg-row.me{align-self:flex-end}
+.msg-row.other{align-self:flex-start}
+.msg-row .m-sender{font-size:11px;font-weight:600;color:var(--text2);margin-bottom:2px;margin-left:4px}
+.bubble{padding:8px 12px;border-radius:12px;font-size:14px;line-height:1.55;position:relative;word-break:break-word}
+.msg-row.me .bubble{background:var(--mine);border-top-right-radius:4px}
+.msg-row.other .bubble{background:var(--other);border-top-left-radius:4px;box-shadow:var(--shadow)}
+.bubble .b-time{font-size:9px;color:var(--text3);margin-top:3px;text-align:right}
+.bubble.emoji-only{background:transparent!important;box-shadow:none!important;font-size:42px;line-height:1.2;padding:4px}
+.bubble.emoji-only.std-size{font-size:16px;padding:8px 12px;background:var(--other)!important;box-shadow:var(--shadow)!important}
+.bubble.emoji-only.std-size-mine{font-size:16px;padding:8px 12px;background:var(--mine)!important}
+
+/* Reactions */
+.reactions-row{display:flex;gap:3px;margin-top:3px;flex-wrap:wrap}
+.rx{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:12px;background:rgba(0,0,0,.06);font-size:12px;cursor:pointer;transition:.15s;border:1px solid transparent}
+.rx:hover{background:rgba(0,0,0,.1);border-color:#ccc}
+.rx .rx-note{font-size:9px;color:var(--text2);max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rx-add{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:rgba(0,0,0,.05);font-size:12px;cursor:pointer;border:1px dashed #ccc}
+.rx-add:hover{background:rgba(0,0,0,.1)}
+
+/* Context menu on msg */
+.msg-ctx{display:none;position:absolute;background:#fff;border-radius:12px;padding:6px;box-shadow:0 4px 20px rgba(0,0,0,.15);z-index:80;min-width:200px}
+.msg-ctx.show{display:block}
+.msg-ctx-item{padding:8px 12px;border-radius:8px;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:8px}
+.msg-ctx-item:hover{background:#f5f5f5}
+
+/* ── Composer ── */
+.composer-area{background:#fff;border-top:1px solid var(--border);flex-shrink:0}
+
+/* Suggestion bar — removed, replaced by tone-preview */
+
+/* Formality control — always visible in formal chats */
+.formality-ctrl{display:none;padding:8px 16px 4px;align-items:center;gap:10px;border-bottom:1px solid #f0f0f0}
+.formality-ctrl.show{display:flex}
+.formality-ctrl label{font-size:11px;color:var(--text2);white-space:nowrap;font-weight:600}
+.formality-ctrl input[type=range]{flex:1;accent-color:var(--blue);height:4px;cursor:pointer}
+.formality-ctrl .f-val{font-size:11px;font-weight:700;color:var(--blue);min-width:55px;text-align:right}
+.formality-ctrl .f-levels{display:flex;justify-content:space-between;font-size:9px;color:var(--text3);margin-top:-2px;padding:0 2px}
+
+/* Tone preview — shows transformed text in real-time */
+.tone-preview{display:none;padding:8px 16px;background:#f8faff;border-bottom:1px solid #e8eeff}
+.tone-preview.show{display:block}
+.tone-preview .tp-label{font-size:10px;color:var(--blue);font-weight:600;margin-bottom:6px}
+.tone-preview .tp-result{font-size:14px;line-height:1.6;color:var(--text);padding:8px 12px;background:#fff;border-radius:10px;border:1.5px solid var(--blue);cursor:pointer;transition:.15s}
+.tone-preview .tp-result:hover{background:#eff6ff}
+.tone-preview .tp-result::after{content:' ← 클릭하여 사용';font-size:10px;color:var(--blue);opacity:.6}
+.tone-preview .tp-alts{display:flex;gap:6px;margin-top:6px;overflow-x:auto}
+.tone-preview .tp-alt{padding:6px 12px;border-radius:14px;font-size:12px;border:1px solid var(--border);color:var(--text2);background:#fff;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:.15s}
+.tone-preview .tp-alt:hover{border-color:var(--blue);color:var(--blue);background:#f0f5ff}
+
+/* Warning */
+.warn-bar{display:none;padding:6px 16px;font-size:12px;color:#b45309;background:#fef3c7;align-items:center;gap:6px;border-bottom:1px solid #fde68a}
+.warn-bar.show{display:flex}
+.warn-bar .w-dismiss{margin-left:auto;font-size:10px;padding:2px 8px;border-radius:6px;border:1px solid #b45309;background:transparent;color:#b45309;cursor:pointer}
+
+/* Token bar */
+.token-bar{display:none;padding:6px 16px;gap:5px;flex-wrap:wrap;border-bottom:1px solid #f0f0f0;align-items:center}
+.token-bar.show{display:flex}
+.tk{padding:5px 10px;border-radius:8px;font-size:12px;border:1px solid var(--border);background:#fff;cursor:pointer;transition:.15s;display:inline-flex;align-items:center;gap:3px}
+.tk:hover{border-color:var(--blue);background:#eff6ff}
+.tk.status{border-color:#fbbf24;background:#fffbeb}
+.tk.status:hover{background:#fef3c7}
+.tk-sep{width:1px;height:20px;background:var(--border);margin:0 4px}
+
+.composer-row{display:flex;align-items:flex-end;padding:8px 12px 10px;gap:6px}
+.composer-row textarea{flex:1;resize:none;border:1px solid var(--border);border-radius:20px;padding:9px 14px;font-size:13px;font-family:inherit;outline:none;min-height:38px;max-height:100px;line-height:1.4}
+.composer-row textarea:focus{border-color:var(--blue)}
+.cbtn{width:36px;height:36px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;transition:.15s}
+.cbtn.emoji-b{background:transparent;font-size:20px}
+.cbtn.emoji-b:hover{background:#f0f0f0}
+.cbtn.send-b{background:var(--blue);color:#fff;font-size:16px}
+.cbtn.send-b:hover{transform:scale(1.05)}
+
+/* ── Emoji Picker ── */
+.picker{display:none;border-top:1px solid var(--border);background:#fff;max-height:240px;overflow-y:auto}
+.picker.show{display:block}
+.picker-tabs{display:flex;border-bottom:1px solid var(--border);padding:0 12px;gap:0}
+.ptab{padding:8px 14px;font-size:12px;font-weight:600;cursor:pointer;color:var(--text3);border-bottom:2px solid transparent}
+.ptab.active{color:var(--blue);border-bottom-color:var(--blue)}
+.ptab:hover{color:var(--text)}
+.picker-body{padding:10px 14px}
+.picker-body .sec-t{font-size:10px;font-weight:600;color:var(--text3);margin-bottom:4px;margin-top:8px}
+.picker-body .sec-t:first-child{margin-top:0}
+.pgrid{display:flex;flex-wrap:wrap;gap:1px}
+.ecell{width:38px;height:38px;display:flex;align-items:center;justify-content:center;font-size:22px;border-radius:8px;cursor:pointer;position:relative;transition:.1s}
+.ecell:hover{background:#f0f0f0;transform:scale(1.12)}
+.ecell .vd{position:absolute;top:1px;right:2px;width:7px;height:7px;border-radius:50%;border:1.5px solid #fff}
+.vd.g{background:var(--green)}.vd.y{background:var(--yellow)}.vd.r{background:var(--red)}
+
+/* ── Tooltip Modal ── */
+.tt-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;align-items:center;justify-content:center}
+.tt-overlay.show{display:flex}
+.tt-card{background:#fff;border-radius:20px;padding:28px 24px;width:300px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+.tt-card .tt-emoji{font-size:56px;margin-bottom:4px}
+.tt-card .tt-mean{font-size:16px;font-weight:700;margin-bottom:2px}
+.tt-card .tt-sub{font-size:12px;color:var(--text3);margin-bottom:14px}
+.dist-wrap{margin-bottom:12px}
+.dist-wrap .dw-title{font-size:10px;font-weight:600;color:var(--text3);margin-bottom:6px}
+.dist-bar{display:flex;border-radius:8px;overflow:hidden;height:28px}
+.dist-bar .seg{display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;transition:.3s}
+.seg.pos{background:#22c55e}.seg.neu{background:#eab308}.seg.neg{background:#ef4444}
+.dist-legend{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-top:8px}
+.dl-item{font-size:10px;padding:2px 8px;border-radius:6px}
+.dl-item.pos{background:#dcfce7;color:#166534}
+.dl-item.neu{background:#fef9c3;color:#854d0e}
+.dl-item.neg{background:#fee2e2;color:#991b1b}
+.tt-cultural{margin-top:10px;padding:10px;border-radius:10px;background:#fef3c7;font-size:11px;color:#92400e;text-align:left;line-height:1.4}
+.tt-a11y{margin-top:8px;padding:10px;border-radius:10px;background:#eff6ff;font-size:11px;color:#1e40af;text-align:left;line-height:1.4}
+.tt-close{margin-top:14px;padding:8px 24px;border-radius:10px;border:1.5px solid var(--border);background:#fff;font-size:13px;cursor:pointer;font-weight:500}
+.tt-close:hover{background:#f5f5f5}
+
+/* ── Note Modal ── */
+.note-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;align-items:center;justify-content:center}
+.note-ov.show{display:flex}
+.note-card{background:#fff;border-radius:16px;padding:24px;width:320px;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+.note-card h4{font-size:15px;font-weight:700;margin-bottom:4px}
+.note-card .note-sub{font-size:11px;color:var(--text3);margin-bottom:12px}
+.note-card .emoji-row{display:flex;gap:4px;margin-bottom:12px;flex-wrap:wrap}
+.note-card .emoji-row button{padding:6px 10px;border-radius:8px;border:1.5px solid var(--border);background:#fff;font-size:16px;cursor:pointer}
+.note-card .emoji-row button:hover{border-color:var(--blue);background:#eff6ff}
+.note-card .emoji-row button.sel{border-color:var(--blue);background:#dbeafe}
+.note-card input{width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:10px;font-size:13px;outline:none;margin-bottom:14px;font-family:inherit}
+.note-card input:focus{border-color:var(--blue)}
+.note-btns{display:flex;gap:8px;justify-content:flex-end}
+.note-btns button{padding:8px 18px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;border:none}
+.note-btns .n-cancel{background:#f0f0f0;color:var(--text)}
+.note-btns .n-ok{background:var(--blue);color:#fff}
+
+/* ── Settings Sheet ── */
+.settings-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;align-items:flex-end;justify-content:center}
+.settings-ov.show{display:flex}
+.settings-sheet{background:#fff;border-radius:20px 20px 0 0;padding:24px;width:100%;max-width:420px}
+.settings-sheet h3{font-size:16px;font-weight:700;margin-bottom:16px}
+.s-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid #f5f5f5}
+.s-row:last-of-type{border:none}
+.s-row .s-info .s-name{font-size:13px;font-weight:500}
+.s-row .s-info .s-desc{font-size:10px;color:var(--text3);margin-top:1px}
+.tgl{width:44px;height:24px;border-radius:12px;background:#ddd;position:relative;cursor:pointer;transition:.3s;flex-shrink:0}
+.tgl.on{background:var(--blue)}
+.tgl::after{content:'';position:absolute;width:20px;height:20px;border-radius:50%;background:#fff;top:2px;left:2px;transition:.3s;box-shadow:0 1px 3px rgba(0,0,0,.15)}
+.tgl.on::after{left:22px}
+.s-close{width:100%;padding:10px;border:none;background:#f5f5f5;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;margin-top:16px}
+.s-close:hover{background:#eee}
+
+/* ── Render preview ── */
+.rpreview{display:none;padding:8px 16px;background:#fafafa;border-top:1px solid #f0f0f0;font-size:12px}
+.rpreview.show{display:block}
+.rpreview .rp-label{font-size:10px;color:var(--text3);margin-bottom:4px}
+.rpreview .rp-mock{display:inline-block;padding:6px 12px;border-radius:12px;background:var(--mine);font-size:13px}
+.rpreview .rp-info{font-size:10px;color:var(--text3);margin-top:3px}
+
+/* ── Empty state ── */
+.empty-state{flex:1;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;color:var(--text3)}
+.empty-state .es-icon{font-size:48px;margin-bottom:8px}
+.empty-state h3{font-size:18px;font-weight:700;color:var(--text)}
+.empty-state p{font-size:13px}
+
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-thumb{background:#ccc;border-radius:3px}
+</style>
+</head>
+<body>
+
+<!-- Tooltip -->
+<div class="tt-overlay" id="ttOverlay" onclick="if(event.target===this)this.classList.remove('show')">
+  <div class="tt-card" id="ttCard"></div>
+</div>
+
+<!-- Note Modal -->
+<div class="note-ov" id="noteOv" onclick="if(event.target===this)this.classList.remove('show')">
+  <div class="note-card">
+    <h4>리액션 추가</h4>
+    <p class="note-sub">이모지를 선택하고 메모를 남기세요</p>
+    <div class="emoji-row" id="noteEmojiRow"></div>
+    <input type="text" id="noteInput" placeholder="메모 (선택)">
+    <div class="note-btns">
+      <button class="n-cancel" onclick="closeNote()">취소</button>
+      <button class="n-ok" onclick="confirmNote()">추가</button>
+    </div>
+  </div>
+</div>
+
+<!-- Settings -->
+<div class="settings-ov" id="settingsOv" onclick="if(event.target===this)this.classList.remove('show')">
+  <div class="settings-sheet">
+    <h3>채팅 설정</h3>
+    <div class="s-row"><div class="s-info"><div class="s-name">단일 이모지 크기 고정</div><div class="s-desc">이모지 하나만 보낼 때 확대 표시하지 않기</div></div><div class="tgl on" id="tgl-size" onclick="tglSetting(this,'emojiSize')"></div></div>
+    <div class="s-row"><div class="s-info"><div class="s-name">채팅별 이모지 패널 자동 전환</div><div class="s-desc">업무/개인 채팅에 따라 이모지 추천 변경</div></div><div class="tgl on" id="tgl-panel" onclick="tglSetting(this,'panelSwitch')"></div></div>
+    <div class="s-row"><div class="s-info"><div class="s-name">최근 사용 이모지 필터</div><div class="s-desc">현재 채팅 유형에 맞는 이모지만 표시</div></div><div class="tgl on" id="tgl-recent" onclick="tglSetting(this,'recentFilter')"></div></div>
+    <div class="s-row"><div class="s-info"><div class="s-name">발신 미리보기</div><div class="s-desc">보내기 전 상대방 화면에서 어떻게 보이는지 표시</div></div><div class="tgl on" id="tgl-preview" onclick="tglSetting(this,'renderPreview')"></div></div>
+    <div class="s-row"><div class="s-info"><div class="s-name">톤 제안 기능</div><div class="s-desc">공식 채팅에서 짧은 답변 입력 시 정중한 대안 제안</div></div><div class="tgl on" id="tgl-tone" onclick="tglSetting(this,'toneAid')"></div></div>
+    <div class="s-row"><div class="s-info"><div class="s-name">이모지 해석 경고</div><div class="s-desc">해석 분산이 높은 이모지 사용 시 알림</div></div><div class="tgl on" id="tgl-warn" onclick="tglSetting(this,'emojiWarn')"></div></div>
+    <button class="s-close" onclick="document.getElementById('settingsOv').classList.remove('show')">닫기</button>
+  </div>
+</div>
+
+<!-- Sidebar -->
+<div class="sidebar">
+  <div class="sidebar-top">
+    <h1>Re<span>:</span>Phrase</h1>
+    <button class="gear" onclick="document.getElementById('settingsOv').classList.add('show')">⚙️</button>
+  </div>
+  <div class="search"><input placeholder="검색" type="text"></div>
+  <div class="chat-list" id="chatList"></div>
+</div>
+
+<!-- Main -->
+<div class="main" id="mainArea">
+  <div class="empty-state" id="emptyState">
+    <div class="es-icon">💬</div>
+    <h3>Re:Phrase</h3>
+    <p>대화를 선택하세요</p>
+  </div>
+</div>
+
+<script>
+// ── Data ──
+const CFG={emojiSize:true,panelSwitch:true,recentFilter:true,renderPreview:true,toneAid:true,emojiWarn:true};
+
+const ED={
+  '✔':{v:'g',m:'확인 · 완료',d:[{l:'완료/확인',p:85,t:'pos'},{l:'무성의',p:10,t:'neu'},{l:'짜증',p:5,t:'neg'}],a11y:'작업 완료를 확인하는 기능적 신호'},
+  '👍':{v:'y',m:'좋아요 · 알겠어요',d:[{l:'긍정/동의',p:60,t:'pos'},{l:'무관심',p:25,t:'neu'},{l:'비꼼',p:15,t:'neg'}],a11y:'동의 또는 승인의 표시'},
+  '🙂':{v:'r',m:'미소 · 괜찮아요',d:[{l:'친근함',p:35,t:'pos'},{l:'어색함',p:35,t:'neu'},{l:'비꼼/냉소',p:30,t:'neg'}],a11y:'표면적 미소 — 냉소 가능성 있음'},
+  '🙏':{v:'y',m:'감사 · 부탁',d:[{l:'감사',p:50,t:'pos'},{l:'부탁',p:35,t:'neu'},{l:'문화차이',p:15,t:'neg'}],cultural:'일부 문화권에서 "high-five"로 해석. 파리 협업 시 주의가 필요합니다.',a11y:'감사 또는 부탁 — 문화권별 해석 차이'},
+  '😅':{v:'y',m:'곤란 · 민망',d:[{l:'민망/곤란',p:50,t:'neu'},{l:'유머',p:30,t:'pos'},{l:'짜증',p:20,t:'neg'}],a11y:'곤란한 상황을 가볍게 표현'},
+  '👀':{v:'r',m:'관심 · 감시',d:[{l:'관심/흥미',p:40,t:'pos'},{l:'감시',p:35,t:'neu'},{l:'의심',p:25,t:'neg'}],a11y:'주시 또는 관심 — 의심으로도 해석 가능'},
+  '😂':{v:'r',m:'웃김 · 조롱',d:[{l:'진짜 웃김',p:40,t:'pos'},{l:'과장',p:30,t:'neu'},{l:'조롱',p:30,t:'neg'}],a11y:'강한 웃음 — 진심 또는 조롱'},
+  '😊':{v:'g',m:'기쁨 · 따뜻함',d:[{l:'따뜻함',p:80,t:'pos'},{l:'형식적',p:15,t:'neu'},{l:'어색함',p:5,t:'neg'}],a11y:'따뜻한 감정의 표현'},
+  '🔥':{v:'g',m:'멋짐 · 열정',d:[{l:'멋있다',p:75,t:'pos'},{l:'열정적',p:20,t:'pos'},{l:'과장',p:5,t:'neu'}],a11y:'칭찬 또는 열정'},
+  '❤️':{v:'g',m:'사랑 · 좋아요',d:[{l:'애정',p:70,t:'pos'},{l:'좋아요',p:25,t:'pos'},{l:'과함',p:5,t:'neu'}],a11y:'애정 또는 강한 호감'},
+  '💀':{v:'r',m:'웃겨죽겠 · 충격',d:[{l:'너무 웃김',p:45,t:'pos'},{l:'충격',p:30,t:'neu'},{l:'부정적',p:25,t:'neg'}],a11y:'극단적 웃음 또는 충격'},
+  '🤔':{v:'y',m:'생각 중 · 의심',d:[{l:'궁금',p:55,t:'neu'},{l:'의심',p:30,t:'neg'},{l:'흥미',p:15,t:'pos'}],a11y:'생각 중이거나 의문'},
+};
+
+const EMOJIS_WORK=['✔','👍','🙏','🙂','😊','🤔','😅','👀'];
+const EMOJIS_PERSONAL=['😂','❤️','🔥','💀','😊','👍','🙂','😅','👀','🤔'];
+const PINS_WORK=['✔','👍','🙏'];
+const PINS_PERSONAL=['❤️','🔥','😂'];
+const PROGRESS_TOKENS=[{e:'⏳',l:'확인 중'},{e:'🚫',l:'블로킹'},{e:'⚠️',l:'지연'},{e:'✅',l:'완료'}];
+
+const CHATS=[
+  {id:'prof',name:'김교수님',avatar:'김',color:'#6366f1',type:'work',formal:true,
+   msgs:[
+     {s:'김교수님',t:'다음 주 월요일까지 중간보고서 초안 보내주세요.',time:'10:23'},
+     {s:'김교수님',t:'분석 프레임워크 부분은 특히 신경 써주세요.',time:'10:24'},
+     {s:'김교수님',t:'진행 상황은 어떤가요?',time:'10:30'},
+   ],unread:1},
+  {id:'boss',name:'이팀장님',avatar:'이',color:'#ec4899',type:'work',formal:true,
+   msgs:[
+     {s:'이팀장님',t:'오늘 회의 자료 검토 부탁합니다.',time:'14:10'},
+     {s:'이팀장님',t:'3시까지 코멘트 남겨주세요 👍',time:'14:11'},
+   ],unread:2},
+  {id:'peer',name:'박동료',avatar:'박',color:'#f97316',type:'work',formal:false,
+   msgs:[
+     {s:'박동료',t:'어제 리뷰 피드백 반영했어!',time:'13:05'},
+     {s:'박동료',t:'확인해봐 🙂',time:'13:06'},
+     {s:'me',t:'고마워~',time:'13:10'},
+     {s:'박동료',t:'근데 이거 좀 봐줘 👀',time:'13:12'},
+   ]},
+  {id:'sarah',name:'Sarah (해외팀)',avatar:'S',color:'#22c55e',type:'work',formal:true,
+   msgs:[
+     {s:'Sarah',t:'Thanks for the update! 🙏',time:'15:30'},
+     {s:'Sarah',t:'Can we sync tomorrow?',time:'15:31'},
+   ]},
+  {id:'proj',name:'프로젝트 채널',avatar:'#',color:'#3b82f6',type:'work',formal:false,group:true,
+   msgs:[
+     {s:'김대리',t:'API 연동 완료했습니다.',time:'16:20',rx:[{e:'✔',c:3},{e:'👍',c:2}]},
+     {s:'이사원',t:'프론트 작업은 내일까지 걸릴 것 같아요.',time:'16:25'},
+     {s:'박과장',t:'일정 괜찮을까요? 확인 부탁드립니다.',time:'16:30'},
+     {s:'정인턴',t:'디자인 시안 올렸습니다.',time:'16:35',rx:[{e:'🔥',c:1}]},
+   ]},
+  {id:'friend',name:'최친구',avatar:'최',color:'#a855f7',type:'personal',formal:false,
+   msgs:[
+     {s:'최친구',t:'주말에 뭐해?',time:'19:30'},
+     {s:'최친구',t:'😂😂 아까 그거 봤어?',time:'19:31'},
+     {s:'me',t:'ㅋㅋㅋ 뭔데',time:'19:32'},
+     {s:'최친구',t:'👍',time:'19:33'},
+   ]},
+  {id:'mom',name:'엄마',avatar:'엄',color:'#ef4444',type:'personal',formal:false,
+   msgs:[
+     {s:'엄마',t:'밥 먹었어?',time:'18:00'},
+     {s:'me',t:'네~ 먹었어요',time:'18:05'},
+     {s:'엄마',t:'❤️',time:'18:06'},
+   ]},
+];
+
+let curChat=null;
+let noteTargetIdx=null;
+let noteSelectedEmoji='👍';
+let longTimer=null;
+
+// ── Init ──
+function init(){
+  renderChatList();
+  // Auto-open first chat
+  openChat(CHATS[0]);
+}
+
+// ── Chat List ──
+function renderChatList(){
+  const el=document.getElementById('chatList');
+  el.innerHTML='';
+  CHATS.forEach(c=>{
+    const last=c.msgs[c.msgs.length-1];
+    const div=document.createElement('div');
+    div.className='chat-item'+(curChat?.id===c.id?' active':'');
+    div.innerHTML=`
+      <div class="avatar" style="background:${c.color}">${c.avatar}</div>
+      <div class="chat-meta">
+        <div class="name">
+          ${c.name}
+          <span class="ctx-badge ${c.type}">${c.type==='work'?'업무':'개인'}</span>
+          <span class="time-s">${last.time}</span>
+        </div>
+        <div class="preview">${last.t}</div>
+      </div>
+      ${c.unread?`<div class="unread">${c.unread}</div>`:''}`;
+    div.onclick=()=>openChat(c);
+    el.appendChild(div);
+  });
+}
+
+// ── Open Chat ──
+function openChat(c){
+  curChat=c;
+  if(c.unread) c.unread=0;
+  renderChatList();
+
+  const main=document.getElementById('mainArea');
+  // Build chat view
+  const isWork=c.type==='work';
+  const showTokens=isWork&&(c.group||c.formal);
+
+  main.innerHTML=`
+    <div class="chat-hdr">
+      <div class="avatar" style="background:${c.color};width:36px;height:36px;font-size:13px">${c.avatar}</div>
+      <div class="hinfo">
+        <h3>${c.name}</h3>
+        <p>${isWork?'업무':'개인'} · ${c.formal?'공식':'일반'}${c.group?' · 그룹':''}</p>
+      </div>
+      <div class="formal-chip ${c.formal?'show':''}">${c.formal?'🏢 공식 대화':''}</div>
+      <button class="hdr-gear" style="display:flex" onclick="document.getElementById('settingsOv').classList.add('show')">⚙️</button>
+    </div>
+    <div class="msg-area" id="msgArea"></div>
+    <div class="rpreview" id="rpreview">
+      <div class="rp-label">👁 상대방에게 보이는 모습</div>
+      <div id="rpContent"></div>
+    </div>
+    <div class="composer-area">
+      <div class="formality-ctrl ${c.formal?'show':''}" id="formalCtrl">
+        <label>정중함</label>
+        <input type="range" min="1" max="5" value="${c.formal?4:2}" id="fRange" oninput="onFormalityChange()">
+        <span class="f-val" id="fVal">${c.formal?'높음':'낮음'}</span>
+      </div>
+      <div class="tone-preview" id="tonePreview"></div>
+      <div class="warn-bar" id="warnBar"><span id="warnText"></span><button class="w-dismiss" onclick="this.parentElement.classList.remove('show')">무시</button></div>
+      ${showTokens?`
+      <div class="token-bar show" id="tokenBar">
+        ${PINS_WORK.map(e=>`<button class="tk" onclick="insertEmoji('${e}')">${e}</button>`).join('')}
+        <div class="tk-sep"></div>
+        ${PROGRESS_TOKENS.map(t=>`<button class="tk status" onclick="addProgress('${t.e}','${t.l}')">${t.e} ${t.l}</button>`).join('')}
+      </div>`:''}
+      <div class="composer-row">
+        <button class="cbtn emoji-b" onclick="togglePicker()">😊</button>
+        <textarea id="msgInput" rows="1" placeholder="메시지 입력..."></textarea>
+        <button class="cbtn send-b" onclick="sendMsg()">↑</button>
+      </div>
+    </div>
+    <div class="picker" id="picker">
+      <div class="picker-tabs" id="pickerTabs">
+        <div class="ptab ${isWork?'active':''}" onclick="switchTab('work',this)">🏢 업무</div>
+        <div class="ptab ${!isWork?'active':''}" onclick="switchTab('personal',this)">🏠 개인</div>
+      </div>
+      <div class="picker-body" id="pickerBody"></div>
+    </div>`;
+
+  renderMsgs();
+  renderPicker(CFG.panelSwitch?(isWork?'work':'personal'):'work');
+  setupComposer();
+}
+
+// ── Messages ──
+function renderMsgs(){
+  const area=document.getElementById('msgArea');
+  if(!area)return;
+  area.innerHTML='<div class="date-sep">오늘</div>';
+
+  curChat.msgs.forEach((msg,idx)=>{
+    const isMe=msg.s==='me';
+    const row=document.createElement('div');
+    row.className=`msg-row ${isMe?'me':'other'}`;
+
+    // Single emoji?
+    const se=/^[\p{Emoji_Presentation}\p{Emoji}\uFE0F]{1,4}$/u.test(msg.t.trim())&&msg.t.trim().length<=8;
+    let bubbleClass='bubble';
+    if(se){
+      if(CFG.emojiSize){
+        bubbleClass+=isMe?' emoji-only std-size-mine':' emoji-only std-size';
+      } else {
+        bubbleClass+=' emoji-only';
+      }
+    }
+
+    // Reactions
+    let rxHtml='';
+    if(msg.rx&&msg.rx.length){
+      rxHtml='<div class="reactions-row">'+msg.rx.map(r=>{
+        const noteH=r.note?`<span class="rx-note">${r.note}</span>`:'';
+        return `<span class="rx">${r.e}${r.c>1?' '+r.c:''}${noteH}</span>`;
+      }).join('')+`<span class="rx-add" onclick="openNote(${idx})" title="리액션 추가">+</span></div>`;
+    }
+
+    row.innerHTML=`
+      ${!isMe&&(curChat.group)?`<div class="m-sender">${msg.s}</div>`:''}
+      <div class="${bubbleClass}" data-idx="${idx}">
+        ${msg.t}
+        <div class="b-time">${msg.time}</div>
+      </div>
+      ${rxHtml}`;
+
+    // Events
+    const bubble=row.querySelector('.bubble');
+
+    // Long press → emoji tooltip
+    bubble.addEventListener('mousedown',e=>{
+      if(isMe)return;
+      longTimer=setTimeout(()=>{
+        const m=msg.t.match(/(\p{Emoji_Presentation}|\p{Emoji}\uFE0F)/u);
+        if(m&&ED[m[0]])showTooltip(m[0]);
+      },500);
+    });
+    bubble.addEventListener('mouseup',()=>clearTimeout(longTimer));
+    bubble.addEventListener('mouseleave',()=>clearTimeout(longTimer));
+
+    // Right click → reaction menu
+    bubble.addEventListener('contextmenu',e=>{
+      if(isMe)return;
+      e.preventDefault();
+      openNote(idx);
+    });
+
+    area.appendChild(row);
+  });
+  area.scrollTop=area.scrollHeight;
+}
+
+// ── Tooltip ──
+function showTooltip(emoji){
+  const d=ED[emoji];
+  if(!d)return;
+  const ov=document.getElementById('ttOverlay');
+  const card=document.getElementById('ttCard');
+
+  const barH=d.d.map(x=>`<div class="seg ${x.t}" style="width:${x.p}%">${x.p}%</div>`).join('');
+  const legH=d.d.map(x=>`<span class="dl-item ${x.t}">${x.l} ${x.p}%</span>`).join('');
+  const culH=d.cultural?`<div class="tt-cultural">🌍 <b>문화 차이 주의</b><br>${d.cultural}</div>`:'';
+  const a11H=d.a11y?`<div class="tt-a11y">♿ <b>접근성 의미</b><br>${d.a11y}</div>`:'';
+
+  card.innerHTML=`
+    <div class="tt-emoji">${emoji}</div>
+    <div class="tt-mean">${d.m}</div>
+    <div class="tt-sub">이 이모지의 해석 분포</div>
+    <div class="dist-wrap">
+      <div class="dist-bar">${barH}</div>
+      <div class="dist-legend">${legH}</div>
+    </div>
+    ${culH}${a11H}
+    <button class="tt-close" onclick="document.getElementById('ttOverlay').classList.remove('show')">닫기</button>`;
+  ov.classList.add('show');
+}
+
+// ── Picker ──
+function togglePicker(){document.getElementById('picker').classList.toggle('show')}
+
+function switchTab(mode,el){
+  document.querySelectorAll('#pickerTabs .ptab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  renderPicker(mode);
+}
+
+function renderPicker(mode){
+  const body=document.getElementById('pickerBody');
+  if(!body)return;
+  const emojis=mode==='work'?EMOJIS_WORK:EMOJIS_PERSONAL;
+  const pins=mode==='work'?PINS_WORK:PINS_PERSONAL;
+
+  let html=`<div class="sec-t">📌 자주 사용</div><div class="pgrid">`;
+  pins.forEach(e=>{html+=eCell(e)});
+  html+=`</div><div class="sec-t">전체</div><div class="pgrid">`;
+  emojis.forEach(e=>{html+=eCell(e)});
+  html+=`</div>`;
+  body.innerHTML=html;
+
+  // Events
+  body.querySelectorAll('.ecell').forEach(cell=>{
+    const em=cell.dataset.e;
+    cell.onclick=()=>{
+      const input=document.getElementById('msgInput');
+      input.value+=em;
+      input.dispatchEvent(new Event('input'));
+      document.getElementById('picker').classList.remove('show');
+    };
+    cell.addEventListener('mousedown',()=>{longTimer=setTimeout(()=>showTooltip(em),500)});
+    cell.addEventListener('mouseup',()=>clearTimeout(longTimer));
+    cell.addEventListener('mouseleave',()=>clearTimeout(longTimer));
+  });
+}
+
+function eCell(e){
+  const d=ED[e];
+  const dot=d?`<span class="vd ${d.v}"></span>`:'';
+  return `<div class="ecell" data-e="${e}">${e}${dot}</div>`;
+}
+
+// ── Tone Transformation Data ──
+// Each input pattern maps to 5 formality levels of output
+const TONE_MAP = [
+  { match: v => ['네','넵','넹','ㅇㅇ','ㅇㅋ','ok','응','넴','ㅋ'].some(s=>v.includes(s)),
+    intent: '확인/동의',
+    levels: [
+      'ㅇㅋ','넵!','네, 확인했습니다!','네, 알겠습니다. 확인하겠습니다.','네, 말씀 감사합니다. 확인 후 바로 진행하겠습니다.'
+    ],
+    alts: [
+      ['ㅇㅇ','ㅋㅋ 알겠어'],
+      ['넵넵!','알겠어요~'],
+      ['확인했습니다!','알겠습니다, 감사합니다~'],
+      ['네, 검토 후 말씀드리겠습니다.','안내 감사드립니다.'],
+      ['말씀대로 진행하겠습니다. 감사합니다.','안내 감사드립니다. 검토 후 회신드리겠습니다.']
+    ]},
+  { match: v => ['감사','ㄱㅅ','고마','thx','thanks','땡큐','ㄳ'].some(s=>v.includes(s)),
+    intent: '감사',
+    levels: [
+      'ㄳㄳ','고마워요!','감사합니다!','감사합니다, 참고하겠습니다.','진심으로 감사드립니다. 말씀해주신 내용 꼼꼼히 반영하겠습니다.'
+    ],
+    alts: [
+      ['ㄱㅅ!','고마워~'],
+      ['감사!','고마워요~'],
+      ['감사합니다~','덕분에 도움이 됐어요!'],
+      ['감사합니다, 바로 확인하겠습니다.','말씀 감사드립니다.'],
+      ['감사드립니다. 검토 후 반영하겠습니다.','소중한 피드백 감사합니다.']
+    ]},
+  { match: v => ['알겠','알게','알았','ㅇㅇ'].some(s=>v.includes(s)),
+    intent: '이해/수긍',
+    levels: [
+      'ㅇㅇ 알겠어','알겠어요!','알겠습니다, 확인했습니다!','알겠습니다, 말씀대로 진행하겠습니다.','말씀 잘 알겠습니다. 안내해주신 방향대로 진행하겠습니다.'
+    ],
+    alts: [
+      ['ㅇㅋ','알았어~'],
+      ['알겠어요~','넵!'],
+      ['확인했어요!','네, 그렇게 할게요!'],
+      ['확인했습니다, 감사합니다.','네, 참고하여 진행하겠습니다.'],
+      ['말씀대로 반영하겠습니다.','안내 감사드립니다. 확인 후 회신드리겠습니다.']
+    ]},
+  { match: v => ['수고','고생','힘들'].some(s=>v.includes(s)),
+    intent: '수고/격려',
+    levels: [
+      '수고~','수고했어요!','수고하셨습니다!','수고 많으셨습니다, 감사합니다.','정말 수고 많으셨습니다. 덕분에 큰 도움이 되었습니다.'
+    ],
+    alts: [
+      ['ㅋㅋ 수고','고생했어~'],
+      ['고생했어요!','수고요~'],
+      ['수고하셨습니다~','고생하셨어요!'],
+      ['수고하셨습니다. 잘 확인하겠습니다.','수고 많으셨습니다.'],
+      ['수고 많으셨습니다. 꼼꼼히 검토하겠습니다.','노고에 감사드립니다.']
+    ]},
+  { match: v => ['죄송','미안','sorry','ㅈㅅ','쏘리'].some(s=>v.includes(s)),
+    intent: '사과',
+    levels: [
+      'ㅈㅅ','미안해요!','죄송합니다!','죄송합니다, 바로 수정하겠습니다.','죄송합니다. 말씀해주신 부분 확인하여 빠르게 보완하겠습니다.'
+    ],
+    alts: [
+      ['ㅈㅅㅈㅅ','미안~'],
+      ['미안해요~','죄송!'],
+      ['죄송합니다~','죄송해요, 바로 할게요!'],
+      ['죄송합니다, 확인하겠습니다.','죄송합니다, 빠르게 반영하겠습니다.'],
+      ['깊이 죄송합니다. 즉시 확인 후 조치하겠습니다.','죄송합니다. 재발 방지에 유의하겠습니다.']
+    ]},
+  { match: v => ['확인','체크','검토','봤'].some(s=>v.includes(s)),
+    intent: '확인/검토',
+    levels: [
+      'ㅇㅇ 봤어','확인했어요!','확인했습니다!','확인했습니다, 검토 후 말씀드리겠습니다.','확인했습니다. 꼼꼼히 검토한 후 의견 전달드리겠습니다.'
+    ],
+    alts: [
+      ['봤어~','ㅇㅋ 확인'],
+      ['봤어요!','체크했어요~'],
+      ['확인 완료!','검토했습니다!'],
+      ['확인했습니다, 감사합니다.','검토 완료했습니다.'],
+      ['말씀하신 내용 확인 완료했습니다.','검토 마쳤습니다. 의견 정리 후 회신드리겠습니다.']
+    ]},
+  { match: v => /[\p{Emoji}]/u.test(v),
+    intent: '이모지 → 텍스트 변환',
+    levels: [
+      v=>v, v=>v+' 알겠어요!','확인했습니다!','네, 알겠습니다. 감사합니다.','말씀 확인했습니다. 감사합니다.'
+    ],
+    alts: [
+      [v=>v],
+      ['알겠어요~','넵!'],
+      ['확인했습니다!','감사합니다!'],
+      ['확인했습니다, 감사합니다.','네, 말씀대로 하겠습니다.'],
+      ['말씀 감사드립니다. 확인하겠습니다.','안내 감사드립니다.']
+    ]},
+  // fallback
+  { match: ()=>true,
+    intent: '일반 응답',
+    levels: [
+      v=>v, v=>v,'확인했습니다!','네, 알겠습니다.','네, 말씀 감사합니다. 확인하겠습니다.'
+    ],
+    alts: [
+      [v=>v],
+      ['넵!','알겠어요~'],
+      ['확인했습니다!','알겠습니다~'],
+      ['네, 확인하겠습니다.','말씀 감사합니다.'],
+      ['말씀대로 진행하겠습니다.','안내 감사드립니다. 반영하겠습니다.']
+    ]},
+];
+
+// ── Composer Logic ──
+function setupComposer(){
+  const input=document.getElementById('msgInput');
+  if(!input)return;
+
+  input.addEventListener('input',()=>{
+    input.style.height='auto';
+    input.style.height=Math.min(input.scrollHeight,100)+'px';
+    const v=input.value.trim();
+
+    // Tone preview (formal chats only)
+    if(CFG.toneAid&&curChat.formal&&v.length>0){
+      updateTonePreview(v);
+    } else {
+      document.getElementById('tonePreview')?.classList.remove('show');
+    }
+
+    // Warning
+    if(CFG.emojiWarn&&curChat.formal){
+      const em=v.match(/(\p{Emoji_Presentation}|\p{Emoji}\uFE0F)/u);
+      if(em&&ED[em[0]]&&(ED[em[0]].v==='r'||ED[em[0]].v==='y')){
+        const d=ED[em[0]];
+        document.getElementById('warnText').textContent=
+          `⚠️ "${em[0]}" — 수신자에 따라 다르게 읽힐 수 있습니다 (${d.d.map(x=>x.l+' '+x.p+'%').join(', ')})`;
+        document.getElementById('warnBar').classList.add('show');
+      } else {
+        document.getElementById('warnBar')?.classList.remove('show');
+      }
+    }
+
+    // Render preview
+    const rp=document.getElementById('rpreview');
+    if(CFG.renderPreview&&v){
+      const se=/^[\p{Emoji_Presentation}\p{Emoji}\uFE0F]{1,4}$/u.test(v)&&v.length<=8;
+      const rpc=document.getElementById('rpContent');
+      if(se&&CFG.emojiSize){
+        rpc.innerHTML=`<div class="rp-mock" style="font-size:14px">${v}</div><div class="rp-info">표준 크기로 전송됩니다</div>`;
+      } else if(se){
+        rpc.innerHTML=`<div class="rp-mock" style="font-size:42px;background:transparent">${v}</div><div class="rp-info">확대 표시됩니다</div>`;
+      } else {
+        rpc.innerHTML=`<div class="rp-mock">${v}</div>`;
+      }
+      rp.classList.add('show');
+    } else {
+      rp?.classList.remove('show');
+    }
+  });
+
+  input.addEventListener('keydown',e=>{
+    if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMsg();}
+  });
+}
+
+// ── Formality slider change ──
+function onFormalityChange(){
+  const fr=document.getElementById('fRange');
+  const labels=['','반말','약간 반말','보통','높임','매우 높임'];
+  document.getElementById('fVal').textContent=labels[fr.value];
+  const v=document.getElementById('msgInput')?.value.trim();
+  if(v&&CFG.toneAid&&curChat?.formal){
+    updateTonePreview(v);
+  }
+}
+
+// ── Tone Preview — real-time transformation ──
+function updateTonePreview(rawInput){
+  const tp=document.getElementById('tonePreview');
+  if(!tp)return;
+  const level=parseInt(document.getElementById('fRange')?.value||4);
+  const low=rawInput.toLowerCase();
+
+  // Find matching pattern
+  let matched=TONE_MAP.find(t=>t.match(low));
+  if(!matched) matched=TONE_MAP[TONE_MAP.length-1];
+
+  const idx=level-1;
+  // Get main suggestion
+  let main=matched.levels[idx];
+  if(typeof main==='function') main=main(rawInput);
+
+  // Get alternatives
+  let alts=matched.alts[idx]||[];
+  alts=alts.map(a=>typeof a==='function'?a(rawInput):a).filter(a=>a!==main);
+
+  tp.innerHTML=`
+    <div class="tp-label">✨ ${matched.intent} → 정중함 ${level}단계</div>
+    <div class="tp-result" onclick="useTone(this)">${main}</div>
+    ${alts.length?`<div class="tp-alts">${alts.map(a=>`<div class="tp-alt" onclick="useTone(this)">${a}</div>`).join('')}</div>`:''}`;
+  tp.classList.add('show');
+}
+
+function useTone(el){
+  const input=document.getElementById('msgInput');
+  input.value=el.textContent;
+  input.focus();
+  document.getElementById('tonePreview')?.classList.remove('show');
+  document.getElementById('warnBar')?.classList.remove('show');
+  document.getElementById('rpreview')?.classList.remove('show');
+}
+
+function insertEmoji(e){
+  const input=document.getElementById('msgInput');
+  input.value+=e;
+  input.focus();
+  input.dispatchEvent(new Event('input'));
+}
+
+// ── Send ──
+function sendMsg(){
+  const input=document.getElementById('msgInput');
+  const v=input.value.trim();
+  if(!v||!curChat)return;
+  const now=new Date();
+  curChat.msgs.push({s:'me',t:v,time:now.getHours()+':'+String(now.getMinutes()).padStart(2,'0')});
+  input.value='';
+  input.style.height='auto';
+  renderMsgs();
+  document.getElementById('tonePreview')?.classList.remove('show');
+  document.getElementById('warnBar')?.classList.remove('show');
+  document.getElementById('rpreview')?.classList.remove('show');
+  document.getElementById('picker')?.classList.remove('show');
+  renderChatList();
+
+  // Simulate reply after short delay for some chats
+  if(curChat.id==='friend'&&curChat.msgs.length===6){
+    setTimeout(()=>{
+      curChat.msgs.push({s:'최친구',t:'ㅋㅋㅋ 😂',time:now.getHours()+':'+String(now.getMinutes()+1).padStart(2,'0')});
+      renderMsgs();renderChatList();
+    },1500);
+  }
+  if(curChat.id==='prof'&&curChat.msgs.length===4){
+    setTimeout(()=>{
+      curChat.msgs.push({s:'김교수님',t:'네 알겠습니다. 확인했어요 🙂',time:now.getHours()+':'+String(now.getMinutes()+1).padStart(2,'0')});
+      renderMsgs();renderChatList();
+    },2000);
+  }
+}
+
+// ── Progress Reaction ──
+function addProgress(emoji,label){
+  if(!curChat)return;
+  for(let i=curChat.msgs.length-1;i>=0;i--){
+    if(curChat.msgs[i].s!=='me'){
+      if(!curChat.msgs[i].rx)curChat.msgs[i].rx=[];
+      curChat.msgs[i].rx.push({e:emoji,c:1,note:label});
+      renderMsgs();
+      break;
+    }
+  }
+}
+
+// ── Note Modal ──
+function openNote(idx){
+  noteTargetIdx=idx;
+  noteSelectedEmoji='👍';
+  const ov=document.getElementById('noteOv');
+  const er=document.getElementById('noteEmojiRow');
+  const quickEmojis=['👍','✔','❤️','🙏','😊','🔥','⏳','✅','🚫','⚠️'];
+  er.innerHTML=quickEmojis.map(e=>
+    `<button class="${e==='👍'?'sel':''}" onclick="selectNoteEmoji(this,'${e}')">${e}</button>`
+  ).join('');
+  document.getElementById('noteInput').value='';
+  ov.classList.add('show');
+  setTimeout(()=>document.getElementById('noteInput').focus(),100);
+}
+
+function selectNoteEmoji(el,e){
+  noteSelectedEmoji=e;
+  el.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('sel'));
+  el.classList.add('sel');
+}
+
+function closeNote(){document.getElementById('noteOv').classList.remove('show')}
+
+function confirmNote(){
+  const note=document.getElementById('noteInput').value.trim();
+  if(noteTargetIdx!==null&&curChat){
+    const msg=curChat.msgs[noteTargetIdx];
+    if(!msg.rx)msg.rx=[];
+    msg.rx.push({e:noteSelectedEmoji,c:1,note:note||''});
+    renderMsgs();
+  }
+  closeNote();
+}
+
+// ── Settings ──
+function tglSetting(el,key){
+  CFG[key]=!CFG[key];
+  el.classList.toggle('on',CFG[key]);
+  if(curChat)renderMsgs();
+}
+
+// ── Start ──
+init();
+</script>
+</body>
+</html>

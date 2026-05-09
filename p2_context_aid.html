@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>P2 — Generative Context Aid</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#ece5dd;--mine:#dcf8c6;--other:#fff;--blue:#3b82f6;--green:#22c55e;--yellow:#eab308;--red:#ef4444;--text:#111;--text2:#666;--text3:#999;--border:#e5e5e5}
+body{font-family:-apple-system,BlinkMacSystemFont,'Pretendard','Noto Sans KR',sans-serif;height:100vh;display:flex;align-items:center;justify-content:center;background:#f0f0f0}
+
+.phone{width:390px;height:740px;background:#fff;border-radius:32px;box-shadow:0 8px 40px rgba(0,0,0,.15);display:flex;flex-direction:column;overflow:hidden;border:1px solid #d0d0d0;position:relative}
+
+.hdr{background:#1b2a4a;color:#fff;padding:14px 20px;display:flex;align-items:center;gap:10px}
+.hdr .av{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700}
+.hdr h3{font-size:15px;font-weight:600}
+.hdr p{font-size:10px;opacity:.7}
+.hdr .chip{margin-left:auto;padding:4px 10px;border-radius:8px;font-size:10px;font-weight:600;background:rgba(255,255,255,.15)}
+
+.msgs{flex:1;overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:5px;background:var(--bg)}
+.msg{max-width:72%;padding:8px 12px;border-radius:12px;font-size:14px;line-height:1.5}
+@keyframes fin{from{opacity:0;transform:translateY(4px)}to{opacity:1}}
+.msg{animation:fin .25s}
+.msg.other{background:var(--other);align-self:flex-start;border-bottom-left-radius:4px;box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.msg.mine{background:var(--mine);align-self:flex-end;border-bottom-right-radius:4px}
+.msg .sender{font-size:10px;font-weight:600;color:var(--text2);margin-bottom:2px}
+.msg .time{font-size:9px;color:var(--text3);text-align:right;margin-top:2px}
+.date-sep{text-align:center;font-size:11px;color:var(--text3);background:rgba(255,255,255,.7);display:inline-block;align-self:center;padding:3px 12px;border-radius:8px;margin:6px 0}
+
+/* Formality slider — always visible */
+.formal-ctrl{padding:10px 16px 6px;border-bottom:1px solid #f0f0f0;background:#fff}
+.formal-ctrl .row{display:flex;align-items:center;gap:10px}
+.formal-ctrl label{font-size:12px;color:var(--text2);font-weight:600;white-space:nowrap}
+.formal-ctrl input[type=range]{flex:1;accent-color:var(--blue);cursor:pointer}
+.formal-ctrl .val{font-size:12px;font-weight:700;color:var(--blue);min-width:55px;text-align:right}
+.formal-ctrl .ticks{display:flex;justify-content:space-between;padding:0 2px;margin-top:2px}
+.formal-ctrl .ticks span{font-size:9px;color:var(--text3)}
+
+/* Tone preview */
+.tone-pv{display:none;padding:10px 16px;background:#f8faff;border-bottom:1px solid #e8eeff}
+.tone-pv.show{display:block}
+.tone-pv .tp-label{font-size:10px;color:var(--blue);font-weight:600;margin-bottom:6px;display:flex;align-items:center;gap:4px}
+.tone-pv .main-opt{font-size:14px;line-height:1.5;padding:10px 14px;background:#fff;border:1.5px solid var(--blue);border-radius:12px;cursor:pointer;transition:.15s;position:relative}
+.tone-pv .main-opt:hover{background:#eff6ff}
+.tone-pv .main-opt .use-hint{position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:10px;color:var(--blue);opacity:.5}
+.tone-pv .alts{display:flex;gap:6px;margin-top:8px;overflow-x:auto;padding-bottom:2px}
+.tone-pv .alt{padding:7px 14px;border-radius:16px;font-size:12px;border:1px solid var(--border);color:var(--text2);background:#fff;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:.15s}
+.tone-pv .alt:hover{border-color:var(--blue);color:var(--blue);background:#f0f5ff}
+
+/* Warning */
+.warn{display:none;padding:6px 16px;font-size:12px;color:#b45309;background:#fef3c7;align-items:center;gap:6px;border-bottom:1px solid #fde68a}
+.warn.show{display:flex}
+.warn .dismiss{margin-left:auto;font-size:10px;padding:2px 8px;border-radius:6px;border:1px solid #b45309;background:transparent;color:#b45309;cursor:pointer}
+
+.comp-wrap{border-top:1px solid var(--border);background:#fff}
+.comp{display:flex;align-items:flex-end;padding:8px 12px 12px;gap:6px}
+.comp textarea{flex:1;resize:none;border:1px solid var(--border);border-radius:20px;padding:9px 14px;font-size:13px;font-family:inherit;outline:none;min-height:38px;max-height:80px}
+.comp textarea:focus{border-color:var(--blue)}
+.btn{width:36px;height:36px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.send-b{background:var(--blue);color:#fff}
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="hdr">
+    <div class="av">김</div>
+    <div><h3>김교수님</h3><p>업무 채팅 · 위계 감지됨</p></div>
+    <div class="chip">🏢 공식</div>
+  </div>
+  <div class="msgs" id="msgs"></div>
+  <div class="formal-ctrl">
+    <div class="row">
+      <label>정중함</label>
+      <input type="range" min="1" max="5" value="4" id="fRange" oninput="onSlider()">
+      <span class="val" id="fVal">높임</span>
+    </div>
+    <div class="ticks"><span>반말</span><span>약간 반말</span><span>보통</span><span>높임</span><span>매우 높임</span></div>
+  </div>
+  <div class="tone-pv" id="tonePv"></div>
+  <div class="warn" id="warn"><span id="warnText"></span><button class="dismiss" onclick="this.parentElement.classList.remove('show')">무시</button></div>
+  <div class="comp-wrap">
+    <div class="comp">
+      <textarea id="input" rows="1" placeholder="메시지 입력..." oninput="onInput()"></textarea>
+      <button class="btn send-b" onclick="send()">↑</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const ED={
+  '🙂':{v:'r',d:[{l:'친근함',p:35},{l:'어색함',p:35},{l:'냉소',p:30}]},
+  '👍':{v:'y',d:[{l:'긍정',p:60},{l:'무관심',p:25},{l:'비꼼',p:15}]},
+  '😅':{v:'y',d:[{l:'민망',p:50},{l:'유머',p:30},{l:'짜증',p:20}]},
+  '👀':{v:'r',d:[{l:'관심',p:40},{l:'감시',p:35},{l:'의심',p:25}]},
+};
+
+// 5-level tone transformation data
+const TONES=[
+  {match:v=>['네','넵','넹','ㅇㅇ','ㅇㅋ','ok','응','넴','ㅋ'].some(s=>v.includes(s)),
+   intent:'확인/동의',
+   L:['ㅇㅋ','넵!','네, 확인했습니다!','네, 알겠습니다. 확인하겠습니다.','네, 말씀 감사합니다. 확인 후 바로 진행하겠습니다.'],
+   A:[['ㅇㅇ','알겠어~'],['넵넵!','알겠어요~'],['알겠습니다!','확인했어요~'],['검토 후 말씀드리겠습니다.','안내 감사드립니다.'],['말씀대로 진행하겠습니다.','안내 감사드립니다. 검토 후 회신드리겠습니다.']]},
+  {match:v=>['감사','ㄱㅅ','고마','thx','ㄳ'].some(s=>v.includes(s)),
+   intent:'감사',
+   L:['ㄳㄳ','고마워요!','감사합니다!','감사합니다, 참고하겠습니다.','진심으로 감사드립니다. 꼼꼼히 반영하겠습니다.'],
+   A:[['ㄱㅅ!','고마워~'],['감사!','고마워요~'],['감사합니다~','덕분에 도움됐어요!'],['말씀 감사드립니다.','감사합니다, 확인하겠습니다.'],['감사드립니다. 반영하겠습니다.','소중한 피드백 감사합니다.']]},
+  {match:v=>['알겠','알게','알았'].some(s=>v.includes(s)),
+   intent:'이해/수긍',
+   L:['ㅇㅇ 알겠어','알겠어요!','알겠습니다!','알겠습니다, 말씀대로 진행하겠습니다.','말씀 잘 알겠습니다. 안내해주신 방향대로 진행하겠습니다.'],
+   A:[['ㅇㅋ','알았어~'],['알겠어요~','넵!'],['확인했어요!','네, 그렇게 할게요!'],['확인했습니다.','참고하여 진행하겠습니다.'],['말씀대로 반영하겠습니다.','확인 후 회신드리겠습니다.']]},
+  {match:v=>['수고','고생','힘들'].some(s=>v.includes(s)),
+   intent:'수고/격려',
+   L:['수고~','수고했어요!','수고하셨습니다!','수고 많으셨습니다, 감사합니다.','정말 수고 많으셨습니다. 큰 도움이 되었습니다.'],
+   A:[['ㅋㅋ 수고','고생했어~'],['고생했어요!','수고요~'],['수고하셨습니다~','고생하셨어요!'],['잘 확인하겠습니다.','수고 많으셨습니다.'],['꼼꼼히 검토하겠습니다.','노고에 감사드립니다.']]},
+  {match:v=>['죄송','미안','sorry','ㅈㅅ'].some(s=>v.includes(s)),
+   intent:'사과',
+   L:['ㅈㅅ','미안해요!','죄송합니다!','죄송합니다, 바로 수정하겠습니다.','죄송합니다. 확인하여 빠르게 보완하겠습니다.'],
+   A:[['미안~','ㅈㅅㅈㅅ'],['미안해요~','죄송!'],['죄송해요!','바로 할게요!'],['죄송합니다, 확인하겠습니다.','빠르게 반영하겠습니다.'],['즉시 조치하겠습니다.','재발 방지에 유의하겠습니다.']]},
+  {match:v=>['확인','체크','검토','봤'].some(s=>v.includes(s)),
+   intent:'확인/검토',
+   L:['ㅇㅇ 봤어','확인했어요!','확인했습니다!','확인했습니다, 검토 후 말씀드리겠습니다.','확인했습니다. 꼼꼼히 검토 후 의견 전달드리겠습니다.'],
+   A:[['봤어~','ㅇㅋ'],['봤어요!','체크했어요~'],['확인 완료!','검토했습니다!'],['감사합니다.','검토 완료했습니다.'],['의견 정리 후 회신드리겠습니다.','검토 마쳤습니다.']]},
+  {match:v=>['보내','제출','드리','올리','전달'].some(s=>v.includes(s)),
+   intent:'제출/전달',
+   L:['보냈어','보냈어요!','보내드렸습니다!','보내드렸습니다, 확인 부탁드립니다.','보내드렸습니다. 검토 후 피드백 부탁드리겠습니다.'],
+   A:[['올렸어~','보냄'],['올렸어요!','전달했어요~'],['전달드렸습니다!','제출 완료했습니다!'],['전달드렸습니다, 확인 부탁드립니다.','첨부 확인 부탁드립니다.'],['말씀하신 자료 송부드립니다.','검토 부탁드리겠습니다.']]},
+  {match:v=>/[\p{Emoji}]/u.test(v), intent:'이모지 → 텍스트',
+   L:[v=>v,'알겠어요!','확인했습니다!','네, 알겠습니다. 감사합니다.','말씀 확인했습니다. 감사합니다.'],
+   A:[[],['넵!'],['감사합니다!'],['말씀대로 하겠습니다.'],['안내 감사드립니다.']]},
+  {match:()=>true, intent:'일반 응답',
+   L:[v=>v,v=>v,'확인했습니다!','네, 알겠습니다.','네, 말씀 감사합니다. 확인하겠습니다.'],
+   A:[[],[],['알겠습니다~'],['확인하겠습니다.','감사합니다.'],['말씀대로 진행하겠습니다.','안내 감사드립니다.']]},
+];
+
+const msgs=[
+  {s:'김교수님',t:'다음 주 월요일까지 중간보고서 초안 보내주세요.',time:'10:23'},
+  {s:'김교수님',t:'분석 프레임워크 부분은 특히 신경 써주세요.',time:'10:24'},
+  {s:'김교수님',t:'진행 상황은 어떤가요?',time:'10:30'},
+];
+
+function init(){renderMsgs()}
+
+function renderMsgs(){
+  const el=document.getElementById('msgs');
+  el.innerHTML='<div class="date-sep">오늘</div>';
+  msgs.forEach(msg=>{
+    const me=msg.s==='me';
+    const div=document.createElement('div');
+    div.className=`msg ${me?'mine':'other'}`;
+    div.innerHTML=`${!me?`<div class="sender">${msg.s}</div>`:''}${msg.t}<div class="time">${msg.time}</div>`;
+    el.appendChild(div);
+  });
+  el.scrollTop=el.scrollHeight;
+}
+
+function onSlider(){
+  const v=document.getElementById('fRange').value;
+  const labels=['','반말','약간 반말','보통','높임','매우 높임'];
+  document.getElementById('fVal').textContent=labels[v];
+  const text=document.getElementById('input').value.trim();
+  if(text) updateTone(text);
+}
+
+function onInput(){
+  const el=document.getElementById('input');
+  el.style.height='auto';
+  el.style.height=Math.min(el.scrollHeight,80)+'px';
+  const v=el.value.trim();
+
+  if(v.length>0) updateTone(v);
+  else document.getElementById('tonePv').classList.remove('show');
+
+  // Emoji warning
+  const em=v.match(/(\p{Emoji_Presentation}|\p{Emoji}\uFE0F)/u);
+  if(em&&ED[em[0]]){
+    const d=ED[em[0]];
+    document.getElementById('warnText').textContent=
+      `⚠️ "${em[0]}" — 해석 분산 ${d.v==='r'?'높음':'중간'} (${d.d.map(x=>x.l+' '+x.p+'%').join(', ')})`;
+    document.getElementById('warn').classList.add('show');
+  } else {
+    document.getElementById('warn').classList.remove('show');
+  }
+}
+
+function updateTone(raw){
+  const tp=document.getElementById('tonePv');
+  const level=parseInt(document.getElementById('fRange').value);
+  const low=raw.toLowerCase();
+  const matched=TONES.find(t=>t.match(low));
+  const idx=level-1;
+
+  let main=matched.L[idx];
+  if(typeof main==='function') main=main(raw);
+  let alts=(matched.A[idx]||[]).map(a=>typeof a==='function'?a(raw):a).filter(a=>a!==main&&a);
+
+  tp.innerHTML=`
+    <div class="tp-label">✨ ${matched.intent} · 정중함 ${level}단계</div>
+    <div class="main-opt" onclick="useTone(this.textContent)">${main}<span class="use-hint">탭하여 사용</span></div>
+    ${alts.length?`<div class="alts">${alts.map(a=>`<div class="alt" onclick="useTone(this.textContent)">${a}</div>`).join('')}</div>`:''}`;
+  tp.classList.add('show');
+}
+
+function useTone(text){
+  // Remove hint text
+  text=text.replace('탭하여 사용','').trim();
+  document.getElementById('input').value=text;
+  document.getElementById('tonePv').classList.remove('show');
+  document.getElementById('warn').classList.remove('show');
+  document.getElementById('input').focus();
+}
+
+const REPLIES=[
+  {after:4, replies:[
+    {t:'네, 확인했습니다.',delay:1500},
+    {t:'분석 프레임워크 관련해서 한 가지 질문이 있는데요.',delay:3000},
+    {t:'Double Diamond 기반으로 정리하면 될까요? 🤔',delay:4500},
+  ]},
+  {after:7, replies:[
+    {t:'좋습니다. 그 방향으로 진행해주세요.',delay:2000},
+    {t:'참고 자료 보내드릴게요 👍',delay:3500},
+  ]},
+  {after:9, replies:[
+    {t:'수고하세요 🙂',delay:1500},
+  ]},
+  {after:10, replies:[
+    {t:'아 그리고 발표 슬라이드도 같이 준비해주세요.',delay:2500},
+    {t:'다음 주 수요일에 중간 점검 예정입니다.',delay:4000},
+  ]},
+];
+
+function send(){
+  const el=document.getElementById('input');
+  const v=el.value.trim();if(!v)return;
+  msgs.push({s:'me',t:v,time:new Date().toLocaleTimeString('ko-KR',{hour:'numeric',minute:'2-digit'})});
+  el.value='';el.style.height='auto';
+  renderMsgs();
+  document.getElementById('tonePv').classList.remove('show');
+  document.getElementById('warn').classList.remove('show');
+
+  const scenario=REPLIES.find(r=>r.after===msgs.length);
+  if(scenario){
+    scenario.replies.forEach(r=>{
+      setTimeout(()=>{
+        msgs.push({s:'김교수님',t:r.t,time:new Date().toLocaleTimeString('ko-KR',{hour:'numeric',minute:'2-digit'})});
+        renderMsgs();
+      },r.delay);
+    });
+  }
+}
+
+document.getElementById('input').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send()}});
+init();
+</script>
+</body>
+</html>
