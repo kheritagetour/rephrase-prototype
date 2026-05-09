@@ -347,6 +347,12 @@ const TONES_KR=[
   {m:v=>['수고','고생'].some(s=>v.includes(s)),i:'격려',
    L:['수고~','수고했어요!','수고하셨습니다!','수고 많으셨습니다.','정말 수고 많으셨습니다. 큰 도움이 되었습니다.'],
    A:[['고생했어~'],['고생했어요!'],['고생하셨어요!'],['감사합니다.'],['노고에 감사드립니다.']]},
+  {m:v=>['ㅋㅋ','ㅎㅎ','ㅠㅠ','ㅜㅜ'].some(s=>v.includes(s)),i:'리액션',
+   L:['ㅋㅋ','ㅋㅋㅋ','ㅋㅋㅋㅋ','하하 재밌네요!','정말 재미있네요 😂'],
+   A:[['ㅎㅎ'],['ㅋㅋㅋ'],['ㅎㅎ 재밌네요~'],['재밌습니다!'],['흥미로운 이야기네요.']]},
+  {m:v=>['뭐해','뭐 해','뭐하','머해'].some(s=>v.includes(s)),i:'안부',
+   L:['뭐해~','뭐 해요?','지금 뭐 하세요?','혹시 지금 시간 괜찮으세요?','안녕하세요, 혹시 지금 통화 가능하신지 여쭤봐도 될까요?'],
+   A:[['머행'],['뭐 하는 중?'],['지금 바빠요?'],['시간 되시면 연락 부탁드립니다.'],['가능하신 시간에 회신 부탁드리겠습니다.']]},
   {m:()=>true,i:'일반',
    L:[v=>v,v=>v,v=>v,v=>'네, '+v.replace(/[.!?]*$/,'')+'. 확인하겠습니다.',v=>'말씀하신 내용 확인했습니다. 검토 후 회신드리겠습니다.'],
    A:[[],[],[],['감사합니다.'],['진행하겠습니다.']]},
@@ -426,7 +432,7 @@ function openChat(c){
     <div class="msgs" id="ma"></div>
     ${CFG.renderPreview?'<div class="rpv" id="rpv"></div>':''}
     <div class="carea">
-      ${isWork&&CFG.toneAid?`<div class="fbar show"><label style="color:var(--green)">편안</label><input type="range" min="1" max="5" value="${c.formalLv}" id="fr" oninput="onFR()"><label style="color:var(--blue)">정중</label><span class="fv" id="fv">${['','😊','🙂','📝','🏢','🎩'][c.formalLv]}</span></div>`:''}
+      <div class="fbar show"><label style="color:var(--green)">편안</label><input type="range" min="1" max="5" value="${c.formalLv}" id="fr" oninput="onFR()"><label style="color:var(--blue)">정중</label><span class="fv" id="fv">${['','😊','🙂','📝','🏢','🎩'][c.formalLv]}</span></div>
       <div class="tsug" id="tsug"></div>
       <div class="erec" id="erec"></div>
       <div class="wbar" id="wb"><span id="wt"></span><button class="wd" onclick="this.parentElement.classList.remove('show')">무시</button></div>
@@ -509,8 +515,8 @@ function onInp(){
   el.style.height='auto';el.style.height=Math.min(el.scrollHeight,80)+'px';
   const v=el.value.trim();const c=curChat;if(!c)return;
 
-  // Tone suggestion
-  if(c.type==='work'&&CFG.toneAid&&v.length>0){updateTone(v)}
+  // Tone suggestion — works in all chats
+  if(CFG.toneAid&&v.length>0){updateTone(v)}
   else{document.getElementById('tsug')?.classList.remove('show')}
 
   // Emoji recommendation based on content — multi-match
@@ -527,11 +533,9 @@ function onInp(){
     } else erec?.classList.remove('show');
   } else document.getElementById('erec')?.classList.remove('show');
 
-  // Emoji warning
-  if(c.formal){
-    const em=v.match(/(\p{Emoji_Presentation}|\p{Emoji}\uFE0F)/u);
-    if(em){const ed=getED(em[0]);if(ed&&(ed.v==='r'||ed.v==='y')){document.getElementById('wt').textContent=`⚠️ "${em[0]}" — ${ed.d.map(x=>x.l+' '+x.p+'%').join(', ')}`;document.getElementById('wb').classList.add('show')}else document.getElementById('wb')?.classList.remove('show')}else document.getElementById('wb')?.classList.remove('show');
-  }
+  // Emoji warning — all chats, risky emojis
+  const em=v.match(/(\p{Emoji_Presentation}|\p{Emoji}\uFE0F)/u);
+  if(em){const ed=getED(em[0]);if(ed&&ed.v==='r'){document.getElementById('wt').textContent=`⚠️ "${em[0]}" ${ed.m} — ${ed.d.map(x=>x.l+' '+x.p+'%').join(', ')}`;document.getElementById('wb').classList.add('show')}else document.getElementById('wb')?.classList.remove('show')}else document.getElementById('wb')?.classList.remove('show');
 
   // Render preview
   const rpv=document.getElementById('rpv');
@@ -561,9 +565,23 @@ function updateTone(raw){
   const idx=lv-1;
   let main=matched.L[idx];if(typeof main==='function')main=main(raw);
   if(main===raw){ts.classList.remove('show');return}
-  let alts=(matched.A[idx]||[]).map(a=>typeof a==='function'?a(raw):a).filter(a=>a&&a!==main);
+  let alts=(matched.A[idx]||[]).map(a=>typeof a==='function'?a(raw):a).filter(a=>a&&a!==main&&a);
+
+  // Also show what other levels look like for comparison
   const lvLabels=eng?['casual','friendly','polite','formal','very formal']:['편안','친근','보통','정중','매우 정중'];
-  ts.innerHTML=`<div class="tl">✨ ${matched.i} · ${lvLabels[idx]}</div><div class="topt" data-v="${main.replace(/"/g,'&quot;')}" onclick="useTone(this.dataset.v)">${main}<span class="tap-hint">탭하여 적용</span></div>${alts.length?`<div class="talts">${alts.map(a=>`<div class="talt" data-v="${a.replace(/"/g,'&quot;')}" onclick="useTone(this.dataset.v)">${a}</div>`).join('')}</div>`:''}`;
+  const relName=curChat?.name||'';
+
+  // Build comparison hint: show one step up and one step down
+  let compareH='';
+  if(idx>0&&idx<4){
+    let down=matched.L[idx-1];if(typeof down==='function')down=down(raw);
+    let up=matched.L[idx+1];if(typeof up==='function')up=up(raw);
+    if(down!==raw&&up!==raw){
+      compareH=`<div style="display:flex;gap:4px;margin-top:4px;font-size:9px;color:var(--t3)"><span>← ${lvLabels[idx-1]}: "${down.slice(0,20)}${down.length>20?'...':''}"</span><span style="margin-left:auto">${lvLabels[idx+1]}: "${up.slice(0,20)}${up.length>20?'...':''}" →</span></div>`;
+    }
+  }
+
+  ts.innerHTML=`<div class="tl">✨ ${matched.i} · ${lvLabels[idx]} · ${relName}</div><div class="topt" data-v="${main.replace(/"/g,'&quot;')}" onclick="useTone(this.dataset.v)">${main}<span class="tap-hint">탭하여 적용</span></div>${alts.length?`<div class="talts">${alts.map(a=>`<div class="talt" data-v="${a.replace(/"/g,'&quot;')}" onclick="useTone(this.dataset.v)">${a}</div>`).join('')}</div>`:''}${compareH}`;
   ts.classList.add('show');
 }
 function useTone(v){document.getElementById('inp').value=v;document.getElementById('tsug')?.classList.remove('show');document.getElementById('wb')?.classList.remove('show');document.getElementById('inp').focus()}
