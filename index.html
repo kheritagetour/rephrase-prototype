@@ -195,6 +195,37 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Pretendard','Noto Sans KR',sa
 .tgl.on::after{left:20px}
 .stcl{width:100%;padding:8px;border:none;background:#f5f5f5;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;margin-top:10px}
 
+/* Onboarding */
+.onb{position:fixed;inset:0;z-index:400;background:#fff;display:flex;align-items:center;justify-content:center;transition:opacity .3s}
+.onb.hide{opacity:0;pointer-events:none}
+.onb-inner{max-width:440px;padding:32px 24px;text-align:center}
+.onb-inner h2{font-size:22px;font-weight:800;margin-bottom:6px;color:var(--blue)}
+.onb-inner .osub{font-size:13px;color:var(--t2);margin-bottom:20px;line-height:1.5}
+.scenario-grid{display:flex;flex-direction:column;gap:8px;margin-bottom:20px;text-align:left}
+.scenario{padding:14px 16px;border-radius:12px;border:1.5px solid var(--border);cursor:pointer;transition:.2s;display:flex;gap:12px;align-items:center}
+.scenario:hover{border-color:var(--blue);background:var(--bluel)}
+.scenario .sc-icon{font-size:28px;flex-shrink:0}
+.scenario .sc-info h4{font-size:13px;font-weight:700;margin-bottom:2px}
+.scenario .sc-info p{font-size:11px;color:var(--t2);line-height:1.4}
+.onb-skip{font-size:11px;color:var(--t3);cursor:pointer;text-decoration:underline;margin-top:8px}
+
+/* Tour tooltip */
+.tour{position:fixed;z-index:300;background:var(--blue);color:#fff;padding:12px 16px;border-radius:12px;font-size:12px;line-height:1.5;max-width:260px;box-shadow:0 8px 24px rgba(0,0,0,.2);display:none}
+.tour.show{display:block;animation:fi .2s}
+.tour .tour-title{font-weight:700;margin-bottom:4px;font-size:13px}
+.tour .tour-step{font-size:10px;opacity:.7;margin-top:6px}
+.tour .tour-btn{margin-top:8px;padding:5px 14px;border-radius:8px;background:rgba(255,255,255,.2);border:none;color:#fff;font-size:11px;font-weight:600;cursor:pointer}
+.tour .tour-btn:hover{background:rgba(255,255,255,.3)}
+.tour::after{content:'';position:absolute;width:10px;height:10px;background:var(--blue);transform:rotate(45deg)}
+.tour.arrow-top::after{top:-5px;left:20px}
+.tour.arrow-bottom::after{bottom:-5px;left:20px}
+.tour.arrow-left::after{left:-5px;top:20px}
+
+/* Tone dismiss */
+.tsug .tdismiss{position:absolute;top:4px;right:8px;font-size:14px;cursor:pointer;color:var(--t3);line-height:1}
+.tsug .tdismiss:hover{color:var(--text)}
+.tsug{position:relative}
+
 ::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:#ccc;border-radius:2px}
 </style>
 </head>
@@ -213,6 +244,36 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Pretendard','Noto Sans KR',sa
     <button class="login" onclick="startApp()">시작하기</button>
   </div>
 </div>
+
+<!-- ONBOARDING -->
+<div class="onb hide" id="onb">
+  <div class="onb-inner">
+    <h2>어떤 상황을 체험해볼까요?</h2>
+    <p class="osub">Re:Phrase의 핵심 기능을 체험할 수 있는<br>시나리오를 선택하세요.</p>
+    <div class="scenario-grid">
+      <div class="scenario" onclick="startScenario('prof')">
+        <div class="sc-icon">🎓</div>
+        <div class="sc-info"><h4>교수님에게 정중하게 답장하기</h4><p>짧은 답을 정중한 표현으로 자동 변환. 편안↔정중 슬라이더로 톤을 실시간 조절해보세요.</p></div>
+      </div>
+      <div class="scenario" onclick="startScenario('peer')">
+        <div class="sc-icon">🤔</div>
+        <div class="sc-info"><h4>동료가 보낸 이모지, 무슨 뜻일까?</h4><p>🙂🙃😅 — 같은 이모지도 관계와 맥락에 따라 해석이 달라요. 이모지를 눌러 확인해보세요.</p></div>
+      </div>
+      <div class="scenario" onclick="startScenario('sarah')">
+        <div class="sc-icon">🌍</div>
+        <div class="sc-info"><h4>해외팀과 이모지 오해 방지</h4><p>🙏가 racism으로? 👍가 포기? 문화별 이모지 해석 차이를 미리 확인하세요.</p></div>
+      </div>
+      <div class="scenario" onclick="startScenario('friend')">
+        <div class="sc-icon">😂</div>
+        <div class="sc-info"><h4>친구와의 이모지 해석 토론</h4><p>사장님이 🙂 보냈는데 화난 거야? 친구와 이모지 해석에 대해 대화해보세요.</p></div>
+      </div>
+    </div>
+    <div class="onb-skip" onclick="skipOnb()">전체 채팅 목록으로 바로 가기</div>
+  </div>
+</div>
+
+<!-- TOUR -->
+<div class="tour" id="tour"></div>
 
 <!-- OVERLAYS -->
 <div class="ov" id="ttOv" onclick="if(event.target===this)this.classList.remove('show')"><div class="ovc" id="ttC"></div></div>
@@ -267,15 +328,15 @@ const ED_CTX={
   },
 };
 const ED={
-  '✔':{v:'g',m:'확인 · 완료',d:[{l:'완료 확인',p:85,t:'pos'},{l:'무성의한 답',p:10,t:'neu'},{l:'짜증 섞인 확인',p:5,t:'neg'}]},
-  '👍':{v:'y',m:'좋아요 · 동의',d:[{l:'긍정/동의',p:60,t:'pos'},{l:'무관심',p:25,t:'neu'},{l:'비꼼/조소',p:15,t:'neg'}]},
-  '🙂':{v:'r',m:'미소 · 또는 냉소?',d:[{l:'친근한 미소',p:35,t:'pos'},{l:'어색함/할 말 없음',p:35,t:'neu'},{l:'냉소/비꼼',p:30,t:'neg'}]},
-  '🙃':{v:'r',m:'뒤집힌 미소 · 짜증?',d:[{l:'장난/유머',p:30,t:'pos'},{l:'체념',p:30,t:'neu'},{l:'짜증/빈정',p:40,t:'neg'}]},
-  '🙏':{v:'y',m:'감사 · 부탁 · 기도?',d:[{l:'감사',p:50,t:'pos'},{l:'부탁/간청',p:35,t:'neu'},{l:'문화차이',p:15,t:'neg'}],c:'일부 문화권에서 high-five 또는 부정적 해석 (Q-15)'},
-  '😅':{v:'y',m:'곤란 · 민망',d:[{l:'진짜 민망',p:45,t:'neu'},{l:'가볍게 넘기기',p:30,t:'pos'},{l:'짜증/불만',p:25,t:'neg'}]},
-  '👀':{v:'r',m:'관심? 감시? 의심?',d:[{l:'관심/흥미',p:35,t:'pos'},{l:'지켜보는 중',p:40,t:'neu'},{l:'의심/압박',p:25,t:'neg'}]},
-  '😂':{v:'r',m:'웃김 · 또는 조롱',d:[{l:'진짜 웃김',p:40,t:'pos'},{l:'과장된 리액션',p:30,t:'neu'},{l:'조롱/비웃음',p:30,t:'neg'}]},
-  '😊':{v:'g',m:'따뜻한 미소',d:[{l:'따뜻함/호감',p:80,t:'pos'},{l:'형식적',p:15,t:'neu'},{l:'어색함',p:5,t:'neg'}]},
+  '✔':{v:'g',m:'확인 · 완료',d:[{l:'완료 확인',p:85,t:'pos'},{l:'무성의한 답',p:10,t:'neu'},{l:'짜증 섞인 확인',p:5,t:'neg'}],a11y:'작업 완료를 확인하는 기능적 신호'},
+  '👍':{v:'y',m:'좋아요 · 동의',d:[{l:'긍정/동의',p:60,t:'pos'},{l:'무관심',p:25,t:'neu'},{l:'비꼼/조소',p:15,t:'neg'}],a11y:'동의 또는 승인의 표시'},
+  '🙂':{v:'r',m:'미소 · 또는 냉소?',d:[{l:'친근한 미소',p:35,t:'pos'},{l:'어색함/할 말 없음',p:35,t:'neu'},{l:'냉소/비꼼',p:30,t:'neg'}],a11y:'표면적 미소 — 맥락에 따라 냉소 가능'},
+  '🙃':{v:'r',m:'뒤집힌 미소 · 짜증?',d:[{l:'장난/유머',p:30,t:'pos'},{l:'체념',p:30,t:'neu'},{l:'짜증/빈정',p:40,t:'neg'}],a11y:'뒤집힌 미소 — 짜증이나 빈정의 신호'},
+  '🙏':{v:'y',m:'감사 · 부탁 · 기도?',d:[{l:'감사',p:50,t:'pos'},{l:'부탁/간청',p:35,t:'neu'},{l:'문화차이',p:15,t:'neg'}],c:'일부 문화권에서 high-five 또는 부정적 해석 (Q-15)',a11y:'감사 또는 부탁 — 문화권별 해석 차이 존재'},
+  '😅':{v:'y',m:'곤란 · 민망',d:[{l:'진짜 민망',p:45,t:'neu'},{l:'가볍게 넘기기',p:30,t:'pos'},{l:'짜증/불만',p:25,t:'neg'}],a11y:'곤란하거나 민망한 상황을 가볍게 표현'},
+  '👀':{v:'r',m:'관심? 감시? 의심?',d:[{l:'관심/흥미',p:35,t:'pos'},{l:'지켜보는 중',p:40,t:'neu'},{l:'의심/압박',p:25,t:'neg'}],a11y:'주시 또는 관심 — 감시나 의심으로도 해석 가능'},
+  '😂':{v:'r',m:'웃김 · 또는 조롱',d:[{l:'진짜 웃김',p:40,t:'pos'},{l:'과장된 리액션',p:30,t:'neu'},{l:'조롱/비웃음',p:30,t:'neg'}],a11y:'강한 웃음 — 진심 또는 조롱 가능'},
+  '😊':{v:'g',m:'따뜻한 미소',d:[{l:'따뜻함/호감',p:80,t:'pos'},{l:'형식적',p:15,t:'neu'},{l:'어색함',p:5,t:'neg'}],a11y:'따뜻한 감정 표현'},
   '🔥':{v:'g',m:'멋짐 · 열정',d:[{l:'칭찬/멋있다',p:75,t:'pos'},{l:'열정적',p:20,t:'pos'},{l:'과장',p:5,t:'neu'}]},
   '❤️':{v:'g',m:'사랑 · 좋아요',d:[{l:'애정/사랑',p:70,t:'pos'},{l:'좋아요',p:25,t:'pos'},{l:'부담스러움',p:5,t:'neu'}]},
   '💀':{v:'r',m:'웃겨서 죽겠 · 충격',d:[{l:'너무 웃김',p:45,t:'pos'},{l:'충격/놀람',p:30,t:'neu'},{l:'부정적 반응',p:25,t:'neg'}]},
@@ -413,8 +474,45 @@ let curChat=null,lt=null,noteIdx=null,noteEmoji='👍';
 
 function now(){return new Date().toLocaleTimeString('ko-KR',{hour:'numeric',minute:'2-digit'})}
 
+// ═══ RECENTLY USED EMOJI TRACKING (F-C4) ═══
+const recentEmojis={work:[],personal:[]};
+function trackEmoji(e){
+  const ctx=curChat?.type||'work';
+  const arr=recentEmojis[ctx];
+  const i=arr.indexOf(e);if(i>-1)arr.splice(i,1);
+  arr.unshift(e);if(arr.length>8)arr.pop();
+}
+
 // ═══ NAV ═══
-function startApp(){document.getElementById('landing').classList.add('hide');document.getElementById('app').classList.add('show');renderList()}
+function startApp(){
+  document.getElementById('landing').classList.add('hide');
+  document.getElementById('onb').classList.remove('hide');
+}
+function skipOnb(){
+  document.getElementById('onb').classList.add('hide');
+  document.getElementById('app').classList.add('show');
+  renderList();
+}
+function startScenario(chatId){
+  document.getElementById('onb').classList.add('hide');
+  document.getElementById('app').classList.add('show');
+  renderList();
+  const chat=CHATS.find(c=>c.id===chatId);
+  if(chat){openChat(chat);showTour(chatId)}
+}
+function showTour(chatId){
+  const tour=document.getElementById('tour');
+  const tips={
+    prof:{title:'💡 톤 자동 조절',body:'아래 편안↔정중 슬라이더를 움직여보세요.\n"네"라고 입력하면 정중함 수준에 맞는\n표현으로 자동 변환됩니다.',pos:'bottom:140px;left:340px'},
+    peer:{title:'💡 이모지 해석 확인',body:'메시지의 이모지를 클릭해보세요.\n🙂🙃😅 — 같은 이모지도\n관계에 따라 해석이 달라요.',pos:'top:200px;left:400px'},
+    sarah:{title:'💡 문화별 이모지 차이',body:'🙏를 클릭해보세요.\n국가·문화에 따라 전혀 다른\n의미로 해석될 수 있습니다.',pos:'top:200px;left:400px'},
+    friend:{title:'💡 이모지 해석 토론',body:'친구의 🙂 메시지를 클릭해보세요.\n"화난 거 맞지?" — 이모지 해석의\n불확실성을 체험할 수 있어요.',pos:'top:240px;left:400px'},
+  };
+  const tip=tips[chatId];if(!tip)return;
+  tour.className='tour show arrow-left';
+  tour.style.cssText=tip.pos;
+  tour.innerHTML=`<div class="tour-title">${tip.title}</div><div>${tip.body.replace(/\n/g,'<br>')}</div><button class="tour-btn" onclick="document.getElementById('tour').classList.remove('show')">알겠어요</button>`;
+}
 
 function renderList(){
   const el=document.getElementById('chatList');el.innerHTML='';
@@ -489,11 +587,14 @@ function renderMsgs(){
 // ═══ TOOLTIP ═══
 function showTT(emoji){
   const d=getED(emoji);if(!d)return;
-  const ctx=curChat.type==='personal'?'개인 대화':curChat.formal?'공식 대화':curChat.name?.includes('Sarah')?'해외팀':'동료 대화';
+  const gd=ED[emoji]; // global data for a11y
+  const ctx=curChat?.type==='personal'?'개인 대화':curChat?.formal?'공식 대화':curChat?.name?.includes('Sarah')?'해외팀':'동료 대화';
+  const a11y=gd?.a11y||d.a11y; // F-B6 accessibility
   document.getElementById('ttC').innerHTML=`<div class="tbig">${emoji}</div><div class="tmn">${d.m}</div><div class="tsb">현재 맥락: ${ctx}</div>
     <div class="dbar">${d.d.map(x=>`<div class="sg ${x.t}" style="width:${x.p}%">${x.p}%</div>`).join('')}</div>
     <div class="dlg">${d.d.map(x=>`<span class="${x.t}">${x.l} ${x.p}%</span>`).join('')}</div>
     ${d.c?`<div class="ttcul">🌍 ${d.c}</div>`:''}
+    ${a11y?`<div class="tta11">♿ 접근성: "${a11y}"</div>`:''}
     <button class="cls" onclick="document.getElementById('ttOv').classList.remove('show')">닫기</button>`;
   document.getElementById('ttOv').classList.add('show');
 }
@@ -503,11 +604,13 @@ function bldPkr(mode,el){
   if(el){document.querySelectorAll('.pkt').forEach(t=>t.classList.remove('act'));el.classList.add('act')}
   const b=document.getElementById('pkb');if(!b)return;
   const emojis=mode==='work'?WE:PE;const pins=mode==='work'?['✔','👍','🙏']:['❤️','🔥','😂'];
-  b.innerHTML=`<div class="pkst">📌 고정</div><div class="pkg">${pins.map(e=>`<div class="ec" onclick="pickE('${e}')">${e}${ED[e]?`<span class="vd ${ED[e].v}"></span>`:''}</div>`).join('')}</div>
+  const recent=recentEmojis[mode]||[];
+  const recentH=recent.length?`<div class="pkst">🕐 최근 사용</div><div class="pkg">${recent.map(e=>`<div class="ec" onclick="pickE('${e}')">${e}${ED[e]?`<span class="vd ${ED[e].v}"></span>`:''}</div>`).join('')}</div>`:'';
+  b.innerHTML=`${recentH}<div class="pkst">📌 고정</div><div class="pkg">${pins.map(e=>`<div class="ec" onclick="pickE('${e}')">${e}${ED[e]?`<span class="vd ${ED[e].v}"></span>`:''}</div>`).join('')}</div>
     <div class="pkst">전체 (길게 눌러서 해석 확인)</div><div class="pkg">${emojis.map(e=>`<div class="ec" onclick="pickE('${e}')" onmousedown="lt=setTimeout(()=>showTT('${e}'),400)" onmouseup="clearTimeout(lt)" onmouseleave="clearTimeout(lt)">${e}${ED[e]?`<span class="vd ${ED[e].v}"></span>`:''}</div>`).join('')}</div>
     <div style="display:flex;gap:10px;margin-top:8px;padding:4px 6px;font-size:9px;color:var(--t3)"><span style="display:flex;align-items:center;gap:3px"><span style="width:6px;height:6px;border-radius:50%;background:var(--green)"></span>안정</span><span style="display:flex;align-items:center;gap:3px"><span style="width:6px;height:6px;border-radius:50%;background:var(--yellow)"></span>주의</span><span style="display:flex;align-items:center;gap:3px"><span style="width:6px;height:6px;border-radius:50%;background:var(--red)"></span>해석 분산 높음</span></div>`;
 }
-function pickE(e){document.getElementById('inp').value+=e;document.getElementById('inp').dispatchEvent(new Event('input'));document.getElementById('pkr').classList.remove('show')}
+function pickE(e){trackEmoji(e);document.getElementById('inp').value+=e;document.getElementById('inp').dispatchEvent(new Event('input'));document.getElementById('pkr').classList.remove('show')}
 function addEmojiToMsg(e){
   const inp=document.getElementById('inp');
   // Add space before emoji if text doesn't end with space
@@ -599,10 +702,11 @@ function updateTone(raw){
   if(main===raw&&!compareH){
     ts.classList.remove('show');return; // nothing to suggest
   }
+  const dismissBtn='<span class="tdismiss" onclick="this.parentElement.classList.remove(\'show\')" title="닫기">×</span>';
   if(main===raw){
-    ts.innerHTML=`<div class="tl">✨ ${matched.i} · ${lvLabels[idx]}</div><div style="font-size:11px;color:var(--t2);margin-bottom:2px">다른 톤으로 바꿔보세요</div>${compareH}`;
+    ts.innerHTML=`${dismissBtn}<div class="tl">✨ ${matched.i} · ${lvLabels[idx]}</div><div style="font-size:11px;color:var(--t2);margin-bottom:2px">다른 톤으로 바꿔보세요</div>${compareH}`;
   } else {
-    ts.innerHTML=`<div class="tl">✨ ${matched.i} · ${lvLabels[idx]}</div><div class="topt" data-v="${main.replace(/"/g,'&quot;')}" onclick="useTone(this.dataset.v)">${main}<span class="tap-hint">탭하여 적용</span></div>${alts.length?`<div class="talts">${alts.map(a=>`<div class="talt" data-v="${a.replace(/"/g,'&quot;')}" onclick="useTone(this.dataset.v)">${a}</div>`).join('')}</div>`:''}${compareH}`;
+    ts.innerHTML=`${dismissBtn}<div class="tl">✨ ${matched.i} · ${lvLabels[idx]}</div><div class="topt" data-v="${main.replace(/"/g,'&quot;')}" onclick="useTone(this.dataset.v)">${main}<span class="tap-hint">탭하여 적용</span></div>${alts.length?`<div class="talts">${alts.map(a=>`<div class="talt" data-v="${a.replace(/"/g,'&quot;')}" onclick="useTone(this.dataset.v)">${a}</div>`).join('')}</div>`:''}${compareH}`;
   }
   ts.classList.add('show');
 }
