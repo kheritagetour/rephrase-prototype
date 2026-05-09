@@ -75,6 +75,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Pretendard','Noto Sans KR',sa
 .rx .rn{font-size:8px;color:var(--t2);max-width:60px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .rxa{width:20px;height:20px;border-radius:50%;background:rgba(0,0,0,.04);font-size:10px;cursor:pointer;border:1px dashed #ccc;display:inline-flex;align-items:center;justify-content:center}
 
+/* Quick reaction bar on hover */
+.msg.o{position:relative}
+.msg.o .qrx{display:none;position:absolute;top:-8px;right:-4px;background:#fff;border-radius:16px;padding:2px 4px;box-shadow:0 2px 8px rgba(0,0,0,.12);gap:1px;z-index:10}
+.msg.o:hover .qrx{display:flex}
+.qrx button{width:26px;height:26px;border:none;background:none;font-size:15px;cursor:pointer;border-radius:50%;transition:.1s}
+.qrx button:hover{background:#f0f0f0;transform:scale(1.2)}
+
 /* ═══ COMPOSER ═══ */
 .carea{border-top:1px solid var(--border);background:var(--card)}
 
@@ -91,17 +98,21 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Pretendard','Noto Sans KR',sa
 .tsug .tl{font-size:9px;color:var(--blue);font-weight:600;margin-bottom:4px}
 .tsug .topt{padding:10px 14px;background:var(--bluel);border:1.5px solid var(--blue);border-radius:12px;font-size:13px;cursor:pointer;transition:.15s;margin-bottom:4px;position:relative}
 .tsug .topt:hover{background:#dde3ff}
-.tsug .topt::after{content:'탭하여 적용';position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:9px;color:var(--blue);opacity:.5}
+.tsug .topt .tap-hint{position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:9px;color:var(--blue);opacity:.5;pointer-events:none}
 .tsug .talts{display:flex;gap:4px;overflow-x:auto;padding-bottom:2px}
 .tsug .talt{padding:5px 10px;border-radius:12px;font-size:11px;border:1px solid var(--border);color:var(--t2);background:#fff;cursor:pointer;white-space:nowrap;flex-shrink:0}
 .tsug .talt:hover{border-color:var(--blue);color:var(--blue)}
 
-/* Emoji recommendation — based on content */
-.erec{display:none;padding:4px 16px;gap:4px;align-items:center}
+/* Emoji recommendation strip — always visible when typing */
+.erec{display:none;padding:5px 14px;gap:5px;align-items:center;border-bottom:1px solid #f5f5f5;background:#fafbff}
 .erec.show{display:flex}
-.erec .erl{font-size:9px;color:var(--t2);flex-shrink:0}
-.erec .erb{padding:4px 8px;border-radius:8px;font-size:16px;cursor:pointer;border:1px solid var(--border);background:#fff;transition:.1s}
-.erec .erb:hover{background:var(--bluel);border-color:var(--blue);transform:scale(1.1)}
+.erec .erl{font-size:9px;color:var(--blue);font-weight:600;flex-shrink:0;margin-right:2px}
+.erec .erb{width:34px;height:34px;border-radius:10px;font-size:20px;cursor:pointer;border:1.5px solid var(--border);background:#fff;display:flex;align-items:center;justify-content:center;transition:.15s;position:relative}
+.erec .erb:hover{background:var(--bluel);border-color:var(--blue);transform:scale(1.15)}
+.erec .erb .er-tip{display:none;position:absolute;bottom:110%;left:50%;transform:translateX(-50%);background:var(--blue);color:#fff;font-size:9px;padding:2px 6px;border-radius:4px;white-space:nowrap;pointer-events:none}
+.erec .erb:hover .er-tip{display:block}
+.erec .er-add{font-size:11px;color:var(--t3);margin-left:auto;cursor:pointer}
+.erec .er-add:hover{color:var(--blue)}
 
 /* Warning */
 .wbar{display:none;padding:4px 14px;font-size:10px;color:#b45309;background:#fef3c7;align-items:center;gap:4px}
@@ -278,23 +289,36 @@ function getED(e){const c=curChat;if(!c)return ED[e];let ctx=c.type==='personal'
 const WE=['✔','👍','🙏','🙂','🙃','😊','🤔','😅','👀','🫡','🥲'];
 const PE=['😂','❤️','🔥','💀','😊','😭','🙂','🙃','😅','👀','🤔','🥲','🫠','🤡','💅'];
 
-// Content → emoji recommendation (Korean + English)
-const EMOJI_REC={
-  '감사':['🙏','😊','❤️'],'고마':['🙏','😊'],'수고':['👍','🙏','😊'],
-  '확인':['✔','👍'],'알겠':['👍','✔'],'완료':['✅','✔','👍'],
-  '웃':['😂','🔥'],'ㅋㅋ':['😂','💀','🔥'],'재밌':['😂','🔥'],
-  '미안':['🙏','😅'],'죄송':['🙏','😅'],'곤란':['😅','🤔'],
-  '좋':['👍','🔥','❤️'],'멋':['🔥','👍'],'최고':['🔥','❤️'],
-  '궁금':['🤔','👀'],'질문':['🤔'],'혹시':['🤔','🙂'],
-  '화이팅':['🔥','💪','👍'],'파이팅':['🔥','💪'],
-  '사랑':['❤️','😊'],'보고싶':['❤️','🙂'],
-  'thank':['🙏','😊','❤️'],'sorry':['🙏','😅'],'great':['🔥','👍','❤️'],
-  'good':['👍','🔥'],'love':['❤️','😊'],'nice':['👍','🔥'],
-  'check':['✔','👍'],'done':['✅','✔'],'help':['🙏','🤔'],
-  'wow':['🔥','💀','😂'],'lol':['😂','💀'],'haha':['😂','🔥'],
-  'agree':['👍','✔'],'sure':['👍','✔'],'cool':['🔥','👍'],
-  'miss':['❤️','🙂'],'congrat':['🔥','❤️','👍'],
-};
+// Content → emoji recommendation (Korean + English) with tooltip
+const EMOJI_REC_DATA=[
+  {k:['감사','고마','ㄳ','ㄱㅅ'],e:['🙏','😊','🫡','❤️'],tip:'감사 표현'},
+  {k:['수고','고생','힘들'],e:['👍','🙏','😊','🫡'],tip:'수고/격려'},
+  {k:['확인','알겠','봤','체크'],e:['✔','👍','🫡'],tip:'확인/동의'},
+  {k:['완료','끝','다했','done'],e:['✅','✔','🔥','👍'],tip:'완료'},
+  {k:['ㅋㅋ','ㅎㅎ','웃','재밌'],e:['😂','💀','🤣','🔥'],tip:'웃김'},
+  {k:['미안','죄송','ㅈㅅ','sorry'],e:['🙏','😅','🥲'],tip:'사과'},
+  {k:['곤란','힘든','지친','피곤'],e:['😅','🫠','🥲','😭'],tip:'곤란/지침'},
+  {k:['좋','굿','최고','멋','짱'],e:['👍','🔥','❤️','💯'],tip:'칭찬'},
+  {k:['궁금','질문','혹시','모르'],e:['🤔','👀','❓'],tip:'질문/궁금'},
+  {k:['화이팅','파이팅','힘내','응원'],e:['🔥','💪','👍','❤️'],tip:'응원'},
+  {k:['사랑','보고싶','좋아해'],e:['❤️','😊','🥰'],tip:'애정'},
+  {k:['놀라','대박','헐','와'],e:['😱','🔥','💀','👀'],tip:'놀람'},
+  {k:['슬프','아쉬','속상'],e:['🥲','😢','😭'],tip:'슬픔'},
+  {k:['화나','짜증','열받'],e:['😤','🙃','💀'],tip:'분노'},
+  {k:['부끄','민망','쑥스'],e:['😅','🫠','🥲','🙈'],tip:'민망'},
+  {k:['넵','네','ㅇㅇ','ㅇㅋ','응'],e:['👍','✔','🫡'],tip:'확인'},
+  {k:['thank','thx','appreciate'],e:['🙏','😊','❤️'],tip:'Thanks'},
+  {k:['sorry','apolog','my bad'],e:['🙏','😅','🥲'],tip:'Apology'},
+  {k:['great','awesome','amazing','nice'],e:['🔥','👍','❤️','💯'],tip:'Praise'},
+  {k:['good','ok','sure','agree'],e:['👍','✔','🙂'],tip:'Agreement'},
+  {k:['love','miss','care'],e:['❤️','😊','🥰'],tip:'Love'},
+  {k:['lol','haha','funny','lmao'],e:['😂','💀','🤣'],tip:'Laughing'},
+  {k:['wow','omg','what','no way'],e:['😱','💀','👀','🔥'],tip:'Surprise'},
+  {k:['help','please','need'],e:['🙏','🤔','😅'],tip:'Request'},
+  {k:['congrat','celebrate','yay'],e:['🔥','🎉','❤️','👍'],tip:'Celebrate'},
+  {k:['tired','exhausted','ugh'],e:['🫠','😅','💀','😭'],tip:'Tired'},
+  {k:['check','review','look'],e:['👀','✔','🤔'],tip:'Review'},
+];
 
 // Language detection
 function isEng(t){return /^[a-zA-Z0-9\s.,!?'"@#$%&*()\-+=;:\/\\]+$/.test(t.replace(/[\p{Emoji}\uFE0F]/gu,'').trim())}
@@ -436,7 +460,8 @@ function renderMsgs(){
     else if(!me){rxH=`<div class="rxr"><span class="rxa" onclick="openNote(${idx})">+</span></div>`}
     let hintH='';
     if(!me){const ems=msg.t.match(/([\p{Emoji_Presentation}\p{Emoji}\uFE0F])/gu);if(ems?.some(e=>getED(e)&&(getED(e).v==='r'||getED(e).v==='y'))){const e=ems.find(e=>getED(e)&&(getED(e).v==='r'||getED(e).v==='y'));if(e)hintH=`<div class="hint" onclick="showTT('${e}')">🔍 이 이모지, 어떤 뜻일까?</div>`}}
-    div.innerHTML=`${!me&&c.group?`<div class="sn">${msg.s}</div>`:''}${html}${hintH}${rxH}<div class="tm">${msg.tm}</div>`;
+    const qrxH=!me?`<div class="qrx"><button onclick="quickRx(${idx},'👍')">👍</button><button onclick="quickRx(${idx},'❤️')">❤️</button><button onclick="quickRx(${idx},'😂')">😂</button><button onclick="quickRx(${idx},'🙏')">🙏</button><button onclick="openNote(${idx})">+</button></div>`:'';
+    div.innerHTML=`${qrxH}${!me&&c.group?`<div class="sn">${msg.s}</div>`:''}${html}${hintH}${rxH}<div class="tm">${msg.tm}</div>`;
     if(!me){div.addEventListener('contextmenu',e=>{e.preventDefault();openNote(idx)});div.addEventListener('dblclick',()=>openNote(idx))}
     el.appendChild(div);
   });
@@ -464,6 +489,13 @@ function bldPkr(mode,el){
     <div class="pkst">전체</div><div class="pkg">${emojis.map(e=>`<div class="ec" onclick="pickE('${e}')" onmousedown="lt=setTimeout(()=>showTT('${e}'),400)" onmouseup="clearTimeout(lt)" onmouseleave="clearTimeout(lt)">${e}${ED[e]?`<span class="vd ${ED[e].v}"></span>`:''}</div>`).join('')}</div>`;
 }
 function pickE(e){document.getElementById('inp').value+=e;document.getElementById('inp').dispatchEvent(new Event('input'));document.getElementById('pkr').classList.remove('show')}
+function addEmojiToMsg(e){
+  const inp=document.getElementById('inp');
+  // Add space before emoji if text doesn't end with space
+  if(inp.value.length>0&&!inp.value.endsWith(' ')&&!/[\p{Emoji}]/u.test(inp.value.slice(-1)))inp.value+=' ';
+  inp.value+=e;
+  inp.focus();
+}
 function ins(e){document.getElementById('inp').value+=e;document.getElementById('inp').focus()}
 
 // ═══ COMPOSER ═══
@@ -476,15 +508,16 @@ function onInp(){
   if(c.type==='work'&&CFG.toneAid&&v.length>0){updateTone(v)}
   else{document.getElementById('tsug')?.classList.remove('show')}
 
-  // Emoji recommendation based on content
+  // Emoji recommendation based on content — multi-match
   if(v.length>=1){
     const low=v.toLowerCase();
-    let recs=[];
-    for(const[k,emojis]of Object.entries(EMOJI_REC)){if(low.includes(k)){recs.push(...emojis);break}}
+    let matched=null;
+    for(const rule of EMOJI_REC_DATA){
+      if(rule.k.some(k=>low.includes(k))){matched=rule;break}
+    }
     const erec=document.getElementById('erec');
-    if(recs.length&&erec){
-      const unique=[...new Set(recs)].slice(0,4);
-      erec.innerHTML=`<span class="erl">추천</span>${unique.map(e=>`<button class="erb" onclick="pickE('${e}')">${e}</button>`).join('')}`;
+    if(matched&&erec){
+      erec.innerHTML=`<span class="erl">💡 ${matched.tip}</span>${matched.e.slice(0,5).map(e=>`<button class="erb" onclick="addEmojiToMsg('${e}')">${e}<span class="er-tip">${ED[e]?.m||e}</span></button>`).join('')}<span class="er-add" onclick="document.getElementById('pkr').classList.add('show')">더보기 →</span>`;
       erec.classList.add('show');
     } else erec?.classList.remove('show');
   } else document.getElementById('erec')?.classList.remove('show');
@@ -525,12 +558,13 @@ function updateTone(raw){
   if(main===raw){ts.classList.remove('show');return}
   let alts=(matched.A[idx]||[]).map(a=>typeof a==='function'?a(raw):a).filter(a=>a&&a!==main);
   const lvLabels=eng?['casual','friendly','polite','formal','very formal']:['편안','친근','보통','정중','매우 정중'];
-  ts.innerHTML=`<div class="tl">✨ ${matched.i} · ${lvLabels[idx]}</div><div class="topt" onclick="useTone(this)">${main}</div>${alts.length?`<div class="talts">${alts.map(a=>`<div class="talt" onclick="useTone(this)">${a}</div>`).join('')}</div>`:''}`;
+  ts.innerHTML=`<div class="tl">✨ ${matched.i} · ${lvLabels[idx]}</div><div class="topt" data-v="${main.replace(/"/g,'&quot;')}" onclick="useTone(this.dataset.v)">${main}<span class="tap-hint">탭하여 적용</span></div>${alts.length?`<div class="talts">${alts.map(a=>`<div class="talt" data-v="${a.replace(/"/g,'&quot;')}" onclick="useTone(this.dataset.v)">${a}</div>`).join('')}</div>`:''}`;
   ts.classList.add('show');
 }
-function useTone(el){document.getElementById('inp').value=el.textContent;document.getElementById('tsug')?.classList.remove('show');document.getElementById('wb')?.classList.remove('show');document.getElementById('inp').focus()}
+function useTone(v){document.getElementById('inp').value=v;document.getElementById('tsug')?.classList.remove('show');document.getElementById('wb')?.classList.remove('show');document.getElementById('inp').focus()}
 
 // ═══ SEND ═══
+let replyTimer=null;
 function doSend(){
   const el=document.getElementById('inp');const v=el.value.trim();if(!v||!curChat)return;
   curChat.msgs.push({s:'me',t:v,tm:now()});
@@ -540,12 +574,15 @@ function doSend(){
   document.getElementById('wb')?.classList.remove('show');
   document.getElementById('rpv')?.classList.remove('show');
   document.getElementById('pkr')?.classList.remove('show');
-  // Smart contextual auto-reply
+  // Smart contextual auto-reply — cancel previous pending reply
+  if(replyTimer)clearTimeout(replyTimer);
   const c=curChat;
-  setTimeout(()=>{
+  replyTimer=setTimeout(()=>{
+    replyTimer=null;
+    if(curChat?.id!==c.id)return; // switched chat
     const reply=genReply(v,c);
     if(reply){c.msgs.push(reply);renderMsgs();renderList()}
-  },1200+Math.random()*1800);
+  },1500+Math.random()*1500);
 }
 
 // ═══ SMART REPLY — context-aware ═══
@@ -603,6 +640,16 @@ function genReply(userMsg,chat){
 }
 
 function pick(arr){return arr[Math.floor(Math.random()*arr.length)]}
+
+function quickRx(idx,emoji){
+  const msg=curChat.msgs[idx];
+  if(!msg.rx)msg.rx=[];
+  // Check if same emoji already exists, increment count
+  const existing=msg.rx.find(r=>r.e===emoji);
+  if(existing)existing.c++;
+  else msg.rx.push({e:emoji,c:1});
+  renderMsgs();
+}
 
 // ═══ TOKENS ═══
 function addSt(e,l){const c=curChat;for(let i=c.msgs.length-1;i>=0;i--){if(c.msgs[i].s!=='me'){if(!c.msgs[i].rx)c.msgs[i].rx=[];c.msgs[i].rx.push({e,c:1,note:l});renderMsgs();break}}}
