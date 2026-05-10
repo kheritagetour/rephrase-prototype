@@ -140,19 +140,19 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Pretendard','Noto San
 .rx-pill{display:inline-flex;align-items:center;gap:2px;padding:2px 7px;border-radius:10px;background:rgba(0,0,0,.04);font-size:11px;cursor:pointer;transition:var(--transition);border:1px solid transparent;position:relative}
 .rx-pill:hover{background:rgba(0,0,0,.08);border-color:var(--border)}
 .rx-pill .rx-note{font-size:8px;color:var(--text2);max-width:70px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.rx-pill .rx-tip{display:none;position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);background:var(--text);color:#fff;font-size:9px;padding:8px 10px;border-radius:8px;pointer-events:none;z-index:20;box-shadow:var(--shadow-lg);min-width:160px;text-align:left;line-height:1.6}
-.rx-pill .rx-tip::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:var(--text)}
-.rx-pill:hover .rx-tip{display:block}
-.rx-pill .rx-tip .rt-title{font-weight:600;font-size:10px;margin-bottom:3px;text-align:center}
-.rx-pill .rx-tip .rt-bar{display:flex;border-radius:3px;overflow:hidden;height:8px;margin-bottom:4px}
-.rx-pill .rx-tip .rt-bar .rs{height:100%}
-.rx-pill .rx-tip .rt-row{display:flex;justify-content:space-between;font-size:8px;opacity:.8}
+/* Floating reaction tooltip — positioned via JS to avoid overlap */
+#rxFloat{display:none;position:fixed;z-index:200;background:var(--text);color:#fff;font-size:9px;padding:10px 12px;border-radius:8px;pointer-events:none;box-shadow:var(--shadow-lg);min-width:170px;max-width:220px;text-align:left;line-height:1.6}
+#rxFloat.show{display:block;animation:scaleIn .12s ease}
+#rxFloat .rt-title{font-weight:600;font-size:10px;margin-bottom:3px;text-align:center}
+#rxFloat .rt-bar{display:flex;border-radius:3px;overflow:hidden;height:8px;margin-bottom:4px}
+#rxFloat .rt-bar .rs{height:100%}
+#rxFloat .rt-row{display:flex;justify-content:space-between;font-size:8px;opacity:.8}
 .rx-add{width:22px;height:22px;border-radius:50%;background:rgba(0,0,0,.03);font-size:10px;cursor:pointer;border:1px dashed var(--border);display:inline-flex;align-items:center;justify-content:center;transition:var(--transition)}
 .rx-add:hover{background:rgba(0,0,0,.06)}
 
 /* Quick reactions on hover */
 .msg-wrap.other{position:relative}
-.qrx{display:none;position:absolute;top:-6px;right:-6px;background:var(--surface);border-radius:14px;padding:2px 3px;box-shadow:var(--shadow);gap:1px;z-index:10}
+.qrx{display:none;position:absolute;top:0;right:-60px;background:var(--surface);border-radius:14px;padding:2px 3px;box-shadow:var(--shadow);gap:1px;z-index:10}
 .msg-wrap.other:hover .qrx{display:flex}
 .qrx button{width:24px;height:24px;border:none;background:none;font-size:14px;cursor:pointer;border-radius:50%;transition:var(--transition)}
 .qrx button:hover{background:var(--surface2);transform:scale(1.15)}
@@ -338,6 +338,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Pretendard','Noto San
 
 <!-- ═══ TOUR ═══ -->
 <div class="tour" id="tour"></div>
+
+<!-- Floating reaction tooltip -->
+<div id="rxFloat"></div>
 
 <!-- ═══ OVERLAYS ═══ -->
 <div class="ov" id="ttOv" onclick="if(event.target===this)this.classList.remove('show')"><div class="ov-card" id="ttCard"></div></div>
@@ -585,15 +588,7 @@ function renderMsgs(){
     let html=msg.t.replace(/([\p{Emoji_Presentation}\p{Emoji}\uFE0F]+)/gu,m=>ED[m]?`<span class="e-click" onclick="showTooltip('${m}')">${m}</span>`:m);
     let rxH='';
     if(msg.rx?.length){rxH='<div class="rx-row">'+msg.rx.map(r=>{
-      const ed=getED(r.e)||ED[r.e];
-      let tipH='';
-      if(ed&&ed.d){
-        const colors={pos:'#10b981',neu:'#f59e0b',neg:'#ef4444'};
-        tipH=`<div class="rt-title">${r.e} ${ed.m}</div><div class="rt-bar">${ed.d.map(x=>`<div class="rs" style="width:${x.p}%;background:${colors[x.t]}"></div>`).join('')}</div>${ed.d.map(x=>`<div class="rt-row"><span>${x.l}</span><span>${x.p}%</span></div>`).join('')}`;
-      } else {
-        tipH=`<div class="rt-title">${r.e} ${r.note||'리액션'}</div>`;
-      }
-      return`<span class="rx-pill" onclick="showTooltip('${r.e}')">${r.e}${r.c>1?' '+r.c:''}${r.note?`<span class="rx-note">${r.note}</span>`:''}<span class="rx-tip">${tipH}</span></span>`}).join('')+`<span class="rx-add" onclick="openNote(${idx})">+</span></div>`}
+      return`<span class="rx-pill" data-e="${r.e}" onclick="showTooltip('${r.e}')" onmouseenter="showRxFloat(this,'${r.e}','${(r.note||'').replace(/'/g,"\\'")}')" onmouseleave="hideRxFloat()">${r.e}${r.c>1?' '+r.c:''}${r.note?`<span class="rx-note">${r.note}</span>`:''}</span>`}).join('')+`<span class="rx-add" onclick="openNote(${idx})">+</span></div>`}
     else if(!me){rxH=`<div class="rx-row"><span class="rx-add" onclick="openNote(${idx})">+</span></div>`}
     let hintH='';
     if(!me&&idx>=c.msgs.length-3){const ems=msg.t.match(/([\p{Emoji_Presentation}\p{Emoji}\uFE0F])/gu);if(ems?.some(e=>getED(e)&&(getED(e).v==='r'||getED(e).v==='y'))){const e=ems.find(e=>getED(e)&&(getED(e).v==='r'||getED(e).v==='y'));if(e)hintH=`<span class="e-hint" onclick="showTooltip('${e}')">🔍 이 이모지, 어떤 뜻일까?</span>`}}
@@ -754,6 +749,28 @@ function genReply(msg,chat){
   if(low.includes('?'))return{s,t:pick(['ㅇㅇ!','확인해볼게 🤔','글쎄 🤔']),tm:now()};
   return{s,t:pick(['ㅇㅋ!','👍','확인!']),tm:now()};
 }
+
+// ── Reaction Hover Tooltip ──
+function showRxFloat(el,emoji,note){
+  const ed=getED(emoji)||ED[emoji];
+  const fl=document.getElementById('rxFloat');
+  let h='';
+  if(ed&&ed.d){
+    const colors={pos:'#10b981',neu:'#f59e0b',neg:'#ef4444'};
+    h=`<div class="rt-title">${emoji} ${ed.m}</div><div class="rt-bar">${ed.d.map(x=>`<div class="rs" style="width:${x.p}%;background:${colors[x.t]}"></div>`).join('')}</div>${ed.d.map(x=>`<div class="rt-row"><span>${x.l}</span><span>${x.p}%</span></div>`).join('')}`;
+  } else {
+    h=`<div class="rt-title">${emoji} ${note||'리액션'}</div>`;
+  }
+  fl.innerHTML=h;
+  const rect=el.getBoundingClientRect();
+  fl.style.left=Math.max(8,Math.min(rect.left+rect.width/2-85,window.innerWidth-200))+'px';
+  fl.style.top=(rect.top-fl.offsetHeight-8)+'px';
+  // If would go above viewport, show below instead
+  fl.classList.add('show');
+  const flRect=fl.getBoundingClientRect();
+  if(flRect.top<4){fl.style.top=(rect.bottom+8)+'px'}
+}
+function hideRxFloat(){document.getElementById('rxFloat').classList.remove('show')}
 
 // ── Quick Reactions ──
 function quickRx(idx,emoji){const msg=curChat.msgs[idx];if(!msg.rx)msg.rx=[];const ex=msg.rx.find(r=>r.e===emoji);if(ex)ex.c++;else msg.rx.push({e:emoji,c:1});renderMsgs()}
