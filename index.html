@@ -140,8 +140,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Pretendard','Noto San
 .rx-pill{display:inline-flex;align-items:center;gap:2px;padding:2px 7px;border-radius:10px;background:rgba(0,0,0,.04);font-size:11px;cursor:pointer;transition:var(--transition);border:1px solid transparent;position:relative}
 .rx-pill:hover{background:rgba(0,0,0,.08);border-color:var(--border)}
 .rx-pill .rx-note{font-size:8px;color:var(--text2);max-width:70px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.rx-pill .rx-tip{display:none;position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:var(--text);color:#fff;font-size:9px;padding:4px 8px;border-radius:6px;white-space:nowrap;pointer-events:none;z-index:20;box-shadow:var(--shadow)}
+.rx-pill .rx-tip{display:none;position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);background:var(--text);color:#fff;font-size:9px;padding:8px 10px;border-radius:8px;pointer-events:none;z-index:20;box-shadow:var(--shadow-lg);min-width:160px;text-align:left;line-height:1.6}
+.rx-pill .rx-tip::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:var(--text)}
 .rx-pill:hover .rx-tip{display:block}
+.rx-pill .rx-tip .rt-title{font-weight:600;font-size:10px;margin-bottom:3px;text-align:center}
+.rx-pill .rx-tip .rt-bar{display:flex;border-radius:3px;overflow:hidden;height:8px;margin-bottom:4px}
+.rx-pill .rx-tip .rt-bar .rs{height:100%}
+.rx-pill .rx-tip .rt-row{display:flex;justify-content:space-between;font-size:8px;opacity:.8}
 .rx-add{width:22px;height:22px;border-radius:50%;background:rgba(0,0,0,.03);font-size:10px;cursor:pointer;border:1px dashed var(--border);display:inline-flex;align-items:center;justify-content:center;transition:var(--transition)}
 .rx-add:hover{background:rgba(0,0,0,.06)}
 
@@ -579,7 +584,14 @@ function renderMsgs(){
     w.className=`msg-wrap ${me?'me':'other'}`;
     let html=msg.t.replace(/([\p{Emoji_Presentation}\p{Emoji}\uFE0F]+)/gu,m=>ED[m]?`<span class="e-click" onclick="showTooltip('${m}')">${m}</span>`:m);
     let rxH='';
-    if(msg.rx?.length){rxH='<div class="rx-row">'+msg.rx.map(r=>{const tip=ED[r.e]?.m||r.note||r.e;return`<span class="rx-pill" onclick="showTooltip('${r.e}')">${r.e}${r.c>1?' '+r.c:''}${r.note?`<span class="rx-note">${r.note}</span>`:''}<span class="rx-tip">${tip}</span></span>`}).join('')+`<span class="rx-add" onclick="openNote(${idx})">+</span></div>`}
+    if(msg.rx?.length){rxH='<div class="rx-row">'+msg.rx.map(r=>{
+      const ed=getED(r.e);
+      let tipH=r.note||r.e;
+      if(ed){
+        const colors={pos:'#10b981',neu:'#f59e0b',neg:'#ef4444'};
+        tipH=`<div class="rt-title">${r.e} ${ed.m}</div><div class="rt-bar">${ed.d.map(x=>`<div class="rs" style="width:${x.p}%;background:${colors[x.t]}"></div>`).join('')}</div>${ed.d.map(x=>`<div class="rt-row"><span>${x.l}</span><span>${x.p}%</span></div>`).join('')}`;
+      }
+      return`<span class="rx-pill" onclick="showTooltip('${r.e}')">${r.e}${r.c>1?' '+r.c:''}${r.note?`<span class="rx-note">${r.note}</span>`:''}<span class="rx-tip">${tipH}</span></span>`}).join('')+`<span class="rx-add" onclick="openNote(${idx})">+</span></div>`}
     else if(!me){rxH=`<div class="rx-row"><span class="rx-add" onclick="openNote(${idx})">+</span></div>`}
     let hintH='';
     if(!me&&idx>=c.msgs.length-3){const ems=msg.t.match(/([\p{Emoji_Presentation}\p{Emoji}\uFE0F])/gu);if(ems?.some(e=>getED(e)&&(getED(e).v==='r'||getED(e).v==='y'))){const e=ems.find(e=>getED(e)&&(getED(e).v==='r'||getED(e).v==='y'));if(e)hintH=`<span class="e-hint" onclick="showTooltip('${e}')">🔍 이 이모지, 어떤 뜻일까?</span>`}}
