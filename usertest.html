@@ -80,6 +80,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Pretendard','Noto San
 .likert-row .lr-btn:hover{border-color:var(--blue);background:var(--blue-soft);color:var(--blue)}
 .likert-row .lr-btn.sel{border-color:var(--blue);background:var(--blue);color:#fff}
 .likert-labels{display:flex;justify-content:space-between;font-size:9px;color:var(--text3);margin-top:4px;padding:0 4px}
+.lk-followup{width:100%;margin-top:8px;padding:8px 10px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:12px;font-family:inherit;resize:none;outline:none;color:var(--text2);line-height:1.5}
+.lk-followup:focus{border-color:var(--blue);color:var(--text)}
+.lk-followup::placeholder{color:var(--text3);font-style:italic}
 
 /* Buttons */
 .ph-btn{padding:13px 32px;border-radius:var(--radius);background:var(--blue);color:#fff;font-size:14px;font-weight:600;border:none;cursor:pointer;transition:var(--transition);min-width:160px}
@@ -164,6 +167,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Pretendard','Noto San
 .e-click:hover{background:rgba(79,108,255,.12)}
 .e-hint{display:inline-block;font-size:9px;color:var(--blue);margin-top:4px;cursor:pointer;padding:2px 8px;background:var(--blue-soft);border-radius:6px;transition:var(--transition)}
 .e-hint:hover{background:#dde3ff}
+
+/* Task 1 emoji highlight */
+@keyframes emojiPulse{0%,100%{box-shadow:0 0 0 0 rgba(79,108,255,.4)}50%{box-shadow:0 0 0 8px rgba(79,108,255,0)}}
+.e-highlight{animation:emojiPulse 1.5s infinite;background:var(--blue-soft);border-radius:6px;padding:2px 4px;position:relative}
+.e-highlight-arrow{position:absolute;bottom:calc(100% + 4px);left:50%;transform:translateX(-50%);background:var(--blue);color:#fff;font-size:10px;font-weight:600;padding:4px 10px;border-radius:6px;white-space:nowrap;pointer-events:none;z-index:5}
+.e-highlight-arrow::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:var(--blue)}
 
 /* Reactions */
 .rx-row{display:flex;gap:2px;margin-top:4px;flex-wrap:wrap;position:relative}
@@ -354,6 +363,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Pretendard','Noto San
     </div>
     <div class="cal-timer" id="calTimer">03:00</div>
     <p class="sub2">남은 시간이 끝나면 자동으로 다음으로 넘어갑니다.</p>
+    <button class="ph-btn" id="calDoneBtn" onclick="skipCal()" style="display:none;margin-bottom:8px">완료! 다음으로</button>
     <button class="ph-btn secondary" onclick="skipCal()">건너뛰기</button>
   </div>
 </div>
@@ -736,7 +746,11 @@ function startCalTimer(){
     document.getElementById('calTimer').textContent=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
   },1000);
 }
-function logCal(){}
+function logCal(){
+  const v=document.getElementById('calInput')?.value||'';
+  const btn=document.getElementById('calDoneBtn');
+  if(v.length>10&&btn)btn.style.display='inline-block';
+}
 function skipCal(){
   if(calInterval)clearInterval(calInterval);
   LOG.calibration={keystrokes:calKeystrokes,chars:document.getElementById('calInput')?.value.length||0,duration:(Date.now()-calStart)/1000};
@@ -788,40 +802,98 @@ function completeTask(){
   showLikert(curTaskIdx);
 }
 
+// ── Likert Questionnaire Data ──
+const COMMON_Q=[
+  {id:'S1',label:'S1. 작성 주체성 (Authorship Preservation)',desc:'방금 보낸 메시지/수행한 행동은 내가 결정한 것이지, 시스템이 결정한 것이 아니라고 느꼈다.',lo:'전혀 그렇지 않다',hi:'매우 그렇다',followup:'혹시 시스템이 나 대신 결정을 내리고 있다고 느낀 순간이 있었나요?'},
+  {id:'S2a',label:'S2-a. 피드백 타이밍',desc:'시스템의 피드백이 내가 필요로 한 시점에 나타났다.',lo:'전혀 그렇지 않다',hi:'매우 그렇다'},
+  {id:'S2b',label:'S2-b. 시각적 비중',desc:'시스템 피드백의 시각적 비중이 작성 중인 메시지에 비해 적절했다.',lo:'전혀 그렇지 않다',hi:'매우 그렇다',followup:'피드백이 과하거나 부족하다고 느낀 순간이 있었나요?'},
+  {id:'S3',label:'S3. 반사실적 유용성 (Counterfactual Usefulness)',desc:'이 시스템이 없었다면, 방금 작성한 메시지/행동은 달랐을 것이다.',lo:'전혀 그렇지 않다',hi:'매우 그렇다',followup:'달랐다면, 어떻게 달랐을까요?'},
+  {id:'S4',label:'S4. 신뢰 (Trust Calibration)',desc:'내일 같은 상황이 또 생긴다면 이 시스템에 다시 맡길 의향이 있다.',lo:'전혀 그렇지 않다',hi:'매우 그렇다',followup:'어떤 점이 개선되면 더 믿고 쓸 수 있을 것 같으세요?'},
+];
+
+// Task 1 → Module B (Interpretation), Task 2 → Module A (Tone), Task 3 → Module D (Preview), Task 4 → Module C (Tokens)
+const MODULE_Q={
+  0:[ // Task 1 → Module B
+    {id:'B1',label:'B1. 해석 다양성 이해',desc:'해석을 확인한 후, 이 이모지가 얼마나 다양한 방식으로 읽힐 수 있는지 이해할 수 있었다.',lo:'전혀 그렇지 않다',hi:'매우 그렇다'},
+    {id:'B2',label:'B2. 의도 반영도',desc:'제시된 해석이 발신자가 실제로 의도했을 법한 어조를 반영하고 있었다.',lo:'전혀 그렇지 않다',hi:'매우 그렇다',followup:'해석을 본 후 발신자의 의도에 대한 생각이 바뀌었나요?'},
+    {id:'B3',label:'B3. 범위 제시 방식',desc:'하나의 "정답" 해석이 아니라 가능한 해석의 범위를 보여주는 방식이 혼란스럽기보다는 도움이 되었다.',lo:'전혀 그렇지 않다',hi:'매우 그렇다'},
+    {id:'B4',label:'B4. 재사용 의향',desc:'앞으로 의미가 애매한 이모지를 받으면 이 해석 기능을 다시 사용할 의향이 있다.',lo:'전혀 그렇지 않다',hi:'매우 그렇다'},
+  ],
+  1:[ // Task 2 → Module A
+    {id:'A1',label:'A1. 어조 적합성',desc:'방금 보낸 메시지의 어조가 상대방이 기대하는 격식 수준과 잘 맞았다.',lo:'전혀 그렇지 않다',hi:'매우 그렇다'},
+    {id:'A2',label:'A2. 관계 마찰 우려',desc:'이 메시지가 상대방과의 관계에 마찰을 일으키지 않을 것이라는 확신이 든다.',lo:'전혀 그렇지 않다',hi:'매우 그렇다'},
+    {id:'A3',label:'A3. 대안 표현 범위',desc:'시스템이 제시한 2–3개의 대안이 내가 실제로 표현하고 싶었던 어조의 범위를 잘 담아냈다.',lo:'전혀 그렇지 않다',hi:'매우 그렇다',followup:'혹시 "이런 표현도 있었으면" 하고 아쉬웠던 대안이 있었나요?'},
+    {id:'A4',label:'A4. 슬라이더 유용성',desc:'격식 슬라이더(Formality Slider)가 메시지의 어조를 의미 있게 조절할 수 있게 해주었다.',lo:'전혀 그렇지 않다',hi:'매우 그렇다'},
+  ],
+  2:[ // Task 3 → Module D
+    {id:'D1',label:'D1. 미리보기 신뢰도',desc:'양쪽 미리보기(Side-by-side Preview)가 상대방 기기에서 실제로 보일 이모지 모습과 일치할 것 같다.',lo:'전혀 그렇지 않다',hi:'매우 그렇다'},
+    {id:'D2',label:'D2. 행동 변화',desc:'미리보기를 본 결과, 원래 보내려던 것과 다른 선택을 하게 되었다.',lo:'전혀 그렇지 않다',hi:'매우 그렇다',followup:'어떤 점이 달라졌나요?'},
+    {id:'D3',label:'D3. 크기 조절 통제권',desc:'메시지별 크기 조절 토글(Per-message Size Toggle)이 시각적 강조 정도에 대한 적절한 통제권을 주었다.',lo:'전혀 그렇지 않다',hi:'매우 그렇다'},
+  ],
+  3:[ // Task 4 → Module C
+    {id:'C1',label:'C1. 상태 명확성',desc:'내가 선택한 토큰이 전달하고자 한 업무 상태를 명확하게 표현해주었다.',lo:'전혀 그렇지 않다',hi:'매우 그렇다'},
+    {id:'C2',label:'C2. 메모 유용성',desc:'짧은 메모 입력란을 통해 긴 답장을 쓰지 않고도 필요한 맥락을 덧붙일 수 있었다.',lo:'전혀 그렇지 않다',hi:'매우 그렇다'},
+    {id:'C3',label:'C3. 토큰 vs 👍 선호',desc:'같은 상황이라면, "OK, done"이라고 입력하거나 👍를 보내는 것보다 이 토큰+메모 방식을 선호한다.',lo:'전혀 그렇지 않다',hi:'매우 그렇다',followup:'어떤 상황에서는 다시 👍로 돌아갈 것 같으세요?'},
+    {id:'C4',label:'C4. 토큰 포괄성',desc:'제시된 토큰 다섯 가지(Pending / In Progress / Blocked / Done / Overdue)가 내가 실제로 표현하고 싶었던 업무 상태를 충분히 포괄했다.',lo:'전혀 그렇지 않다',hi:'매우 그렇다',followup:'혹시 빠졌다고 느낀 상태가 있었나요?'},
+  ],
+};
+
+const MODULE_NAMES={0:'Module B — 이모지 해석 스펙트럼',1:'Module A — 맥락 인식 어조 조정',2:'Module D — 크로스플랫폼 이모지 미리보기',3:'Module C — 업무 진행 상태 토큰'};
+
 // ── Likert ──
 function showLikert(idx){
   const task=TASKS[idx];
-  const likertState={conf:0,intr:0};
+  window._lkState={};
+  const allQ=[...COMMON_Q];
+  const modQ=MODULE_Q[idx]||[];
+
+  function renderQ(q,sectionId){
+    return `<div class="likert-q" id="lq_${q.id}">
+      <div class="lq-label">${q.label}</div>
+      <div class="lq-desc">${q.desc}</div>
+      <div class="likert-row">${[1,2,3,4,5,6,7].map(n=>`<button class="lr-btn" onclick="lkSelect('${q.id}',${n},this)">${n}</button>`).join('')}</div>
+      <div class="likert-labels"><span>${q.lo}</span><span>${q.hi}</span></div>
+      ${q.followup?`<textarea class="lk-followup" id="fu_${q.id}" placeholder="${q.followup}" rows="2"></textarea>`:''}
+    </div>`;
+  }
+
+  const commonH=allQ.map(q=>renderQ(q,'common')).join('');
+  const moduleH=modQ.map(q=>renderQ(q,'module')).join('');
+
   document.getElementById('likertContent').innerHTML=`
-    <h2>Task ${idx+1} 평가</h2>
-    <p class="sub">${task.title} — 방금 경험한 기능에 대해 평가해주세요.</p>
-    <div class="likert-section">
-      <div class="likert-q">
-        <div class="lq-label">1. 대화 자신감 (Conversational Confidence)</div>
-        <div class="lq-desc">보낸 메시지가 올바른 정중함 수준을 갖추었고, 관계에 마찰을 일으키지 않을 것이라는 확신이 드셨나요?</div>
-        <div class="likert-row" id="lkConf">${[1,2,3,4,5,6,7].map(n=>`<button class="lr-btn" onclick="lkSelect('conf',${n},this)">${n}</button>`).join('')}</div>
-        <div class="likert-labels"><span>전혀 아니다</span><span>매우 그렇다</span></div>
+    <div style="max-height:85vh;overflow-y:auto;padding-right:8px">
+      <h2>Task ${idx+1} 평가</h2>
+      <p class="sub">${task.title} — 방금 경험한 기능에 대해 평가해주세요.</p>
+      <div class="likert-section">
+        <h3 style="color:var(--blue)">공통 문항 (S1–S4)</h3>
+        ${commonH}
       </div>
-      <div class="likert-q">
-        <div class="lq-label">2. 주의 방해도 (Attentional Intrusiveness)</div>
-        <div class="lq-desc">시스템의 인라인 피드백이 대화 집중을 방해했나요? (낮을수록 방해 없음)</div>
-        <div class="likert-row" id="lkIntr">${[1,2,3,4,5,6,7].map(n=>`<button class="lr-btn" onclick="lkSelect('intr',${n},this)">${n}</button>`).join('')}</div>
-        <div class="likert-labels"><span>전혀 방해 안 됨</span><span>매우 방해됨</span></div>
+      <div class="likert-section" style="margin-top:16px;padding-top:16px;border-top:2px solid var(--border)">
+        <h3 style="color:var(--purple)">${MODULE_NAMES[idx]}</h3>
+        ${moduleH}
       </div>
-    </div>
-    <button class="ph-btn" id="likertNext" disabled onclick="submitLikert()">다음</button>`;
+      <button class="ph-btn" id="likertNext" disabled onclick="submitLikert()" style="margin-top:16px;width:100%">다음</button>
+    </div>`;
   showPhase('ph4');
-  window._lkState=likertState;
+
+  // Count required answers: all common + all module items
+  window._lkRequired=allQ.length+modQ.length;
 }
-function lkSelect(type,val,el){
-  window._lkState[type]=val;
+function lkSelect(qid,val,el){
+  window._lkState[qid]=val;
   el.parentElement.querySelectorAll('.lr-btn').forEach(b=>b.classList.remove('sel'));
   el.classList.add('sel');
-  if(window._lkState.conf>0&&window._lkState.intr>0)document.getElementById('likertNext').disabled=false;
+  const answered=Object.keys(window._lkState).filter(k=>window._lkState[k]>0).length;
+  document.getElementById('likertNext').disabled=answered<window._lkRequired;
 }
 function submitLikert(){
+  // Collect follow-up text
+  const followups={};
+  document.querySelectorAll('.lk-followup').forEach(el=>{
+    if(el.value.trim())followups[el.id.replace('fu_','')]=el.value.trim();
+  });
   const last=LOG.tasks[LOG.tasks.length-1];
-  if(last){last.likert={conf:window._lkState.conf,intr:window._lkState.intr}}
+  if(last){last.likert={...window._lkState};last.followups=followups}
   if(curTaskIdx<TASKS.length-1){
     showTaskBrief(curTaskIdx+1);
   } else {
@@ -835,6 +907,7 @@ function showDebrief(){
   updateProgress();
   let tableRows=LOG.tasks.map((t,i)=>{
     const task=TASKS[i];
+    const lk=t.likert||{};
     return `<tr>
       <td><strong>Task ${i+1}</strong><br><span style="color:var(--text3);font-size:10px">${task.title}</span></td>
       <td>${t.completionTime.toFixed(1)}s</td>
@@ -842,26 +915,47 @@ function showDebrief(){
       <td>${t.revisions}</td>
       <td>${t.hesitationEpisodes}</td>
       <td>${t.invocationLatency?t.invocationLatency.toFixed(1)+'s':'-'}</td>
-      <td>${t.likert.conf}/7</td>
-      <td>${t.likert.intr}/7</td>
+      <td>${lk.S1||'-'}</td>
+      <td>${lk.S3||'-'}</td>
+      <td>${lk.S4||'-'}</td>
     </tr>`}).join('');
 
+  // Likert detail table
+  let likertDetail=LOG.tasks.map((t,i)=>{
+    const lk=t.likert||{};
+    const fu=t.followups||{};
+    const modKeys=Object.keys(lk).filter(k=>!k.startsWith('S'));
+    return `<tr><td colspan="2" style="background:var(--blue-soft);font-weight:700">Task ${i+1} — ${TASKS[i].title}</td></tr>
+      <tr><td>S1 주체성</td><td>${lk.S1||'-'}/7</td></tr>
+      <tr><td>S2-a 타이밍</td><td>${lk.S2a||'-'}/7</td></tr>
+      <tr><td>S2-b 시각적 비중</td><td>${lk.S2b||'-'}/7</td></tr>
+      <tr><td>S3 반사실적 유용성</td><td>${lk.S3||'-'}/7</td></tr>
+      <tr><td>S4 신뢰</td><td>${lk.S4||'-'}/7</td></tr>
+      ${modKeys.map(k=>`<tr><td>${k}</td><td>${lk[k]}/7</td></tr>`).join('')}
+      ${Object.keys(fu).length?Object.entries(fu).map(([k,v])=>`<tr><td>${k} (서술)</td><td style="font-size:11px;color:var(--text2)">${v}</td></tr>`).join(''):''}`;
+  }).join('');
+
   document.getElementById('debriefContent').innerHTML=`
+    <div style="max-height:85vh;overflow-y:auto;padding-right:8px">
     <h2>테스트 완료</h2>
     <p class="sub">감사합니다, ${PID}님! 모든 태스크를 완료하셨습니다.</p>
+    <h3 style="font-size:14px;margin-bottom:8px">수행 데이터 (Performance)</h3>
     <table class="sum-table">
-      <thead><tr><th>Task</th><th>T_C</th><th>Keys</th><th>C_R</th><th>E_H</th><th>L_I</th><th>S_conf</th><th>S_intr</th></tr></thead>
+      <thead><tr><th>Task</th><th>T_C</th><th>Keys</th><th>C_R</th><th>E_H</th><th>L_I</th><th>S1</th><th>S3</th><th>S4</th></tr></thead>
       <tbody>${tableRows}</tbody>
     </table>
     <p class="sub2">
-      T_C = 완료 시간 | Keys = 키 입력 | C_R = 수정 횟수 | E_H = 망설임 횟수<br>
-      L_I = 기능 호출 지연 | S_conf = 자신감 | S_intr = 방해도
+      T_C = 완료 시간 | Keys = 키 입력 | C_R = 수정 횟수 | E_H = 망설임 횟수 | L_I = 기능 호출 지연<br>
+      S1 = 주체성 | S3 = 유용성 | S4 = 신뢰
     </p>
+    <h3 style="font-size:14px;margin:16px 0 8px">Likert 상세 응답</h3>
+    <table class="sum-table"><thead><tr><th>항목</th><th>응답</th></tr></thead><tbody>${likertDetail}</tbody></table>
     <div style="display:flex;gap:8px;justify-content:center">
       <button class="ph-btn" onclick="exportLog()">데이터 내보내기 (JSON)</button>
       <button class="ph-btn secondary" onclick="exportCSV()">CSV 내보내기</button>
     </div>
-    <p class="sub2" style="margin-top:16px">이제 연구자가 디브리핑 인터뷰를 진행합니다.<br>시스템 사용 경험, 최종 저자성(authorship) 보존 느낌, 개선점 등에 대해 자유롭게 이야기해주세요.</p>`;
+    <p class="sub2" style="margin-top:16px">이제 연구자가 디브리핑 인터뷰를 진행합니다.<br>시스템 사용 경험, 최종 저자성(authorship) 보존 느낌, 개선점 등에 대해 자유롭게 이야기해주세요.</p>
+    </div>`;
   showPhase('ph5');
 }
 
@@ -958,7 +1052,13 @@ function renderMsgs(){
     const me=msg.s==='me';const w=document.createElement('div');
     const se=/^[\p{Emoji_Presentation}\p{Emoji}\uFE0F]{1,4}$/u.test(msg.t.trim())&&msg.t.trim().length<=8;
     w.className=`msg-wrap ${me?'me':'other'}`;
-    let html=msg.t.replace(/([\p{Emoji_Presentation}\p{Emoji}\uFE0F]+)/gu,m=>ED[m]||ED_CTX.formal?.[m]||ED_CTX.peer?.[m]?`<span class="e-click" onclick="showTooltip('${m}')">${m}</span>`:m);
+    const isTask1Highlight=curTaskIdx===0&&!me;
+    let html=msg.t.replace(/([\p{Emoji_Presentation}\p{Emoji}\uFE0F]+)/gu,m=>{
+      const hasData=ED[m]||ED_CTX.formal?.[m]||ED_CTX.peer?.[m];
+      if(!hasData)return m;
+      if(isTask1Highlight&&m==='👀')return `<span class="e-click e-highlight" onclick="showTooltip('${m}')">${m}<span class="e-highlight-arrow">클릭하여 해석 확인</span></span>`;
+      return `<span class="e-click" onclick="showTooltip('${m}')">${m}</span>`;
+    });
     let rxH='';
     if(msg.rx?.length){rxH='<div class="rx-row">'+msg.rx.map(r=>{
       return`<span class="rx-pill" data-e="${r.e}" onclick="showTooltip('${r.e}')" onmouseenter="showRxFloat(this,'${r.e}','${(r.note||'').replace(/'/g,"\\'")}')" onmouseleave="hideRxFloat()">${r.e}${r.c>1?' '+r.c:''}${r.note?`<span class="rx-note">${r.note}</span>`:''}</span>`}).join('')+`<span class="rx-add" onclick="openNote(${idx})">+</span></div>`}
@@ -1029,15 +1129,35 @@ function onInput(){
     if(curChat)curChat._previewChecked=true;
     const se=/^[\p{Emoji_Presentation}\p{Emoji}\uFE0F]{1,4}$/u.test(v)&&v.length<=8;
     if(se){
-      rp.innerHTML=`<div style="margin-bottom:4px">👁 수신자 화면 미리보기</div>
-        <div class="rp-platform">
-          <div class="rp-device"><div class="rp-name">iOS (나)</div><span class="rp-bubble" style="font-size:${CFG.emojiSize?'13px':'32px'}">${v}</span></div>
-          <span style="color:var(--text3)">→</span>
-          <div class="rp-device"><div class="rp-name">Android (수신자)</div><span class="rp-bubble" style="font-size:${CFG.emojiSize?'13px':'36px'};${CFG.emojiSize?'':'background:var(--amber-soft);color:var(--text);border:1px solid var(--amber)'}">${v}</span></div>
+      // Always show both: standard (with Re:Phrase) and enlarged (without / recipient default)
+      const stdSize='13px';
+      const enlargedSize='36px';
+      rp.innerHTML=`<div style="margin-bottom:6px;font-weight:600">👁 수신자 화면 미리보기</div>
+        <div class="rp-platform" style="display:flex;gap:16px;align-items:flex-end;margin-bottom:6px">
+          <div class="rp-device" style="text-align:center">
+            <div class="rp-name" style="margin-bottom:4px">iOS (나) — Re:Phrase 적용</div>
+            <span class="rp-bubble" style="font-size:${stdSize};padding:6px 10px">${v}</span>
+            <div style="font-size:9px;color:var(--green);margin-top:3px">✓ Standard size</div>
+          </div>
+          <span style="color:var(--text3);font-size:16px;margin-bottom:12px">→</span>
+          <div class="rp-device" style="text-align:center;border-color:var(--amber)">
+            <div class="rp-name" style="margin-bottom:4px">Android (수신자) — 기본 렌더링</div>
+            <span class="rp-bubble" style="font-size:${enlargedSize};padding:8px 12px;background:var(--amber-soft);color:var(--text);border:1.5px solid var(--amber)">${v}</span>
+            <div style="font-size:9px;color:var(--amber);margin-top:3px">⚠ 확대 렌더링</div>
+          </div>
         </div>
-        ${!CFG.emojiSize?'<div style="margin-top:4px;color:var(--amber);font-size:10px">⚠ 단일 이모지가 확대 렌더링될 수 있습니다. 텍스트를 추가하면 표준 크기로 표시됩니다.</div>':'<div style="margin-top:4px;color:var(--green);font-size:10px">✓ Standard size 적용 중</div>'}`;
+        <div style="padding:6px 10px;background:var(--amber-soft);border-radius:6px;border-left:3px solid var(--amber);font-size:10px;color:#92400e;line-height:1.5">
+          ⚠ 단일 이모지는 수신자 플랫폼에서 <strong>확대 렌더링</strong>될 수 있습니다.<br>
+          텍스트를 함께 입력하면 표준 크기로 표시됩니다. (예: "${v} 감사합니다")
+        </div>`;
     } else {
-      rp.innerHTML=`<div style="margin-bottom:4px">👁 수신자 화면 미리보기</div><span class="rp-bubble">${v}</span>`;
+      rp.innerHTML=`<div style="margin-bottom:4px;font-weight:600">👁 수신자 화면 미리보기</div>
+        <div style="display:flex;gap:12px;align-items:center">
+          <div class="rp-device" style="text-align:center"><div class="rp-name">iOS (나)</div><span class="rp-bubble">${v}</span></div>
+          <span style="color:var(--text3)">→</span>
+          <div class="rp-device" style="text-align:center"><div class="rp-name">Android (수신자)</div><span class="rp-bubble">${v}</span></div>
+        </div>
+        <div style="margin-top:4px;color:var(--green);font-size:10px">✓ 텍스트 포함 — 표준 크기로 렌더링됩니다</div>`;
     }
     rp.classList.add('show');
   } else rp?.classList.remove('show');
