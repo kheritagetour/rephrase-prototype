@@ -1,0 +1,1180 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Re:Phrase — User Test</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#f8f8f8;--surface:#fff;--surface2:#fafafa;
+  --text:#1a1a1a;--text2:#6b7280;--text3:#9ca3af;
+  --blue:#4f6cff;--blue-soft:#eef1ff;--blue-hover:#3d5ce8;
+  --green:#10b981;--green-soft:#d1fae5;
+  --amber:#f59e0b;--amber-soft:#fef3c7;
+  --red:#ef4444;--red-soft:#fee2e2;
+  --purple:#8b5cf6;
+  --border:#e5e7eb;--border-light:#f3f4f6;
+  --mine:#4f6cff;--other:#fff;
+  --chat-bg:#f5f3f0;
+  --radius:12px;--radius-sm:8px;--radius-lg:16px;
+  --shadow-sm:0 1px 2px rgba(0,0,0,.05);
+  --shadow:0 2px 8px rgba(0,0,0,.08);
+  --shadow-lg:0 8px 30px rgba(0,0,0,.12);
+  --transition:all .15s ease;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Pretendard','Noto Sans KR',system-ui,sans-serif;height:100vh;overflow:hidden;background:var(--bg);color:var(--text);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@keyframes slideDown{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+@keyframes scaleIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
+.anim-fade{animation:fadeIn .2s ease}.anim-up{animation:slideUp .2s ease}.anim-scale{animation:scaleIn .15s ease}
+
+/* ═══ PROGRESS BAR ═══ */
+.prog-bar{position:fixed;top:0;left:0;right:0;z-index:900;height:4px;background:var(--border)}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--blue),var(--purple));transition:width .4s ease;width:0%}
+
+/* ═══ FLOATING TIMER ═══ */
+.float-timer{position:fixed;top:12px;right:16px;z-index:800;background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:4px 12px;font-size:11px;font-weight:600;color:var(--text2);box-shadow:var(--shadow-sm);display:none;gap:6px;align-items:center}
+.float-timer.show{display:flex}
+.float-timer .ft-dot{width:6px;height:6px;border-radius:50%;background:var(--red);animation:pulse 1.5s infinite}
+.float-timer .ft-task{color:var(--blue);font-size:10px}
+
+/* ═══ PHASE SCREENS ═══ */
+.phase{position:fixed;inset:0;z-index:700;background:var(--surface);display:flex;align-items:center;justify-content:center;transition:opacity .4s ease}
+.phase.hide{opacity:0;pointer-events:none}
+.phase-c{max-width:560px;width:100%;padding:40px 32px;text-align:center}
+.phase-c h1{font-size:28px;font-weight:800;margin-bottom:4px;letter-spacing:-.5px}
+.phase-c h1 span{color:var(--blue)}
+.phase-c h2{font-size:22px;font-weight:700;margin-bottom:8px}
+.phase-c .sub{font-size:14px;color:var(--text2);margin-bottom:24px;line-height:1.7}
+.phase-c .sub2{font-size:12px;color:var(--text3);margin-bottom:20px;line-height:1.6}
+
+/* Consent */
+.consent-box{text-align:left;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:20px;max-height:200px;overflow-y:auto;font-size:12px;line-height:1.8;color:var(--text2)}
+.consent-box h4{font-size:13px;color:var(--text);margin-bottom:8px;font-weight:700}
+.consent-check{display:flex;align-items:center;gap:8px;margin-bottom:16px;font-size:13px;font-weight:500;cursor:pointer}
+.consent-check input{width:16px;height:16px;accent-color:var(--blue)}
+
+/* Task briefing */
+.brief-card{text-align:left;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;margin-bottom:20px}
+.brief-card .bc-num{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:var(--blue);color:#fff;font-size:13px;font-weight:700;margin-bottom:10px}
+.brief-card h3{font-size:16px;font-weight:700;margin-bottom:6px}
+.brief-card .bc-scenario{font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:12px;padding:12px;background:var(--amber-soft);border-radius:var(--radius-sm);border-left:3px solid var(--amber)}
+.brief-card .bc-goal{font-size:12px;line-height:1.6}
+.brief-card .bc-goal strong{color:var(--blue)}
+.brief-steps{display:flex;flex-direction:column;gap:6px;margin-top:10px}
+.brief-steps .bs{display:flex;gap:8px;align-items:flex-start;font-size:12px;line-height:1.5}
+.brief-steps .bs-n{width:20px;height:20px;border-radius:50%;background:var(--blue-soft);color:var(--blue);font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+
+/* Likert */
+.likert-section{text-align:left;margin-bottom:20px}
+.likert-section h3{font-size:15px;font-weight:700;margin-bottom:16px;text-align:center}
+.likert-q{margin-bottom:20px}
+.likert-q .lq-label{font-size:13px;font-weight:600;margin-bottom:8px}
+.likert-q .lq-desc{font-size:11px;color:var(--text3);margin-bottom:10px}
+.likert-row{display:flex;gap:6px;justify-content:center}
+.likert-row .lr-btn{width:42px;height:42px;border-radius:50%;border:2px solid var(--border);background:var(--surface);font-size:14px;font-weight:700;cursor:pointer;transition:var(--transition);color:var(--text2)}
+.likert-row .lr-btn:hover{border-color:var(--blue);background:var(--blue-soft);color:var(--blue)}
+.likert-row .lr-btn.sel{border-color:var(--blue);background:var(--blue);color:#fff}
+.likert-labels{display:flex;justify-content:space-between;font-size:9px;color:var(--text3);margin-top:4px;padding:0 4px}
+
+/* Buttons */
+.ph-btn{padding:13px 32px;border-radius:var(--radius);background:var(--blue);color:#fff;font-size:14px;font-weight:600;border:none;cursor:pointer;transition:var(--transition);min-width:160px}
+.ph-btn:hover{background:var(--blue-hover);transform:translateY(-1px)}
+.ph-btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.ph-btn.secondary{background:var(--surface2);color:var(--text);border:1px solid var(--border)}
+.ph-btn.secondary:hover{background:var(--border-light);transform:translateY(-1px)}
+
+/* Calibration */
+.cal-area{text-align:left;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:16px}
+.cal-area textarea{width:100%;height:60px;border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:10px;font-size:13px;font-family:inherit;resize:none;outline:none}
+.cal-area textarea:focus{border-color:var(--blue)}
+.cal-area .cal-label{font-size:11px;color:var(--text2);margin-bottom:6px;font-weight:500}
+.cal-timer{font-size:24px;font-weight:700;color:var(--blue);margin:8px 0}
+
+/* Summary */
+.sum-table{width:100%;border-collapse:collapse;text-align:left;font-size:12px;margin-bottom:16px}
+.sum-table th{background:var(--surface2);padding:8px 12px;font-weight:600;border-bottom:2px solid var(--border)}
+.sum-table td{padding:8px 12px;border-bottom:1px solid var(--border-light)}
+.sum-table tr:hover td{background:var(--blue-soft)}
+
+/* ═══ APP LAYOUT ═══ */
+.app{display:none;height:100vh}
+.app.show{display:flex}
+
+/* Sidebar — task nav */
+.side{width:280px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0}
+.side-hdr{padding:16px 16px 12px;display:flex;align-items:center;gap:8px}
+.side-hdr .s-logo{font-size:16px;font-weight:800;color:var(--text)}.side-hdr .s-logo span{color:var(--blue)}
+.side-hdr .s-badge{margin-left:auto;font-size:9px;padding:3px 8px;border-radius:10px;background:var(--amber-soft);color:#92400e;font-weight:600}
+.task-nav{flex:1;overflow-y:auto;padding:8px}
+.tn-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--radius-sm);margin-bottom:4px;cursor:default;transition:var(--transition);border:1.5px solid transparent}
+.tn-item.active{background:var(--blue-soft);border-color:var(--blue)}
+.tn-item.done{opacity:.6}
+.tn-item.locked{opacity:.35}
+.tn-num{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;border:2px solid var(--border);color:var(--text3);background:var(--surface)}
+.tn-item.active .tn-num{border-color:var(--blue);background:var(--blue);color:#fff}
+.tn-item.done .tn-num{border-color:var(--green);background:var(--green);color:#fff}
+.tn-meta h4{font-size:12px;font-weight:600}
+.tn-meta p{font-size:10px;color:var(--text3)}
+.side-footer{padding:12px;border-top:1px solid var(--border-light)}
+.side-footer .sf-info{font-size:10px;color:var(--text3);text-align:center;line-height:1.5}
+
+/* ═══ MAIN CHAT ═══ */
+.main{flex:1;display:flex;flex-direction:column}
+.main .empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:var(--text3)}
+.main .empty h3{font-size:18px;color:var(--text);font-weight:700}
+.main .empty p{font-size:12px}
+
+.c-hdr{height:54px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:10px}
+.c-hdr .ch-av{width:30px;height:30px;font-size:11px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700}
+.c-hdr h4{font-size:14px;font-weight:600}
+.c-hdr .c-sub{font-size:10px;color:var(--text3)}
+.c-hdr .c-chips{margin-left:auto;display:flex;gap:6px;align-items:center}
+.c-chip{padding:3px 8px;border-radius:6px;font-size:9px;font-weight:600}
+.c-chip.formal{background:var(--amber-soft);color:#92400e}
+.c-chip.ctx{background:var(--blue-soft);color:var(--blue)}
+.c-chip.task{background:var(--green-soft);color:#059669}
+
+/* Task instruction banner */
+.task-banner{padding:10px 20px;background:linear-gradient(135deg,var(--blue-soft),#f0e6ff);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;font-size:12px}
+.task-banner .tb-icon{font-size:18px}
+.task-banner .tb-text{flex:1;line-height:1.5}
+.task-banner .tb-text strong{color:var(--blue)}
+.task-banner .tb-complete{padding:5px 12px;border-radius:6px;background:var(--green);color:#fff;font-size:11px;font-weight:600;border:none;cursor:pointer;transition:var(--transition);white-space:nowrap}
+.task-banner .tb-complete:hover{background:#059669}
+
+/* Messages */
+.msg-area{flex:1;overflow-y:auto;overflow-x:hidden;padding:16px 40px;display:flex;flex-direction:column;gap:3px;background:var(--chat-bg)}
+.day-sep{text-align:center;font-size:10px;color:var(--text3);margin:8px 0;align-self:center}
+.day-sep span{background:rgba(255,255,255,.8);padding:2px 10px;border-radius:10px}
+.msg-wrap{display:flex;flex-direction:column;max-width:68%;animation:slideUp .2s ease;overflow:visible}
+.msg-wrap.me{align-self:flex-end}
+.msg-wrap.other{align-self:flex-start}
+.msg-sender{font-size:10px;font-weight:600;color:var(--text2);margin-bottom:2px;margin-left:2px}
+.bubble{padding:8px 13px;border-radius:var(--radius);font-size:13px;line-height:1.55;position:relative;word-break:break-word;overflow:visible}
+.msg-wrap.me .bubble{background:var(--mine);color:#fff;border-bottom-right-radius:4px}
+.msg-wrap.other .bubble{background:var(--other);color:var(--text);border-bottom-left-radius:4px;box-shadow:var(--shadow-sm)}
+.bubble .b-time{font-size:8px;opacity:.4;text-align:right;margin-top:3px}
+.bubble.emoji-std{font-size:13px}
+.e-click{cursor:pointer;border-radius:3px;transition:var(--transition)}
+.e-click:hover{background:rgba(79,108,255,.12)}
+.e-hint{display:inline-block;font-size:9px;color:var(--blue);margin-top:4px;cursor:pointer;padding:2px 8px;background:var(--blue-soft);border-radius:6px;transition:var(--transition)}
+.e-hint:hover{background:#dde3ff}
+
+/* Reactions */
+.rx-row{display:flex;gap:2px;margin-top:4px;flex-wrap:wrap;position:relative}
+.rx-pill{display:inline-flex;align-items:center;gap:2px;padding:2px 7px;border-radius:10px;background:rgba(0,0,0,.04);font-size:11px;cursor:pointer;transition:var(--transition);border:1px solid transparent;position:relative}
+.rx-pill:hover{background:rgba(0,0,0,.08);border-color:var(--border)}
+.rx-pill .rx-note{font-size:8px;color:var(--text2);max-width:70px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#rxFloat{display:none;position:fixed;z-index:200;background:var(--text);color:#fff;font-size:9px;padding:10px 12px;border-radius:8px;pointer-events:none;box-shadow:var(--shadow-lg);min-width:170px;max-width:220px;text-align:left;line-height:1.6}
+#rxFloat.show{display:block;animation:scaleIn .12s ease}
+#rxFloat .rt-title{font-weight:600;font-size:10px;margin-bottom:3px;text-align:center}
+#rxFloat .rt-bar{display:flex;border-radius:3px;overflow:hidden;height:8px;margin-bottom:4px}
+#rxFloat .rt-bar .rs{height:100%}
+#rxFloat .rt-row{display:flex;justify-content:space-between;font-size:8px;opacity:.8}
+.rx-add{width:22px;height:22px;border-radius:50%;background:rgba(0,0,0,.03);font-size:10px;cursor:pointer;border:1px dashed var(--border);display:inline-flex;align-items:center;justify-content:center;transition:var(--transition)}
+.rx-add:hover{background:rgba(0,0,0,.06)}
+
+.msg-wrap.other{position:relative}
+.qrx{display:none;position:absolute;top:-4px;right:0;background:var(--surface);border-radius:14px;padding:2px 3px;box-shadow:var(--shadow);gap:1px;z-index:10;transform:translateX(calc(100% + 4px))}
+.msg-wrap.other:hover .qrx{display:flex}
+@media(max-width:900px){.qrx{transform:none;right:0;top:-28px}}
+.qrx button{width:24px;height:24px;border:none;background:none;font-size:14px;cursor:pointer;border-radius:50%;transition:var(--transition)}
+.qrx button:hover{background:var(--surface2);transform:scale(1.15)}
+
+/* ═══ COMPOSER ═══ */
+.composer{background:var(--surface);border-top:1px solid var(--border)}
+.f-slider{display:none;padding:8px 20px;align-items:center;gap:10px;border-bottom:1px solid var(--border-light)}
+.f-slider.show{display:flex}
+.f-slider .fs-label{font-size:10px;font-weight:600;white-space:nowrap}
+.f-slider .fs-label.casual{color:var(--green)}
+.f-slider .fs-label.formal{color:var(--blue)}
+.f-slider input[type=range]{flex:1;accent-color:var(--blue);cursor:pointer;height:4px}
+.f-slider .fs-level{font-size:12px;min-width:24px;text-align:center}
+
+.tone-sug{display:none;padding:8px 20px;position:relative}
+.tone-sug.show{display:block;animation:slideDown .15s ease}
+.tone-sug .ts-close{position:absolute;top:6px;right:16px;font-size:14px;cursor:pointer;color:var(--text3);line-height:1;width:20px;height:20px;display:flex;align-items:center;justify-content:center;border-radius:4px}
+.tone-sug .ts-close:hover{background:var(--surface2);color:var(--text)}
+.tone-sug .ts-label{font-size:10px;color:var(--blue);font-weight:600;margin-bottom:4px}
+.tone-sug .ts-main{padding:8px 12px;background:var(--blue-soft);border:1.5px solid rgba(79,108,255,.2);border-radius:var(--radius-sm);font-size:13px;cursor:pointer;transition:var(--transition);margin-bottom:4px;display:flex;justify-content:space-between;align-items:center}
+.tone-sug .ts-main:hover{background:#dde3ff;border-color:var(--blue)}
+.tone-sug .ts-main .ts-hint{font-size:9px;color:var(--blue);opacity:.5}
+.tone-sug .ts-alts{display:flex;gap:4px;overflow-x:auto;padding-bottom:2px}
+.tone-sug .ts-alt{padding:5px 10px;border-radius:var(--radius-sm);font-size:11px;border:1px solid var(--border);color:var(--text2);background:var(--surface);cursor:pointer;white-space:nowrap;flex-shrink:0;transition:var(--transition)}
+.tone-sug .ts-alt:hover{border-color:var(--blue);color:var(--blue)}
+.tone-sug .ts-compare{display:flex;gap:3px;margin-top:6px;overflow-x:auto;padding-bottom:2px}
+.tone-sug .ts-cmp{padding:4px 8px;border-radius:6px;font-size:10px;border:1px solid var(--border-light);cursor:pointer;white-space:nowrap;flex-shrink:0;transition:var(--transition)}
+.tone-sug .ts-cmp:hover{border-color:var(--blue);background:var(--blue-soft)}
+
+.e-rec{display:none;padding:6px 20px;gap:6px;align-items:center;border-bottom:1px solid var(--border-light);background:var(--surface2)}
+.e-rec.show{display:flex;animation:fadeIn .15s}
+.e-rec .er-label{font-size:9px;color:var(--blue);font-weight:600;flex-shrink:0}
+.e-rec .er-btn{width:32px;height:32px;border-radius:var(--radius-sm);font-size:18px;cursor:pointer;border:1px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;transition:var(--transition);position:relative}
+.e-rec .er-btn:hover{background:var(--blue-soft);border-color:var(--blue);transform:scale(1.1)}
+.e-rec .er-btn .er-tip{display:none;position:absolute;bottom:calc(100% + 4px);left:50%;transform:translateX(-50%);background:var(--text);color:#fff;font-size:9px;padding:3px 7px;border-radius:4px;white-space:nowrap;pointer-events:none}
+.e-rec .er-btn:hover .er-tip{display:block}
+.e-rec .er-more{font-size:10px;color:var(--text3);margin-left:auto;cursor:pointer}
+.e-rec .er-more:hover{color:var(--blue)}
+
+.warn{display:none;padding:5px 20px;font-size:11px;color:#92400e;background:var(--amber-soft);align-items:center;gap:6px;border-bottom:1px solid #fde68a}
+.warn.show{display:flex;animation:fadeIn .15s}
+.warn .w-close{margin-left:auto;font-size:10px;padding:2px 6px;border-radius:4px;border:1px solid #d97706;background:none;color:#d97706;cursor:pointer}
+
+.tok-bar{display:none;padding:5px 16px;gap:3px;flex-wrap:wrap;border-bottom:1px solid var(--border-light)}
+.tok-bar.show{display:flex}
+.tok{padding:4px 9px;border-radius:6px;font-size:10px;border:1px solid var(--border);background:var(--surface);cursor:pointer;display:inline-flex;align-items:center;gap:3px;transition:var(--transition);font-weight:500}
+.tok:hover{border-color:var(--blue);background:var(--blue-soft)}
+.tok.status{border-color:var(--amber);background:var(--amber-soft);color:#92400e}
+.tok.status:hover{background:#fde68a}
+.tok-sep{width:1px;height:16px;background:var(--border);margin:0 2px}
+
+.rp{display:none;padding:5px 20px;background:var(--surface2);border-top:1px solid var(--border-light);font-size:10px;color:var(--text3)}
+.rp.show{display:block}
+.rp .rp-bubble{display:inline-block;padding:4px 8px;border-radius:8px;background:var(--mine);color:#fff;font-size:12px;margin:2px 0}
+.rp .rp-platform{display:inline-flex;gap:12px;margin-top:4px;align-items:center}
+.rp .rp-device{padding:4px 8px;border-radius:6px;background:var(--surface);border:1px solid var(--border);font-size:10px;text-align:center}
+.rp .rp-device .rp-name{font-size:8px;color:var(--text3);margin-bottom:2px}
+
+.input-row{display:flex;align-items:flex-end;padding:8px 12px 12px;gap:6px}
+.input-row textarea{flex:1;resize:none;border:1.5px solid var(--border);border-radius:20px;padding:8px 14px;font-size:13px;font-family:inherit;outline:none;min-height:36px;max-height:100px;transition:var(--transition);line-height:1.4}
+.input-row textarea:focus{border-color:var(--blue)}
+.i-btn{width:34px;height:34px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;transition:var(--transition)}
+.i-btn.emoji{background:none;border:1.5px solid var(--border);font-size:18px}
+.i-btn.emoji:hover{border-color:var(--blue);background:var(--blue-soft)}
+.i-btn.send{background:var(--blue);color:#fff;font-size:14px}
+.i-btn.send:hover{background:var(--blue-hover)}
+
+/* ═══ EMOJI PICKER ═══ */
+.picker{display:none;border-top:1px solid var(--border);background:var(--surface);max-height:200px;overflow-y:auto}
+.picker.show{display:block;animation:slideUp .15s}
+.pk-tabs{display:flex;border-bottom:1px solid var(--border-light);padding:0 12px}
+.pk-tab{padding:8px 14px;font-size:11px;font-weight:600;cursor:pointer;color:var(--text3);border-bottom:2px solid transparent;transition:var(--transition)}
+.pk-tab.act{color:var(--blue);border-bottom-color:var(--blue)}
+.pk-tab:hover{color:var(--text)}
+.pk-body{padding:8px 12px}
+.pk-sec{font-size:9px;font-weight:600;color:var(--text3);margin:8px 0 4px;text-transform:uppercase;letter-spacing:.3px}
+.pk-sec:first-child{margin-top:0}
+.pk-grid{display:flex;flex-wrap:wrap;gap:1px}
+.pk-cell{width:34px;height:34px;display:flex;align-items:center;justify-content:center;font-size:20px;border-radius:var(--radius-sm);cursor:pointer;position:relative;transition:var(--transition)}
+.pk-cell:hover{background:var(--surface2);transform:scale(1.1)}
+.vdot{position:absolute;top:1px;right:2px;width:6px;height:6px;border-radius:50%;border:1.5px solid var(--surface)}
+.vdot.g{background:var(--green)}.vdot.y{background:var(--amber)}.vdot.r{background:var(--red)}
+.pk-legend{display:flex;gap:12px;margin-top:8px;padding:4px;font-size:9px;color:var(--text3)}
+.pk-legend span{display:flex;align-items:center;gap:3px}
+.pk-legend .dot{width:5px;height:5px;border-radius:50%}
+
+/* ═══ OVERLAYS ═══ */
+.ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.3);z-index:200;align-items:center;justify-content:center;backdrop-filter:blur(2px)}
+.ov.show{display:flex}
+.ov-card{background:var(--surface);border-radius:var(--radius-lg);padding:24px;width:320px;box-shadow:var(--shadow-lg);animation:scaleIn .2s ease}
+.ov-card .tt-emoji{font-size:52px;text-align:center;margin-bottom:4px}
+.ov-card .tt-meaning{font-size:16px;font-weight:700;text-align:center}
+.ov-card .tt-ctx{font-size:11px;color:var(--text2);text-align:center;margin:2px 0 12px}
+.dist-bar{display:flex;border-radius:var(--radius-sm);overflow:hidden;height:26px;margin-bottom:8px}
+.dist-bar .seg{display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#fff;transition:width .3s}
+.seg.pos{background:var(--green)}.seg.neu{background:var(--amber)}.seg.neg{background:var(--red)}
+.dist-labels{display:flex;gap:4px;flex-wrap:wrap;justify-content:center;margin-bottom:8px}
+.dl{font-size:9px;padding:2px 7px;border-radius:5px;font-weight:500}
+.dl.pos{background:var(--green-soft);color:#065f46}.dl.neu{background:var(--amber-soft);color:#92400e}.dl.neg{background:var(--red-soft);color:#991b1b}
+.tt-cultural{margin-top:8px;padding:10px;border-radius:var(--radius-sm);background:var(--amber-soft);font-size:10px;color:#92400e;text-align:left;line-height:1.5}
+.tt-a11y{margin-top:6px;padding:10px;border-radius:var(--radius-sm);background:var(--blue-soft);font-size:10px;color:var(--blue);text-align:left;line-height:1.5}
+.tt-close{margin-top:12px;width:100%;padding:8px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--surface);font-size:12px;cursor:pointer;font-weight:500;transition:var(--transition)}
+.tt-close:hover{background:var(--surface2)}
+
+.ov-card.note{text-align:left}
+.ov-card.note h4{font-size:14px;font-weight:700;margin-bottom:8px}
+.ov-card.note .n-emojis{display:flex;gap:3px;margin-bottom:10px;flex-wrap:wrap}
+.ov-card.note .n-emojis button{padding:6px 8px;border-radius:var(--radius-sm);border:1.5px solid var(--border);background:var(--surface);font-size:16px;cursor:pointer;transition:var(--transition)}
+.ov-card.note .n-emojis button:hover{border-color:var(--blue)}
+.ov-card.note .n-emojis button.sel{border-color:var(--blue);background:var(--blue-soft)}
+.ov-card.note input{width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:12px;outline:none;margin-bottom:12px;font-family:inherit}
+.ov-card.note input:focus{border-color:var(--blue)}
+.n-btns{display:flex;gap:6px;justify-content:flex-end}
+.n-btns button{padding:7px 16px;border-radius:var(--radius-sm);font-size:12px;font-weight:600;cursor:pointer;border:none;transition:var(--transition)}
+.n-btns .n-cancel{background:var(--surface2);color:var(--text)}
+.n-btns .n-ok{background:var(--blue);color:#fff}
+.n-btns .n-ok:hover{background:var(--blue-hover)}
+
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:#d1d5db;border-radius:2px}
+</style>
+</head>
+<body>
+
+<!-- Progress bar -->
+<div class="prog-bar"><div class="prog-fill" id="progFill"></div></div>
+
+<!-- Floating timer -->
+<div class="float-timer" id="floatTimer"><span class="ft-dot"></span><span id="ftTime">00:00</span><span class="ft-task" id="ftTask"></span></div>
+
+<!-- Floating reaction tooltip -->
+<div id="rxFloat"></div>
+
+<!-- Overlays -->
+<div class="ov" id="ttOv" onclick="if(event.target===this)this.classList.remove('show')"><div class="ov-card" id="ttCard"></div></div>
+<div class="ov" id="noteOv" onclick="if(event.target===this)this.classList.remove('show')"><div class="ov-card note" id="noteCard"></div></div>
+
+<!-- ═══ PHASE 0: CONSENT ═══ -->
+<div class="phase" id="ph0">
+  <div class="phase-c">
+    <h1>Re<span>:</span>Phrase</h1>
+    <p class="sub">사용성 평가 테스트</p>
+    <div class="consent-box">
+      <h4>연구 참여 동의서</h4>
+      <p>본 테스트는 KAIST 문화기술대학원 GCT50005 HCI 수업의 Re:Phrase 프로젝트 사용성 평가입니다.</p>
+      <p><strong>목적:</strong> Re:Phrase 시스템이 메시징 환경에서 이모지 해석, 톤 조절, 렌더링 미리보기, 업무 상태 표시 기능을 통해 커뮤니케이션 마찰을 줄이는지 평가합니다.</p>
+      <p><strong>소요 시간:</strong> 약 20-30분 (캘리브레이션 3분 + 태스크 4개 + 사후 설문)</p>
+      <p><strong>수집 데이터:</strong> 키 입력 횟수, 작업 완료 시간, 텍스트 수정 횟수, 망설임 구간(3초 이상 비활동), 7점 Likert 척도 응답</p>
+      <p><strong>개인정보:</strong> 참여자 ID만 기록되며, 개인 식별 정보는 수집하지 않습니다. 모든 데이터는 연구 목적으로만 사용됩니다.</p>
+      <p><strong>자발적 참여:</strong> 참여는 자발적이며, 언제든지 중단할 수 있습니다.</p>
+    </div>
+    <label class="consent-check"><input type="checkbox" id="consentCb" onchange="document.getElementById('consentBtn').disabled=!this.checked"> 위 내용을 읽고 이해했으며, 연구 참여에 동의합니다.</label>
+    <div style="display:flex;gap:8px;flex-direction:column;align-items:center">
+      <div style="display:flex;gap:8px;width:100%;margin-bottom:8px">
+        <input type="text" id="pidInput" placeholder="참여자 ID (예: P01)" style="flex:1;padding:10px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:13px;outline:none;font-family:inherit">
+      </div>
+      <button class="ph-btn" id="consentBtn" disabled onclick="startCalibration()">참여 시작</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ PHASE 1: CALIBRATION ═══ -->
+<div class="phase hide" id="ph1">
+  <div class="phase-c">
+    <h2>Baseline Calibration</h2>
+    <p class="sub">먼저 평소 타이핑 속도와 이모지 사용 패턴을 측정합니다.<br>3분간 자유롭게 아래 내용을 작성해주세요.</p>
+    <div class="cal-area">
+      <div class="cal-label">아래 텍스트를 자유롭게 따라 쳐주세요:</div>
+      <div style="padding:10px;background:var(--amber-soft);border-radius:var(--radius-sm);font-size:12px;margin-bottom:8px;color:#92400e;line-height:1.7">"교수님, 말씀하신 보고서 확인했습니다. 데이터 분석 부분은 내일까지 수정 반영하겠습니다. 감사합니다 🙏"</div>
+      <textarea id="calInput" placeholder="위 문장을 여기에 따라 쳐주세요..." oninput="logCal()"></textarea>
+    </div>
+    <div class="cal-timer" id="calTimer">03:00</div>
+    <p class="sub2">남은 시간이 끝나면 자동으로 다음으로 넘어갑니다.</p>
+    <button class="ph-btn secondary" onclick="skipCal()">건너뛰기</button>
+  </div>
+</div>
+
+<!-- ═══ PHASE 2: TASK BRIEFING ═══ -->
+<div class="phase hide" id="ph2">
+  <div class="phase-c" id="briefContent"></div>
+</div>
+
+<!-- ═══ PHASE 3: CHAT (main app) ═══ -->
+<div class="app" id="app">
+  <div class="side">
+    <div class="side-hdr"><div class="s-logo">Re<span>:</span>Phrase</div><span class="s-badge">User Test</span></div>
+    <div class="task-nav" id="taskNav"></div>
+    <div class="side-footer"><div class="sf-info">Think-Aloud Protocol<br>생각을 소리 내어 말해주세요</div></div>
+  </div>
+  <div class="main" id="mainArea"><div class="empty"><h3>Re:Phrase</h3><p>태스크를 시작합니다...</p></div></div>
+</div>
+
+<!-- ═══ PHASE 4: LIKERT ═══ -->
+<div class="phase hide" id="ph4">
+  <div class="phase-c" id="likertContent"></div>
+</div>
+
+<!-- ═══ PHASE 5: DEBRIEF ═══ -->
+<div class="phase hide" id="ph5">
+  <div class="phase-c" id="debriefContent"></div>
+</div>
+
+<script>
+/* ══════════════════════════════════════════════════════
+   RE:PHRASE — USER TEST ENGINE
+   ══════════════════════════════════════════════════════ */
+
+// ── Config ──
+const CFG={emojiSize:true,panelSwitch:true,renderPreview:true,toneAid:true,emojiWarn:true};
+
+// ── Emoji Data ──
+const ED_CTX={
+  formal:{
+    '🙂':{v:'r',m:'형식적 마무리 또는 불만',d:[{l:'형식적 마무리',p:40,t:'neu'},{l:'불만/냉소',p:35,t:'neg'},{l:'진짜 미소',p:25,t:'pos'}]},
+    '👍':{v:'y',m:'확인 — 무성의할 수 있음',d:[{l:'단순 확인',p:50,t:'neu'},{l:'긍정',p:35,t:'pos'},{l:'귀찮음',p:15,t:'neg'}]},
+    '🤔':{v:'r',m:'재검토 요청 가능성',d:[{l:'수정 요청',p:45,t:'neg'},{l:'궁금',p:35,t:'neu'},{l:'흥미',p:20,t:'pos'}]},
+    '🙃':{v:'r',m:'불만 또는 비꼼',d:[{l:'짜증/불만',p:50,t:'neg'},{l:'체념',p:30,t:'neu'},{l:'장난',p:20,t:'pos'}]},
+    '👀':{v:'r',m:'확인 중 또는 감시',d:[{l:'확인 중',p:30,t:'neu'},{l:'주시/감시',p:40,t:'neg'},{l:'관심',p:30,t:'pos'}]},
+  },
+  peer:{
+    '🙂':{v:'r',m:'"OK" 또는 비꼼',d:[{l:'OK/친근',p:35,t:'pos'},{l:'어색',p:30,t:'neu'},{l:'비꼼',p:35,t:'neg'}]},
+    '👀':{v:'r',m:'관심 또는 "지켜보겠다"',d:[{l:'흥미',p:35,t:'pos'},{l:'지켜봄',p:40,t:'neu'},{l:'압박',p:25,t:'neg'}]},
+    '😅':{v:'y',m:'미안 또는 짜증',d:[{l:'진짜 민망',p:45,t:'neu'},{l:'가볍게',p:30,t:'pos'},{l:'짜증',p:25,t:'neg'}]},
+    '🙃':{v:'r',m:'장난 또는 빈정',d:[{l:'장난',p:35,t:'pos'},{l:'체념',p:25,t:'neu'},{l:'빈정거림',p:40,t:'neg'}]},
+  },
+  personal:{
+    '😂':{v:'g',m:'ㅋㅋㅋ 진짜 웃김',d:[{l:'진짜 웃김',p:70,t:'pos'},{l:'리액션',p:25,t:'neu'},{l:'비웃음',p:5,t:'neg'}]},
+    '🙂':{v:'y',m:'"할 말 없다" 또는 미소',d:[{l:'미소',p:35,t:'pos'},{l:'할 말 없음',p:40,t:'neu'},{l:'삐짐',p:25,t:'neg'}]},
+  },
+  cultural:{
+    '🙏':{v:'r',m:'기도? 감사? high-five?',d:[{l:'감사',p:40,t:'pos'},{l:'기도',p:25,t:'neu'},{l:'racism 오해',p:35,t:'neg'}],c:'파리 협업 시 racism으로, 일부 문화권에서 high-five로 해석됨'},
+    '👍':{v:'r',m:'OK 또는 포기/모욕',d:[{l:'OK',p:45,t:'pos'},{l:'형식적',p:25,t:'neu'},{l:'포기/모욕',p:30,t:'neg'}],c:'중동·서아프리카에서 부정적 제스처'},
+    '🙂':{v:'r',m:'문화별 미소 해석 상이',d:[{l:'친근',p:30,t:'pos'},{l:'문화 차이',p:40,t:'neu'},{l:'passive-aggressive',p:30,t:'neg'}],c:'서양에서 passive-aggressive 신호로 빈번하게 사용'},
+  },
+};
+const ED={
+  '✔':{v:'g',m:'확인 · 완료',d:[{l:'완료',p:85,t:'pos'},{l:'무성의',p:10,t:'neu'},{l:'짜증',p:5,t:'neg'}],a:'작업 완료를 확인하는 기능적 신호'},
+  '👍':{v:'y',m:'좋아요 · 동의',d:[{l:'긍정',p:60,t:'pos'},{l:'무관심',p:25,t:'neu'},{l:'비꼼',p:15,t:'neg'}],a:'동의 또는 승인의 표시'},
+  '🙂':{v:'r',m:'미소 · 또는 냉소?',d:[{l:'친근',p:35,t:'pos'},{l:'어색/할 말 없음',p:35,t:'neu'},{l:'냉소/비꼼',p:30,t:'neg'}],a:'표면적 미소 — 맥락에 따라 냉소 가능'},
+  '🙃':{v:'r',m:'뒤집힌 미소 · 짜증?',d:[{l:'장난',p:30,t:'pos'},{l:'체념',p:30,t:'neu'},{l:'짜증/빈정',p:40,t:'neg'}],a:'뒤집힌 미소 — 짜증이나 빈정의 신호'},
+  '🙏':{v:'y',m:'감사 · 부탁 · 기도?',d:[{l:'감사',p:50,t:'pos'},{l:'부탁',p:35,t:'neu'},{l:'문화차이',p:15,t:'neg'}],c:'일부 문화권에서 high-five 또는 부정적 해석',a:'감사 또는 부탁 — 문화권별 해석 차이'},
+  '😅':{v:'y',m:'곤란 · 민망',d:[{l:'민망',p:45,t:'neu'},{l:'가볍게',p:30,t:'pos'},{l:'짜증',p:25,t:'neg'}],a:'곤란한 상황의 가벼운 표현'},
+  '👀':{v:'r',m:'관심? 감시? 의심?',d:[{l:'관심',p:35,t:'pos'},{l:'지켜봄',p:40,t:'neu'},{l:'의심',p:25,t:'neg'}],a:'주시 또는 관심 — 의심 가능'},
+  '😂':{v:'r',m:'웃김 · 또는 조롱',d:[{l:'웃김',p:40,t:'pos'},{l:'과장',p:30,t:'neu'},{l:'조롱',p:30,t:'neg'}],a:'강한 웃음 — 진심 또는 조롱'},
+  '😊':{v:'g',m:'따뜻한 미소',d:[{l:'따뜻함',p:80,t:'pos'},{l:'형식적',p:15,t:'neu'},{l:'어색',p:5,t:'neg'}],a:'따뜻한 감정'},
+  '🔥':{v:'g',m:'멋짐 · 열정',d:[{l:'칭찬',p:75,t:'pos'},{l:'열정',p:20,t:'pos'},{l:'과장',p:5,t:'neu'}],a:'칭찬 또는 열정'},
+  '❤️':{v:'g',m:'사랑 · 좋아요',d:[{l:'애정',p:70,t:'pos'},{l:'좋아요',p:25,t:'pos'},{l:'부담',p:5,t:'neu'}],a:'애정 또는 강한 호감'},
+  '💀':{v:'r',m:'웃겨서 죽겠 · 충격',d:[{l:'웃김',p:45,t:'pos'},{l:'충격',p:30,t:'neu'},{l:'부정',p:25,t:'neg'}],a:'극단적 웃음 또는 충격'},
+  '🤔':{v:'y',m:'생각 중 · 의심?',d:[{l:'궁금',p:50,t:'neu'},{l:'의심',p:30,t:'neg'},{l:'흥미',p:20,t:'pos'}],a:'생각 중이거나 의문'},
+  '🥲':{v:'r',m:'웃지만 슬픔',d:[{l:'감동',p:35,t:'pos'},{l:'괜찮은 척',p:40,t:'neu'},{l:'서운함',p:25,t:'neg'}],a:'웃지만 슬픈 감정'},
+  '😵':{v:'r',m:'녹아내림 · 지침',d:[{l:'지침',p:40,t:'neu'},{l:'부끄러움',p:30,t:'pos'},{l:'포기',p:30,t:'neg'}],a:'지쳐서 녹아내리는 상태'},
+  '🙇':{v:'y',m:'경례 · 알겠습니다',d:[{l:'수행',p:60,t:'pos'},{l:'형식적',p:25,t:'neu'},{l:'비꼼',p:15,t:'neg'}],a:'알겠습니다/수행하겠습니다'},
+};
+
+function getED(e){if(!curChat)return ED[e];const ctx=curChat.type==='personal'?'personal':curChat.formal?'formal':curChat.cultural?'cultural':'peer';return ED_CTX[ctx]?.[e]||ED[e]}
+
+const WE=['✔','👍','🙏','🙂','🙃','😊','🤔','😅','👀','🙇','🥲'];
+const PE=['😂','❤️','🔥','💀','😊','😭','🙂','🙃','😅','👀','🤔','🥲','😵'];
+
+const EREC=[
+  {k:['감사','고마','ㄳ'],e:['🙏','😊','🙇','❤️'],t:'감사'},
+  {k:['수고','고생'],e:['👍','🙏','😊','🙇'],t:'격려'},
+  {k:['확인','알겠','봤'],e:['✔','👍','🙇'],t:'확인'},
+  {k:['완료','done'],e:['✅','✔','🔥'],t:'완료'},
+  {k:['ㅋㅋ','ㅎㅎ','웃','재밌'],e:['😂','💀','🔥'],t:'웃김'},
+  {k:['미안','죄송','sorry'],e:['🙏','😅','🥲'],t:'사과'},
+  {k:['좋','굿','최고','멋'],e:['👍','🔥','❤️'],t:'칭찬'},
+  {k:['넵','네','ㅇㅇ','ㅇㅋ'],e:['👍','✔','🙇'],t:'확인'},
+  {k:['thank','thx'],e:['🙏','😊','❤️'],t:'Thanks'},
+  {k:['ok','sure','got it'],e:['👍','✔'],t:'OK'},
+  {k:['지금은','어려','못'],e:['😅','🙏','🥲'],t:'거절/곤란'},
+];
+
+// ── Tone Transformation ──
+function isEng(t){return /^[a-zA-Z0-9\s.,!?'"()\-]+$/.test(t.replace(/[\p{Emoji}\uFE0F]/gu,'').trim())}
+const TK=[
+  {m:v=>['네','넵','ㅇㅇ','ㅇㅋ','응'].some(s=>v.includes(s)),i:'확인',
+   L:['ㅇㅋ','넵!','네, 확인했습니다!','네, 알겠습니다. 확인하겠습니다.','네, 말씀 감사합니다. 확인 후 바로 진행하겠습니다.'],
+   A:[['ㅇㅇ'],['알겠어요~'],['알겠습니다!'],['검토 후 말씀드리겠습니다.'],['검토 후 회신드리겠습니다.']]},
+  {m:v=>['감사','고마','ㄳ'].some(s=>v.includes(s)),i:'감사',
+   L:['ㄳ','고마워요!','감사합니다!','감사합니다, 참고하겠습니다.','진심으로 감사드립니다. 반영하겠습니다.'],
+   A:[['ㄱㅅ!'],['감사!'],['감사합니다~'],['말씀 감사드립니다.'],['감사드립니다.']]},
+  {m:v=>['죄송','미안','ㅈㅅ'].some(s=>v.includes(s)),i:'사과',
+   L:['ㅈㅅ','미안해요!','죄송합니다!','죄송합니다, 바로 수정하겠습니다.','죄송합니다. 빠르게 보완하겠습니다.'],
+   A:[['미안~'],['미안해요~'],['죄송해요!'],['빠르게 반영하겠습니다.'],['즉시 조치하겠습니다.']]},
+  {m:v=>['확인','봤','체크'].some(s=>v.includes(s)),i:'확인',
+   L:['ㅇㅇ 봤어','확인했어요!','확인했습니다!','확인했습니다, 검토 후 말씀드리겠습니다.','확인 완료했습니다. 의견 전달드리겠습니다.'],
+   A:[['봤어~'],['봤어요!'],['검토했습니다!'],['검토 완료했습니다.'],['회신드리겠습니다.']]},
+  {m:v=>['못','어려','지금은'].some(s=>v.includes(s)),i:'거절/유보',
+   L:['못해','지금은 어려워요~','지금은 어렵습니다.','죄송합니다, 현재 일정상 어렵습니다.','죄송합니다. 현재 상황상 즉시 처리가 어려운 점 양해 부탁드립니다.'],
+   A:[['나중에~'],['조금 뒤에요!'],['확인 후 말씀드리겠습니다.'],['일정 조율 후 회신드리겠습니다.'],['양해 부탁드립니다.']]},
+  {m:v=>['보내','제출','올리','공유'].some(s=>v.includes(s)),i:'전달',
+   L:['보냈어','보냈어요!','보내드렸습니다!','보내드렸습니다, 확인 부탁드립니다.','보내드렸습니다. 피드백 부탁드리겠습니다.'],
+   A:[['올렸어~'],['올렸어요!'],['전달드렸습니다!'],['확인 부탁드립니다.'],['검토 부탁드리겠습니다.']]},
+  {m:()=>true,i:'일반',
+   L:[v=>{const r=v.replace(/합니다/g,'해').replace(/하세요/g,'해').replace(/겠습니다/g,'할게').replace(/드립니다/g,'줄게');return r!==v?r:v.length>3?v+'~':v},
+      v=>{const r=v.replace(/합니다/g,'해요').replace(/드립니다/g,'드릴게요').replace(/하세요/g,'해요');return r!==v?r:v.length>3?v+'요':v},
+      v=>v,
+      v=>v.length>2?'네, '+v.replace(/[.!?~]*$/,'')+'. 확인하겠습니다.':v,
+      v=>v.length>2?'말씀하신 내용 확인했습니다. 검토 후 회신드리겠습니다.':v],
+   A:[['ㅇㅋ!'],['알겠어요~'],['확인했습니다!'],['감사합니다.'],['진행하겠습니다.']]},
+];
+const TE=[
+  {m:v=>['ok','yes','sure','got it','yep'].some(s=>v.includes(s)),i:'Confirm',
+   L:['k','Sure!','Got it, thanks!','Understood. I\'ll take care of it.','Thank you. I\'ll proceed accordingly.'],
+   A:[['yep'],['Okay!'],['Will do!'],['I\'ll follow up.'],['I\'ll handle this promptly.']]},
+  {m:v=>['can\'t','not now','difficult','later'].some(s=>v.includes(s)),i:'Decline',
+   L:['nah','Not right now.','I\'m sorry, I can\'t at the moment.','My apologies, my current schedule doesn\'t allow it.','I sincerely apologize; given my current commitments, I\'m unable to accommodate this immediately.'],
+   A:[['later'],['Sorry, not now.'],['I\'ll get back to you.'],['Let me check my schedule.'],['I\'ll coordinate and follow up.']]},
+  {m:v=>['thank','thx'].some(s=>v.includes(s)),i:'Thanks',
+   L:['thx','Thanks!','Thank you!','Thank you, noted.','Thank you so much. I truly appreciate it.'],
+   A:[['ty!'],['Thanks a lot!'],['Appreciate it!'],['Much appreciated.'],['Your guidance is invaluable.']]},
+  {m:()=>true,i:'General',
+   L:[v=>v.toLowerCase(),v=>v+'!',v=>v,v=>'Understood. '+v.replace(/[.!?]*$/,'.')+' I\'ll handle it.',v=>'Thank you. I\'ve noted the details and will follow up.'],
+   A:[['cool'],['sounds good!'],['noted!'],['Thank you.'],['I\'ll proceed as discussed.']]},
+];
+
+// ══════════════════════════════════════
+// TASK SCENARIOS
+// ══════════════════════════════════════
+const TASKS=[
+  { id:'t1',
+    title:'이모지 해석 확인',
+    titleEn:'Pragmatic Decoding',
+    func:'F1',
+    brief:{
+      scenario:'밤 10시 30분, 출퇴근 지하철 안에서 지도교수님으로부터 메시지를 받았습니다. 교수님이 보낸 이모지의 의미가 불확실합니다.',
+      goal:'교수님이 보낸 <strong>애매한 이모지의 맥락별 해석 분포</strong>를 확인하고, 어떤 뜻인지 파악해보세요.',
+      steps:['메시지 속 이모지를 클릭하여 해석 스펙트럼을 확인하세요','긍정/중립/부정 분포를 읽고 맥락을 파악하세요','해석을 확인한 후 적절한 답장을 작성하여 전송하세요']
+    },
+    chat:{id:'t1_prof',name:'김교수님',av:'김',col:'#6366f1',type:'work',formal:true,fLv:5,cultural:false,
+      msgs:[
+        {s:'김교수님',t:'지은 씨, 아까 올린 프레임워크 보고서 봤어요.',tm:'22:28'},
+        {s:'김교수님',t:'데이터 포인트 부분 다듬어서 자정까지 다시 보내줄 수 있어요?',tm:'22:29'},
+        {s:'김교수님',t:'👀',tm:'22:30'},
+      ]},
+    completionCheck:c=>c.msgs.some(m=>m.s==='me')&&c._tooltipViewed,
+  },
+  { id:'t2',
+    title:'톤 조절 답장',
+    titleEn:'Tone Modification',
+    func:'F2',
+    brief:{
+      scenario:'이팀장님이 긴급 업무 지시를 보냈습니다. 지금은 퇴근 후 이동 중이라 즉시 처리가 어렵습니다. 짧고 직접적인 답변("지금은 못해요")을 치되, 시스템의 톤 조절 기능을 사용하여 정중하게 바꿔보세요.',
+      goal:'짧고 직접적인 답변을 입력한 뒤, <strong>톤 슬라이더와 제안을 사용</strong>하여 정중한 대안을 선택하고 전송하세요.',
+      steps:['"지금은 못해요" 또는 비슷한 짧은 답변을 입력하세요','편안↔정중 슬라이더를 조절하며 톤 변화를 확인하세요','마음에 드는 정중한 대안을 클릭하여 적용 후 전송하세요']
+    },
+    chat:{id:'t2_boss',name:'이팀장님',av:'이',col:'#ec4899',type:'work',formal:true,fLv:4,cultural:false,
+      msgs:[
+        {s:'이팀장님',t:'지금 급한 건이 있어요.',tm:'21:45'},
+        {s:'이팀장님',t:'내일 아침 클라이언트 미팅 자료에 최신 수치 반영해서 오늘 밤까지 수정본 보내주세요.',tm:'21:46'},
+        {s:'이팀장님',t:'가능하죠? 👍',tm:'21:47'},
+      ]},
+    completionCheck:c=>c.msgs.some(m=>m.s==='me')&&c._toneUsed,
+  },
+  { id:'t3',
+    title:'이모지 렌더링 미리보기',
+    titleEn:'Cross-Platform Preview',
+    func:'F3',
+    brief:{
+      scenario:'교수님에게 확인 메시지를 보내려고 합니다. 이모지 하나만 보내면 플랫폼에 따라 크게 확대될 수 있어 의도와 다른 느낌을 줄 수 있습니다.',
+      goal:'이모지를 입력하고 <strong>렌더링 미리보기</strong>로 수신자 화면에서 어떻게 보이는지 확인한 뒤, 경고가 있으면 이를 참고하여 전송하세요.',
+      steps:['🙏 또는 👍 이모지만 입력해보세요','하단 미리보기에서 렌더링 크기를 확인하세요','경고가 표시되면 내용을 읽고, 필요시 텍스트를 추가하여 전송하세요']
+    },
+    chat:{id:'t3_render',name:'김교수님',av:'김',col:'#6366f1',type:'work',formal:true,fLv:5,cultural:false,
+      msgs:[
+        {s:'김교수님',t:'수정본 잘 받았습니다.',tm:'23:50'},
+        {s:'김교수님',t:'내일 오전에 피드백 드릴게요. 수고했어요.',tm:'23:51'},
+      ]},
+    completionCheck:c=>c.msgs.some(m=>m.s==='me')&&c._previewChecked,
+  },
+  { id:'t4',
+    title:'업무 상태 토큰',
+    titleEn:'Status Annotation',
+    func:'F4',
+    brief:{
+      scenario:'프로젝트 채널에서 팀원들이 업무 진행 상황을 공유하고 있습니다. 긴 답장 대신 상태 토큰으로 빠르게 리액션해주세요.',
+      goal:'메시지에 <strong>상태 토큰(⏳ Pending, ✅ Done 등)</strong>을 달고, 메모를 첨부하여 업무 상태를 명확히 전달하세요.',
+      steps:['토큰 바에서 상태 토큰(⏳, ✅ 등)을 클릭하여 리액션하세요','메시지를 우클릭하거나 + 버튼으로 메모를 추가하세요','상태 토큰이 메시지에 달린 것을 확인하세요']
+    },
+    chat:{id:'t4_proj',name:'프로젝트 채널',av:'#',col:'#4f6cff',type:'work',formal:false,fLv:3,group:true,cultural:false,
+      msgs:[
+        {s:'김대리',t:'API 연동 완료했습니다. QA 부탁드립니다.',tm:'16:20'},
+        {s:'이사원',t:'프론트 작업은 내일 오전까지 걸릴 것 같습니다.',tm:'16:25'},
+        {s:'박과장',t:'클라이언트 미팅 일정이 수요일로 앞당겨졌습니다. 각자 진행 상황 공유 부탁합니다.',tm:'16:30'},
+        {s:'정인턴',t:'디자인 시안 v2 올렸습니다. 리뷰 부탁드립니다.',tm:'16:35',rx:[{e:'🔥',c:1}]},
+      ]},
+    completionCheck:c=>{const hasToken=c.msgs.some(m=>m.rx?.some(r=>['⏳','✅','🚫','⚠️'].includes(r.e)));const hasNote=c.msgs.some(m=>m.rx?.some(r=>r.note&&r.note.length>0));return hasToken&&hasNote},
+  },
+];
+
+// ══════════════════════════════════════
+// STATE & LOGGING
+// ══════════════════════════════════════
+let PID='';
+let curPhase=0;
+let curTaskIdx=-1;
+let curChat=null;
+let lt=null,noteIdx=null,noteEmoji='👍',replyTimer=null;
+const recentEmoji={work:[],personal:[]};
+
+// Logging
+const LOG={
+  pid:'',
+  startTime:0,
+  calibration:{keystrokes:0,chars:0,duration:0},
+  tasks:[],
+};
+let taskLog=null;
+let timerInterval=null;
+let taskStartTime=0;
+let hesitationTimer=null;
+let lastInputTime=0;
+const HESITATION_THRESHOLD=3000;
+
+function startTaskLog(taskId){
+  taskStartTime=Date.now();
+  taskLog={
+    taskId,
+    startTime:taskStartTime,
+    endTime:0,
+    completionTime:0,
+    keystrokes:0,
+    revisions:0, // backspace count
+    hesitationEpisodes:0,
+    invocationLatency:0, // time from first hesitation to first feature use
+    firstHesitationTime:0,
+    firstFeatureUseTime:0,
+    messageSent:'',
+    toneUsed:false,
+    tooltipViewed:false,
+    previewChecked:false,
+    tokenAdded:false,
+    noteAdded:false,
+    likert:{conf:0,intr:0},
+  };
+  lastInputTime=Date.now();
+  startHesitationDetection();
+  startTimer();
+}
+
+function endTaskLog(){
+  if(!taskLog)return;
+  taskLog.endTime=Date.now();
+  taskLog.completionTime=(taskLog.endTime-taskLog.startTime)/1000;
+  LOG.tasks.push({...taskLog});
+  stopHesitationDetection();
+  stopTimer();
+}
+
+function logKey(e){
+  if(!taskLog)return;
+  lastInputTime=Date.now();
+  taskLog.keystrokes++;
+  if(e.key==='Backspace'||e.key==='Delete')taskLog.revisions++;
+}
+
+function logFeatureUse(feature){
+  if(!taskLog)return;
+  if(!taskLog.firstFeatureUseTime)taskLog.firstFeatureUseTime=Date.now();
+  if(taskLog.firstHesitationTime&&!taskLog.invocationLatency){
+    taskLog.invocationLatency=(taskLog.firstFeatureUseTime-taskLog.firstHesitationTime)/1000;
+  }
+  if(feature==='tone')taskLog.toneUsed=true;
+  if(feature==='tooltip')taskLog.tooltipViewed=true;
+  if(feature==='preview')taskLog.previewChecked=true;
+  if(feature==='token')taskLog.tokenAdded=true;
+  if(feature==='note')taskLog.noteAdded=true;
+}
+
+function startHesitationDetection(){
+  hesitationTimer=setInterval(()=>{
+    if(!taskLog)return;
+    const now=Date.now();
+    if(lastInputTime&&(now-lastInputTime)>=HESITATION_THRESHOLD){
+      taskLog.hesitationEpisodes++;
+      if(!taskLog.firstHesitationTime)taskLog.firstHesitationTime=now;
+      lastInputTime=now; // reset so we don't double-count
+    }
+  },1000);
+}
+function stopHesitationDetection(){if(hesitationTimer){clearInterval(hesitationTimer);hesitationTimer=null}}
+
+function startTimer(){
+  const el=document.getElementById('floatTimer');
+  el.classList.add('show');
+  updateTimerDisplay();
+  timerInterval=setInterval(updateTimerDisplay,1000);
+}
+function stopTimer(){
+  if(timerInterval){clearInterval(timerInterval);timerInterval=null}
+  document.getElementById('floatTimer').classList.remove('show');
+}
+function updateTimerDisplay(){
+  const elapsed=Math.floor((Date.now()-taskStartTime)/1000);
+  const m=String(Math.floor(elapsed/60)).padStart(2,'0');
+  const s=String(elapsed%60).padStart(2,'0');
+  document.getElementById('ftTime').textContent=m+':'+s;
+  document.getElementById('ftTask').textContent=curTaskIdx>=0?`Task ${curTaskIdx+1}/4`:'';
+}
+
+// ══════════════════════════════════════
+// PHASE NAVIGATION
+// ══════════════════════════════════════
+function showPhase(id){
+  document.querySelectorAll('.phase').forEach(p=>p.classList.add('hide'));
+  document.getElementById('app').classList.remove('show');
+  const el=document.getElementById(id);
+  if(id==='app'){document.getElementById('app').classList.add('show')}
+  else if(el){el.classList.remove('hide')}
+  updateProgress();
+}
+
+function updateProgress(){
+  // 0=consent, cal, t1brief,t1,t1likert, t2brief,t2,t2likert, t3brief,t3,t3likert, t4brief,t4,t4likert, debrief
+  const total=15;
+  let cur=0;
+  if(curPhase===0)cur=0;
+  else if(curPhase===1)cur=1;
+  else if(curPhase>=2){
+    cur=2+curTaskIdx*3;
+    if(curPhase===3)cur++;      // in task
+    if(curPhase===4)cur+=2;     // in likert
+  }
+  if(curPhase===5)cur=total;
+  document.getElementById('progFill').style.width=Math.round(cur/total*100)+'%';
+}
+
+// ── Consent → Calibration ──
+function startCalibration(){
+  PID=document.getElementById('pidInput').value.trim()||'P00';
+  LOG.pid=PID;
+  LOG.startTime=Date.now();
+  curPhase=1;
+  showPhase('ph1');
+  startCalTimer();
+}
+
+let calInterval=null;
+let calStart=0;
+let calKeystrokes=0;
+function startCalTimer(){
+  calStart=Date.now();
+  calKeystrokes=0;
+  const calInp=document.getElementById('calInput');
+  calInp.addEventListener('keydown',()=>{calKeystrokes++});
+  let remaining=180;
+  calInterval=setInterval(()=>{
+    remaining--;
+    if(remaining<=0){clearInterval(calInterval);skipCal();return}
+    const m=Math.floor(remaining/60);
+    const s=remaining%60;
+    document.getElementById('calTimer').textContent=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+  },1000);
+}
+function logCal(){}
+function skipCal(){
+  if(calInterval)clearInterval(calInterval);
+  LOG.calibration={keystrokes:calKeystrokes,chars:document.getElementById('calInput')?.value.length||0,duration:(Date.now()-calStart)/1000};
+  curTaskIdx=0;
+  showTaskBrief(0);
+}
+
+// ── Task Brief ──
+function showTaskBrief(idx){
+  curTaskIdx=idx;
+  curPhase=2;
+  const task=TASKS[idx];
+  document.getElementById('briefContent').innerHTML=`
+    <h2>Task ${idx+1} / 4</h2>
+    <p class="sub">${task.title} <span style="color:var(--text3);font-size:12px">(${task.titleEn} — ${task.func})</span></p>
+    <div class="brief-card">
+      <div class="bc-num">${idx+1}</div>
+      <h3>${task.title}</h3>
+      <div class="bc-scenario">${task.brief.scenario}</div>
+      <div class="bc-goal">${task.brief.goal}</div>
+      <div class="brief-steps">${task.brief.steps.map((s,i)=>`<div class="bs"><div class="bs-n">${i+1}</div><span>${s}</span></div>`).join('')}</div>
+    </div>
+    <p class="sub2">준비가 되면 아래 버튼을 눌러주세요. 버튼을 누르는 순간부터 시간이 측정됩니다.<br>생각하는 것을 <strong>소리 내어 말해주세요</strong> (Think-Aloud).</p>
+    <button class="ph-btn" onclick="startTask(${idx})">태스크 시작</button>`;
+  showPhase('ph2');
+  renderTaskNav();
+}
+
+// ── Start Task ──
+function startTask(idx){
+  curPhase=3;
+  const task=TASKS[idx];
+  // Deep clone chat data
+  const chatData=JSON.parse(JSON.stringify(task.chat));
+  chatData._tooltipViewed=false;
+  chatData._toneUsed=false;
+  chatData._previewChecked=false;
+  curChat=chatData;
+  startTaskLog(task.id);
+  showPhase('app');
+  renderTaskNav();
+  openChat(curChat);
+}
+
+// ── Complete Task ──
+function completeTask(){
+  endTaskLog();
+  curPhase=4;
+  showLikert(curTaskIdx);
+}
+
+// ── Likert ──
+function showLikert(idx){
+  const task=TASKS[idx];
+  const likertState={conf:0,intr:0};
+  document.getElementById('likertContent').innerHTML=`
+    <h2>Task ${idx+1} 평가</h2>
+    <p class="sub">${task.title} — 방금 경험한 기능에 대해 평가해주세요.</p>
+    <div class="likert-section">
+      <div class="likert-q">
+        <div class="lq-label">1. 대화 자신감 (Conversational Confidence)</div>
+        <div class="lq-desc">보낸 메시지가 올바른 정중함 수준을 갖추었고, 관계에 마찰을 일으키지 않을 것이라는 확신이 드셨나요?</div>
+        <div class="likert-row" id="lkConf">${[1,2,3,4,5,6,7].map(n=>`<button class="lr-btn" onclick="lkSelect('conf',${n},this)">${n}</button>`).join('')}</div>
+        <div class="likert-labels"><span>전혀 아니다</span><span>매우 그렇다</span></div>
+      </div>
+      <div class="likert-q">
+        <div class="lq-label">2. 주의 방해도 (Attentional Intrusiveness)</div>
+        <div class="lq-desc">시스템의 인라인 피드백이 대화 집중을 방해했나요? (낮을수록 방해 없음)</div>
+        <div class="likert-row" id="lkIntr">${[1,2,3,4,5,6,7].map(n=>`<button class="lr-btn" onclick="lkSelect('intr',${n},this)">${n}</button>`).join('')}</div>
+        <div class="likert-labels"><span>전혀 방해 안 됨</span><span>매우 방해됨</span></div>
+      </div>
+    </div>
+    <button class="ph-btn" id="likertNext" disabled onclick="submitLikert()">다음</button>`;
+  showPhase('ph4');
+  window._lkState=likertState;
+}
+function lkSelect(type,val,el){
+  window._lkState[type]=val;
+  el.parentElement.querySelectorAll('.lr-btn').forEach(b=>b.classList.remove('sel'));
+  el.classList.add('sel');
+  if(window._lkState.conf>0&&window._lkState.intr>0)document.getElementById('likertNext').disabled=false;
+}
+function submitLikert(){
+  const last=LOG.tasks[LOG.tasks.length-1];
+  if(last){last.likert={conf:window._lkState.conf,intr:window._lkState.intr}}
+  if(curTaskIdx<TASKS.length-1){
+    showTaskBrief(curTaskIdx+1);
+  } else {
+    showDebrief();
+  }
+}
+
+// ── Debrief ──
+function showDebrief(){
+  curPhase=5;
+  updateProgress();
+  let tableRows=LOG.tasks.map((t,i)=>{
+    const task=TASKS[i];
+    return `<tr>
+      <td><strong>Task ${i+1}</strong><br><span style="color:var(--text3);font-size:10px">${task.title}</span></td>
+      <td>${t.completionTime.toFixed(1)}s</td>
+      <td>${t.keystrokes}</td>
+      <td>${t.revisions}</td>
+      <td>${t.hesitationEpisodes}</td>
+      <td>${t.invocationLatency?t.invocationLatency.toFixed(1)+'s':'-'}</td>
+      <td>${t.likert.conf}/7</td>
+      <td>${t.likert.intr}/7</td>
+    </tr>`}).join('');
+
+  document.getElementById('debriefContent').innerHTML=`
+    <h2>테스트 완료</h2>
+    <p class="sub">감사합니다, ${PID}님! 모든 태스크를 완료하셨습니다.</p>
+    <table class="sum-table">
+      <thead><tr><th>Task</th><th>T_C</th><th>Keys</th><th>C_R</th><th>E_H</th><th>L_I</th><th>S_conf</th><th>S_intr</th></tr></thead>
+      <tbody>${tableRows}</tbody>
+    </table>
+    <p class="sub2">
+      T_C = 완료 시간 | Keys = 키 입력 | C_R = 수정 횟수 | E_H = 망설임 횟수<br>
+      L_I = 기능 호출 지연 | S_conf = 자신감 | S_intr = 방해도
+    </p>
+    <div style="display:flex;gap:8px;justify-content:center">
+      <button class="ph-btn" onclick="exportLog()">데이터 내보내기 (JSON)</button>
+      <button class="ph-btn secondary" onclick="exportCSV()">CSV 내보내기</button>
+    </div>
+    <p class="sub2" style="margin-top:16px">이제 연구자가 디브리핑 인터뷰를 진행합니다.<br>시스템 사용 경험, 최종 저자성(authorship) 보존 느낌, 개선점 등에 대해 자유롭게 이야기해주세요.</p>`;
+  showPhase('ph5');
+}
+
+function exportLog(){
+  const blob=new Blob([JSON.stringify(LOG,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=`rephrase_usertest_${PID}_${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+}
+function exportCSV(){
+  let csv='Task,CompletionTime_s,Keystrokes,Revisions,HesitationEpisodes,InvocationLatency_s,S_conf,S_intr\n';
+  LOG.tasks.forEach((t,i)=>{
+    csv+=`Task${i+1},${t.completionTime.toFixed(1)},${t.keystrokes},${t.revisions},${t.hesitationEpisodes},${t.invocationLatency?t.invocationLatency.toFixed(1):''},${t.likert.conf},${t.likert.intr}\n`;
+  });
+  const blob=new Blob([csv],{type:'text/csv'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=`rephrase_usertest_${PID}_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+}
+
+// ══════════════════════════════════════
+// TASK NAV (Sidebar)
+// ══════════════════════════════════════
+function renderTaskNav(){
+  const el=document.getElementById('taskNav');
+  el.innerHTML=TASKS.map((t,i)=>{
+    let cls='tn-item';
+    if(i===curTaskIdx&&curPhase===3)cls+=' active';
+    else if(i<curTaskIdx||(i===curTaskIdx&&curPhase>=4))cls+=' done';
+    else if(i>curTaskIdx)cls+=' locked';
+    return `<div class="${cls}">
+      <div class="tn-num">${i<curTaskIdx||(i===curTaskIdx&&curPhase>=4)?'✓':(i+1)}</div>
+      <div class="tn-meta"><h4>${t.title}</h4><p>${t.titleEn} (${t.func})</p></div>
+    </div>`}).join('');
+}
+
+// ══════════════════════════════════════
+// CHAT ENGINE
+// ══════════════════════════════════════
+function now(){return new Date().toLocaleTimeString('ko-KR',{hour:'numeric',minute:'2-digit'})}
+function pick(a){return a[Math.floor(Math.random()*a.length)]}
+function trackE(e){const t=curChat?.type||'work';const a=recentEmoji[t];const i=a.indexOf(e);if(i>-1)a.splice(i,1);a.unshift(e);if(a.length>6)a.pop()}
+
+function openChat(c){
+  curChat=c;
+  const m=document.getElementById('mainArea');
+  const isW=c.type==='work',showTok=isW&&c.group;
+  const task=TASKS[curTaskIdx];
+
+  m.innerHTML=`
+    <div class="c-hdr"><div class="ch-av" style="background:${c.col}">${c.av}</div><div><h4>${c.name}</h4><div class="c-sub">${isW?'Workspace':'Personal'}${c.formal?' · Formal':''}${c.group?' · Group':''}</div></div>
+      <div class="c-chips">${c.formal?'<span class="c-chip formal">Formal</span>':''}<span class="c-chip ctx">${isW?'Work':'Personal'}</span><span class="c-chip task">Task ${curTaskIdx+1}</span></div>
+    </div>
+    <div class="task-banner"><span class="tb-icon">${['🔍','✨','👁','📊'][curTaskIdx]}</span><div class="tb-text">${task.brief.steps.map(s=>'<strong>'+s+'</strong>').join(' → ')}</div><button class="tb-complete" id="taskCompleteBtn" onclick="completeTask()">태스크 완료</button></div>
+    <div class="msg-area" id="msgArea"></div>
+    ${CFG.renderPreview?'<div class="rp" id="rp"></div>':''}
+    <div class="composer">
+      <div class="f-slider${curTaskIdx!==2?' show':''}"><span class="fs-label casual">편안</span><input type="range" min="1" max="5" value="${c.fLv}" id="fSlider" oninput="onSlider()"><span class="fs-label formal">정중</span><span class="fs-level" id="fLevel">${['','😊','🙂','📝','🏢','🎩'][c.fLv]}</span></div>
+      <div class="tone-sug" id="toneSug"></div>
+      <div class="e-rec" id="eRec"></div>
+      <div class="warn" id="warn"><span id="warnTxt"></span><button class="w-close" onclick="this.parentElement.classList.remove('show')">무시</button></div>
+      ${showTok?`<div class="tok-bar show">
+        <button class="tok" onclick="insE('✔')">✔ 확인</button><button class="tok" onclick="insE('👍')">👍</button><button class="tok" onclick="insE('🙏')">🙏</button><div class="tok-sep"></div>
+        <button class="tok status" onclick="addStatus('⏳','확인 중')">⏳ Pending</button><button class="tok status" onclick="addStatus('🚫','블로킹')">🚫 Blocked</button><button class="tok status" onclick="addStatus('⚠️','지연')">⚠️ Overdue</button><button class="tok status" onclick="addStatus('✅','완료')">✅ Done</button>
+      </div>`:''}
+      <div class="input-row">
+        <button class="i-btn emoji" onclick="document.getElementById('picker').classList.toggle('show')">😊</button>
+        <textarea id="inp" rows="1" placeholder="${c.formal?c.name.replace(/님$/,'')+'님에게 답장...':'메시지 입력...'}" oninput="onInput()"></textarea>
+        <button class="i-btn send" onclick="doSend()">↑</button>
+      </div>
+    </div>
+    <div class="picker" id="picker">
+      <div class="pk-tabs"><div class="pk-tab ${isW?'act':''}" onclick="buildPicker('work',this)">🏢 Work</div><div class="pk-tab ${!isW?'act':''}" onclick="buildPicker('personal',this)">🏠 Personal</div></div>
+      <div class="pk-body" id="pkBody"></div>
+    </div>`;
+  renderMsgs();
+  buildPicker(CFG.panelSwitch?(isW?'work':'personal'):'work');
+  const inp=document.getElementById('inp');
+  if(inp){
+    inp.addEventListener('keydown',e=>{
+      logKey(e);
+      if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();doSend()}
+    });
+    inp.focus();
+  }
+}
+
+function renderMsgs(){
+  const el=document.getElementById('msgArea');if(!el)return;
+  const c=curChat;el.innerHTML='<div class="day-sep"><span>Today</span></div>';
+  c.msgs.forEach((msg,idx)=>{
+    const me=msg.s==='me';const w=document.createElement('div');
+    const se=/^[\p{Emoji_Presentation}\p{Emoji}\uFE0F]{1,4}$/u.test(msg.t.trim())&&msg.t.trim().length<=8;
+    w.className=`msg-wrap ${me?'me':'other'}`;
+    let html=msg.t.replace(/([\p{Emoji_Presentation}\p{Emoji}\uFE0F]+)/gu,m=>ED[m]||ED_CTX.formal?.[m]||ED_CTX.peer?.[m]?`<span class="e-click" onclick="showTooltip('${m}')">${m}</span>`:m);
+    let rxH='';
+    if(msg.rx?.length){rxH='<div class="rx-row">'+msg.rx.map(r=>{
+      return`<span class="rx-pill" data-e="${r.e}" onclick="showTooltip('${r.e}')" onmouseenter="showRxFloat(this,'${r.e}','${(r.note||'').replace(/'/g,"\\'")}')" onmouseleave="hideRxFloat()">${r.e}${r.c>1?' '+r.c:''}${r.note?`<span class="rx-note">${r.note}</span>`:''}</span>`}).join('')+`<span class="rx-add" onclick="openNote(${idx})">+</span></div>`}
+    else if(!me){rxH=`<div class="rx-row"><span class="rx-add" onclick="openNote(${idx})">+</span></div>`}
+    let hintH='';
+    if(!me){const ems=msg.t.match(/([\p{Emoji_Presentation}\p{Emoji}\uFE0F])/gu);if(ems?.some(e=>{const ed=getED(e);return ed&&(ed.v==='r'||ed.v==='y')})){const e=ems.find(e=>{const ed=getED(e);return ed&&(ed.v==='r'||ed.v==='y')});if(e)hintH=`<span class="e-hint" onclick="showTooltip('${e}')">🔍 이 이모지, 어떤 뜻일까?</span>`}}
+    const qrxH=!me?`<div class="qrx"><button onclick="quickRx(${idx},'👍')">👍</button><button onclick="quickRx(${idx},'❤️')">❤️</button><button onclick="quickRx(${idx},'😂')">😂</button><button onclick="quickRx(${idx},'🙏')">🙏</button><button onclick="openNote(${idx})">+</button></div>`:'';
+    w.innerHTML=`${qrxH}${!me&&c.group?`<div class="msg-sender">${msg.s}</div>`:''}<div class="bubble${se&&CFG.emojiSize?' emoji-std':''}">${html}<div class="b-time">${msg.tm}</div></div>${hintH}${rxH}`;
+    if(!me){w.addEventListener('contextmenu',e=>{e.preventDefault();openNote(idx)});w.addEventListener('dblclick',()=>openNote(idx))}
+    el.appendChild(w);
+  });
+  el.scrollTop=el.scrollHeight;
+}
+
+function showTooltip(emoji){
+  logFeatureUse('tooltip');
+  if(curChat)curChat._tooltipViewed=true;
+  const d=getED(emoji);if(!d)return;const g=ED[emoji];
+  const ctx=curChat?.type==='personal'?'개인 대화':curChat?.formal?'공식/위계 대화':curChat?.cultural?'해외팀 (Cross-cultural)':'동료 대화';
+  document.getElementById('ttCard').innerHTML=`<div class="tt-emoji">${emoji}</div><div class="tt-meaning">${d.m}</div><div class="tt-ctx">맥락: ${ctx}</div>
+    <div class="dist-bar">${d.d.map(x=>`<div class="seg ${x.t}" style="width:${x.p}%">${x.p}%</div>`).join('')}</div>
+    <div class="dist-labels">${d.d.map(x=>`<span class="dl ${x.t}">${x.l} ${x.p}%</span>`).join('')}</div>
+    ${d.c?`<div class="tt-cultural">🌍 ${d.c}</div>`:''}
+    ${g?.a?`<div class="tt-a11y">♿ 접근성: "${g.a}"</div>`:''}
+    <button class="tt-close" onclick="document.getElementById('ttOv').classList.remove('show')">닫기</button>`;
+  document.getElementById('ttOv').classList.add('show');
+}
+
+function buildPicker(mode,el){
+  if(el){document.querySelectorAll('.pk-tab').forEach(t=>t.classList.remove('act'));el.classList.add('act')}
+  const b=document.getElementById('pkBody');if(!b)return;
+  const emojis=mode==='work'?WE:PE;const pins=mode==='work'?['✔','👍','🙏']:['❤️','🔥','😂'];
+  const recent=recentEmoji[mode]||[];
+  const recentH=recent.length?`<div class="pk-sec">Recent</div><div class="pk-grid">${recent.map(e=>eCell(e)).join('')}</div>`:'';
+  b.innerHTML=`${recentH}<div class="pk-sec">Pinned</div><div class="pk-grid">${pins.map(e=>eCell(e)).join('')}</div>
+    <div class="pk-sec">All (long-press for details)</div><div class="pk-grid">${emojis.map(e=>eCell(e)).join('')}</div>
+    <div class="pk-legend"><span><div class="dot" style="background:var(--green)"></div>Stable</span><span><div class="dot" style="background:var(--amber)"></div>Caution</span><span><div class="dot" style="background:var(--red)"></div>High variance</span></div>`;
+}
+function eCell(e){const d=ED[e];return `<div class="pk-cell" onclick="pickEmoji('${e}')" onmousedown="lt=setTimeout(()=>showTooltip('${e}'),400)" onmouseup="clearTimeout(lt)" onmouseleave="clearTimeout(lt)">${e}${d?`<span class="vdot ${d.v}"></span>`:''}</div>`}
+function pickEmoji(e){trackE(e);const inp=document.getElementById('inp');inp.value+=e;inp.dispatchEvent(new Event('input'));document.getElementById('picker').classList.remove('show')}
+function insE(e){const inp=document.getElementById('inp');if(inp.value&&!inp.value.endsWith(' '))inp.value+=' ';inp.value+=e;inp.dispatchEvent(new Event('input'));inp.focus()}
+
+// ── Composer ──
+function onInput(){
+  const el=document.getElementById('inp');
+  el.style.height='auto';el.style.height=Math.min(el.scrollHeight,100)+'px';
+  const v=el.value.trim();if(!v||!curChat){hideTone();hideERec();return}
+  lastInputTime=Date.now();
+
+  if(CFG.toneAid&&v.length>0)updateTone(v);else hideTone();
+
+  const low=v.toLowerCase();
+  let matched=EREC.find(r=>r.k.some(k=>low.includes(k)));
+  const erec=document.getElementById('eRec');
+  if(matched&&erec){
+    erec.innerHTML=`<span class="er-label">💡 ${matched.t}</span>${matched.e.slice(0,4).map(e=>`<button class="er-btn" onclick="insE('${e}')">${e}<span class="er-tip">${ED[e]?.m||''}</span></button>`).join('')}`;
+    erec.classList.add('show');
+  } else erec?.classList.remove('show');
+
+  if(CFG.emojiWarn){
+    const em=v.match(/(\p{Emoji_Presentation}|\p{Emoji}\uFE0F)/u);
+    if(em){const ed=getED(em[0]);if(ed&&ed.v==='r'){document.getElementById('warnTxt').textContent=`⚠ "${em[0]}" ${ed.m} — ${ed.d.map(x=>x.l+' '+x.p+'%').join(', ')}`;document.getElementById('warn').classList.add('show')}else document.getElementById('warn')?.classList.remove('show')}else document.getElementById('warn')?.classList.remove('show');
+  }
+
+  const rp=document.getElementById('rp');
+  if(CFG.renderPreview&&v&&rp){
+    logFeatureUse('preview');
+    if(curChat)curChat._previewChecked=true;
+    const se=/^[\p{Emoji_Presentation}\p{Emoji}\uFE0F]{1,4}$/u.test(v)&&v.length<=8;
+    if(se){
+      rp.innerHTML=`<div style="margin-bottom:4px">👁 수신자 화면 미리보기</div>
+        <div class="rp-platform">
+          <div class="rp-device"><div class="rp-name">iOS (나)</div><span class="rp-bubble" style="font-size:${CFG.emojiSize?'13px':'32px'}">${v}</span></div>
+          <span style="color:var(--text3)">→</span>
+          <div class="rp-device"><div class="rp-name">Android (수신자)</div><span class="rp-bubble" style="font-size:${CFG.emojiSize?'13px':'36px'};${CFG.emojiSize?'':'background:var(--amber-soft);color:var(--text);border:1px solid var(--amber)'}">${v}</span></div>
+        </div>
+        ${!CFG.emojiSize?'<div style="margin-top:4px;color:var(--amber);font-size:10px">⚠ 단일 이모지가 확대 렌더링될 수 있습니다. 텍스트를 추가하면 표준 크기로 표시됩니다.</div>':'<div style="margin-top:4px;color:var(--green);font-size:10px">✓ Standard size 적용 중</div>'}`;
+    } else {
+      rp.innerHTML=`<div style="margin-bottom:4px">👁 수신자 화면 미리보기</div><span class="rp-bubble">${v}</span>`;
+    }
+    rp.classList.add('show');
+  } else rp?.classList.remove('show');
+}
+
+function hideTone(){document.getElementById('toneSug')?.classList.remove('show')}
+function hideERec(){document.getElementById('eRec')?.classList.remove('show')}
+
+function onSlider(){
+  document.getElementById('fLevel').textContent=['','😊','🙂','📝','🏢','🎩'][document.getElementById('fSlider').value];
+  const v=document.getElementById('inp')?.value.trim();
+  if(v)updateTone(v);
+}
+
+function updateTone(raw){
+  const ts=document.getElementById('toneSug');if(!ts)return;
+  const lv=parseInt(document.getElementById('fSlider')?.value||3);
+  const eng=isEng(raw);const tones=eng?TE:TK;
+  const matched=tones.find(t=>t.m(raw.toLowerCase()));
+  if(!matched)return;
+  const idx=lv-1;
+  const all5=matched.L.map((l,i)=>{let v=l;if(typeof v==='function')v=v(raw);return v});
+  const main=all5[idx];
+  let alts=(matched.A[idx]||[]).map(a=>typeof a==='function'?a(raw):a).filter(a=>a&&a!==main);
+  const seen=new Set([main]);
+  const lvIcons=['😊','🙂','📝','🏢','🎩'];
+  const lvLabels=eng?['casual','friendly','polite','formal','very formal']:['편안','친근','보통','정중','매우 정중'];
+  let cmpH='<div class="ts-compare">';
+  for(let i=0;i<5;i++){if(i===idx)continue;const v=all5[i];if(seen.has(v))continue;seen.add(v);
+    cmpH+=`<div class="ts-cmp" style="color:${i<idx?'var(--green)':'var(--blue)'}" data-v="${v.replace(/"/g,'&quot;')}" onclick="useTone(this.dataset.v)">${lvIcons[i]} ${v.slice(0,28)}${v.length>28?'…':''}</div>`}
+  cmpH+='</div>';if(seen.size<=1)cmpH='';
+  if(main===raw&&!cmpH){ts.classList.remove('show');return}
+  const dismiss='<span class="ts-close" onclick="this.parentElement.classList.remove(\'show\')">×</span>';
+  if(main===raw){
+    ts.innerHTML=`${dismiss}<div class="ts-label">✨ ${matched.i} · ${lvLabels[idx]}</div><div style="font-size:11px;color:var(--text3);margin-bottom:2px">다른 톤으로 바꿔보세요</div>${cmpH}`;
+  } else {
+    ts.innerHTML=`${dismiss}<div class="ts-label">✨ ${matched.i} · ${lvLabels[idx]}</div><div class="ts-main" data-v="${main.replace(/"/g,'&quot;')}" onclick="useTone(this.dataset.v)"><span>${main}</span><span class="ts-hint">적용</span></div>${alts.length?`<div class="ts-alts">${alts.map(a=>`<div class="ts-alt" data-v="${a.replace(/"/g,'&quot;')}" onclick="useTone(this.dataset.v)">${a}</div>`).join('')}</div>`:''}${cmpH}`;
+  }
+  ts.classList.add('show');
+}
+function useTone(v){
+  logFeatureUse('tone');
+  if(curChat)curChat._toneUsed=true;
+  document.getElementById('inp').value=v;hideTone();
+  document.getElementById('warn')?.classList.remove('show');
+  document.getElementById('inp').focus();
+}
+
+function doSend(){
+  const el=document.getElementById('inp');const v=el.value.trim();if(!v||!curChat)return;
+  if(taskLog)taskLog.messageSent=v;
+  curChat.msgs.push({s:'me',t:v,tm:now()});
+  el.value='';el.style.height='auto';renderMsgs();
+  hideTone();hideERec();
+  document.getElementById('warn')?.classList.remove('show');
+  document.getElementById('rp')?.classList.remove('show');
+  document.getElementById('picker')?.classList.remove('show');
+  if(replyTimer)clearTimeout(replyTimer);
+  const c=curChat;
+  replyTimer=setTimeout(()=>{replyTimer=null;if(curChat?.id!==c.id)return;const r=genReply(v,c);if(r){c.msgs.push(r);renderMsgs()}},1200+Math.random()*1000);
+}
+
+function genReply(msg,chat){
+  const low=msg.toLowerCase();const s=chat.group?pick(['김대리','이사원','박과장','정인턴']):chat.name;
+  if(chat.formal){
+    if(low.includes('확인')||low.includes('알겠'))return{s,t:pick(['네, 감사합니다.','좋습니다, 수고해주세요.','네.']),tm:now()};
+    if(low.includes('보내')||low.includes('제출'))return{s,t:pick(['잘 받았습니다.','감사합니다, 확인해볼게요.']),tm:now()};
+    if(low.includes('죄송')||low.includes('어려'))return{s,t:pick(['네, 알겠습니다. 내일 아침까지 부탁합니다.','사정이 있군요. 가능한 시점에 부탁합니다.']),tm:now()};
+    return{s,t:pick(['네.','확인했습니다.','알겠습니다.']),tm:now()};
+  }
+  if(chat.group){
+    return{s,t:pick(['확인했습니다 👍','네, 참고하겠습니다!','감사합니다!']),tm:now()};
+  }
+  return{s,t:pick(['👍','확인!','네!']),tm:now()};
+}
+
+// ── Reactions ──
+function showRxFloat(el,emoji,note){
+  const ed=getED(emoji)||ED[emoji];
+  const fl=document.getElementById('rxFloat');
+  let h='';
+  if(ed&&ed.d){
+    const colors={pos:'#10b981',neu:'#f59e0b',neg:'#ef4444'};
+    h=`<div class="rt-title">${emoji} ${ed.m}</div><div class="rt-bar">${ed.d.map(x=>`<div class="rs" style="width:${x.p}%;background:${colors[x.t]}"></div>`).join('')}</div>${ed.d.map(x=>`<div class="rt-row"><span>${x.l}</span><span>${x.p}%</span></div>`).join('')}`;
+  } else {
+    h=`<div class="rt-title">${emoji} ${note||'리액션'}</div>`;
+  }
+  fl.innerHTML=h;fl.classList.add('show');
+  const rect=el.getBoundingClientRect();
+  const flH=fl.offsetHeight;
+  let top=rect.top-flH-8;
+  if(top<4)top=rect.bottom+8;
+  fl.style.left=Math.max(8,Math.min(rect.left+rect.width/2-85,window.innerWidth-200))+'px';
+  fl.style.top=top+'px';
+}
+function hideRxFloat(){document.getElementById('rxFloat').classList.remove('show')}
+
+function quickRx(idx,emoji){
+  logFeatureUse('token');
+  const msg=curChat.msgs[idx];if(!msg.rx)msg.rx=[];const ex=msg.rx.find(r=>r.e===emoji);if(ex)ex.c++;else msg.rx.push({e:emoji,c:1});renderMsgs();
+}
+
+function addStatus(e,l){
+  logFeatureUse('token');
+  for(let i=curChat.msgs.length-1;i>=0;i--){
+    if(curChat.msgs[i].s!=='me'){
+      if(!curChat.msgs[i].rx)curChat.msgs[i].rx=[];
+      const existing=curChat.msgs[i].rx.find(r=>r.e===e);
+      if(existing){existing.c++}
+      else{curChat.msgs[i].rx.push({e,c:1,note:l})}
+      renderMsgs();break;
+    }
+  }
+}
+
+function openNote(idx){
+  noteIdx=idx;noteEmoji='👍';
+  const qe=['👍','✔','❤️','🙏','😊','🔥','⏳','✅','🚫','⚠️'];
+  document.getElementById('noteCard').innerHTML=`<h4>Add Reaction</h4><div class="n-emojis">${qe.map(e=>`<button class="${e==='👍'?'sel':''}" onclick="noteEmoji='${e}';this.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('sel'));this.classList.add('sel')">${e}</button>`).join('')}</div><input type="text" id="noteInp" placeholder="메모 추가 (선택사항)"><div class="n-btns"><button class="n-cancel" onclick="document.getElementById('noteOv').classList.remove('show')">Cancel</button><button class="n-ok" onclick="confirmNote()">Add</button></div>`;
+  document.getElementById('noteOv').classList.add('show');
+  setTimeout(()=>document.getElementById('noteInp')?.focus(),100);
+}
+function confirmNote(){
+  logFeatureUse('note');
+  const n=document.getElementById('noteInp')?.value.trim()||'';
+  if(noteIdx!==null&&curChat.msgs[noteIdx]){
+    if(!curChat.msgs[noteIdx].rx)curChat.msgs[noteIdx].rx=[];
+    const ex=curChat.msgs[noteIdx].rx.find(r=>r.e===noteEmoji&&!n);
+    if(ex&&!n){ex.c++}
+    else{curChat.msgs[noteIdx].rx.push({e:noteEmoji,c:1,note:n})}
+    renderMsgs();
+  }
+  document.getElementById('noteOv').classList.remove('show');
+}
+
+// Init
+renderTaskNav();
+</script>
+</body>
+</html>
