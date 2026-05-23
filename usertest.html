@@ -385,7 +385,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Pretendard','Noto San
     <div class="task-nav" id="taskNav"></div>
     <div class="side-footer"><div class="sf-info">Think-Aloud Protocol<br>생각을 소리 내어 말해주세요</div></div>
   </div>
-  <div class="main" id="mainArea"><div class="empty"><h3>Re:Phrase</h3><p>태스크를 시작합니다...</p></div></div>
+  <div class="main" id="mainArea"><div class="empty"><h3>Re:Phrase</h3><p>시나리오를 시작합니다...</p></div></div>
 </div>
 
 <!-- ═══ PHASE 4: LIKERT ═══ -->
@@ -557,7 +557,7 @@ const TASKS=[
     brief:{
       scenario:'교수님이 보고서를 잘 받았다고 답장해주셨습니다. 간단한 확인 메시지를 보내려고 합니다.',
       goal:'교수님에게 <strong>간단한 감사/확인 메시지를 보내주세요</strong>. 보내기 전에 상대방에게 어떻게 보일지 확인해보세요.',
-      steps:['교수님에게 보낼 짧은 메시지를 작성해보세요','보내기 전에 화면 하단을 확인해보세요','최종 메시지를 전송하세요']
+      steps:['교수님에게 보낼 짧은 메시지를 작성해보세요','보내기 전에 화면을 살펴보세요','최종 메시지를 전송하세요']
     },
     chat:{id:'t3_render',name:'김교수님',av:'김',col:'#6366f1',type:'work',formal:true,fLv:5,cultural:false,
       msgs:[
@@ -695,7 +695,7 @@ function updateTimerDisplay(){
   const m=String(Math.floor(elapsed/60)).padStart(2,'0');
   const s=String(elapsed%60).padStart(2,'0');
   document.getElementById('ftTime').textContent=m+':'+s;
-  document.getElementById('ftTask').textContent=curTaskIdx>=0?`Task ${curTaskIdx+1}/4`:'';
+  document.getElementById('ftTask').textContent=curTaskIdx>=0?`${curTaskIdx+1}/4`:'';
 }
 
 // ══════════════════════════════════════
@@ -780,7 +780,7 @@ function showTaskBrief(idx){
       <div class="brief-steps">${task.brief.steps.map((s,i)=>`<div class="bs"><div class="bs-n">${i+1}</div><span>${s}</span></div>`).join('')}</div>
     </div>
     <p class="sub2">준비가 되면 아래 버튼을 눌러주세요. 버튼을 누르는 순간부터 시간이 측정됩니다.<br>생각하는 것을 <strong>소리 내어 말해주세요</strong> (Think-Aloud).</p>
-    <button class="ph-btn" onclick="startTask(${idx})">태스크 시작</button>`;
+    <button class="ph-btn" onclick="startTask(${idx})">시작하기</button>`;
   showPhase('ph2');
   renderTaskNav();
 }
@@ -925,7 +925,7 @@ function showDebrief(){
     const task=TASKS[i];
     const lk=t.likert||{};
     return `<tr>
-      <td><strong>Task ${i+1}</strong><br><span style="color:var(--text3);font-size:10px">${task.title}</span></td>
+      <td><strong>${task.title}</strong><br><span style="color:var(--text3);font-size:10px">${task.titleEn}</span></td>
       <td>${t.completionTime.toFixed(1)}s</td>
       <td>${t.keystrokes}</td>
       <td>${t.revisions}</td>
@@ -941,7 +941,7 @@ function showDebrief(){
     const lk=t.likert||{};
     const fu=t.followups||{};
     const modKeys=Object.keys(lk).filter(k=>!k.startsWith('S'));
-    return `<tr><td colspan="2" style="background:var(--blue-soft);font-weight:700">Task ${i+1} — ${TASKS[i].title}</td></tr>
+    return `<tr><td colspan="2" style="background:var(--blue-soft);font-weight:700">${TASKS[i].title} — ${TASKS[i].titleEn}</td></tr>
       <tr><td>S1 주체성</td><td>${lk.S1||'-'}/7</td></tr>
       <tr><td>S2-a 타이밍</td><td>${lk.S2a||'-'}/7</td></tr>
       <tr><td>S2-b 시각적 비중</td><td>${lk.S2b||'-'}/7</td></tr>
@@ -954,7 +954,7 @@ function showDebrief(){
   document.getElementById('debriefContent').innerHTML=`
     <div style="max-height:85vh;overflow-y:auto;padding-right:8px">
     <h2>테스트 완료</h2>
-    <p class="sub">감사합니다, ${PID}님! 모든 태스크를 완료하셨습니다.</p>
+    <p class="sub">감사합니다, ${PID}님! 모든 시나리오를 완료하셨습니다.</p>
     <h3 style="font-size:14px;margin-bottom:8px">수행 데이터 (Performance)</h3>
     <table class="sum-table">
       <thead><tr><th>Task</th><th>T_C</th><th>Keys</th><th>C_R</th><th>E_H</th><th>L_I</th><th>S1</th><th>S3</th><th>S4</th></tr></thead>
@@ -990,7 +990,7 @@ function exportCSV(){
   let csv='Task,CompletionTime_s,Keystrokes,Revisions,HesitationEpisodes,InvocationLatency_s,'+lkCols.join(',')+'\n';
   LOG.tasks.forEach((t,i)=>{
     const lk=t.likert||{};
-    csv+=`Task${i+1},${t.completionTime.toFixed(1)},${t.keystrokes},${t.revisions},${t.hesitationEpisodes},${t.invocationLatency?t.invocationLatency.toFixed(1):''},${lkCols.map(k=>lk[k]||'').join(',')}\n`;
+    csv+=`Scenario${i+1},${t.completionTime.toFixed(1)},${t.keystrokes},${t.revisions},${t.hesitationEpisodes},${t.invocationLatency?t.invocationLatency.toFixed(1):''},${lkCols.map(k=>lk[k]||'').join(',')}\n`;
   });
   const blob=new Blob([csv],{type:'text/csv'});
   const a=document.createElement('a');
@@ -1040,7 +1040,7 @@ function openChat(c){
 
   m.innerHTML=`
     <div class="c-hdr"><div class="ch-av" style="background:${c.col}">${c.av}</div><div><h4>${c.name}</h4><div class="c-sub">${isW?'Workspace':'Personal'}${c.formal?' · Formal':''}${c.group?' · Group':''}</div></div>
-      <div class="c-chips">${c.formal?'<span class="c-chip formal">Formal</span>':''}<span class="c-chip ctx">${isW?'Work':'Personal'}</span><span class="c-chip task">Task ${curTaskIdx+1}</span></div>
+      <div class="c-chips">${c.formal?'<span class="c-chip formal">Formal</span>':''}<span class="c-chip ctx">${isW?'Work':'Personal'}</span><span class="c-chip task">${TASKS[curTaskIdx].title}</span></div>
     </div>
     <div class="task-banner"><span class="tb-icon">📋</span><div class="tb-text">${task.brief.goal}</div><button class="tb-complete" id="taskCompleteBtn" onclick="completeTask()">완료</button></div>
     <div class="nudge-bar" id="nudgeBar" style="display:none;padding:8px 20px;background:var(--blue-soft);border-bottom:1px solid rgba(79,108,255,.2);font-size:11px;color:var(--blue);animation:fadeIn .3s"><span id="nudgeMsg"></span><button onclick="this.parentElement.style.display='none'" style="margin-left:auto;border:none;background:none;color:var(--blue);cursor:pointer;font-size:12px">×</button></div>
