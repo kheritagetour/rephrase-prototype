@@ -210,20 +210,33 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Pretendard','Noto San
 .f-slider input[type=range]{flex:1;accent-color:var(--blue);cursor:pointer;height:4px}
 .f-slider .fs-level{font-size:12px;min-width:24px;text-align:center}
 
-.tone-sug{display:none;padding:8px 20px;position:relative}
-.tone-sug.show{display:block;animation:slideDown .15s ease}
-.tone-sug .ts-close{position:absolute;top:6px;right:16px;font-size:14px;cursor:pointer;color:var(--text3);line-height:1;width:20px;height:20px;display:flex;align-items:center;justify-content:center;border-radius:4px}
+.tone-sug{display:none;padding:10px 20px;position:relative;background:linear-gradient(180deg,var(--blue-soft) 0%,var(--surface) 100%);border-bottom:1px solid rgba(79,108,255,.1)}
+.tone-sug.show{display:block;animation:slideDown .2s ease}
+.tone-sug .ts-close{position:absolute;top:8px;right:16px;font-size:14px;cursor:pointer;color:var(--text3);line-height:1;width:20px;height:20px;display:flex;align-items:center;justify-content:center;border-radius:4px}
 .tone-sug .ts-close:hover{background:var(--surface2);color:var(--text)}
-.tone-sug .ts-label{font-size:10px;color:var(--blue);font-weight:600;margin-bottom:4px}
-.tone-sug .ts-main{padding:8px 12px;background:var(--blue-soft);border:1.5px solid rgba(79,108,255,.2);border-radius:var(--radius-sm);font-size:13px;cursor:pointer;transition:var(--transition);margin-bottom:4px;display:flex;justify-content:space-between;align-items:center}
-.tone-sug .ts-main:hover{background:#dde3ff;border-color:var(--blue)}
-.tone-sug .ts-main .ts-hint{font-size:9px;color:var(--blue);opacity:.5}
+.tone-sug .ts-label{font-size:10px;color:var(--blue);font-weight:600;margin-bottom:6px;display:flex;align-items:center;gap:4px}
+/* Main suggestion — prominent card */
+.tone-sug .ts-main{padding:10px 14px;background:var(--surface);border:1.5px solid var(--blue);border-radius:var(--radius);font-size:13px;cursor:pointer;transition:all .25s ease;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 2px 8px rgba(79,108,255,.1)}
+.tone-sug .ts-main:hover{background:var(--blue);color:#fff;transform:translateY(-1px);box-shadow:0 4px 12px rgba(79,108,255,.2)}
+.tone-sug .ts-main:hover .ts-hint{color:#fff;opacity:.8}
+.tone-sug .ts-main .ts-hint{font-size:9px;color:var(--blue);opacity:.6;transition:all .25s}
+/* Before/after preview */
+.tone-sug .ts-preview{display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:11px;color:var(--text2);padding:6px 0}
+.tone-sug .ts-preview .ts-before{text-decoration:line-through;opacity:.5;flex-shrink:0;max-width:40%}
+.tone-sug .ts-preview .ts-arrow{color:var(--blue);font-size:14px;flex-shrink:0}
+.tone-sug .ts-preview .ts-after{color:var(--blue);font-weight:600;flex:1}
+/* Alternatives strip */
 .tone-sug .ts-alts{display:flex;gap:4px;overflow-x:auto;padding-bottom:2px}
-.tone-sug .ts-alt{padding:5px 10px;border-radius:var(--radius-sm);font-size:11px;border:1px solid var(--border);color:var(--text2);background:var(--surface);cursor:pointer;white-space:nowrap;flex-shrink:0;transition:var(--transition)}
-.tone-sug .ts-alt:hover{border-color:var(--blue);color:var(--blue)}
-.tone-sug .ts-compare{display:flex;gap:3px;margin-top:6px;overflow-x:auto;padding-bottom:2px}
-.tone-sug .ts-cmp{padding:4px 8px;border-radius:6px;font-size:10px;border:1px solid var(--border-light);cursor:pointer;white-space:nowrap;flex-shrink:0;transition:var(--transition)}
-.tone-sug .ts-cmp:hover{border-color:var(--blue);background:var(--blue-soft)}
+.tone-sug .ts-alt{padding:6px 12px;border-radius:20px;font-size:11px;border:1px solid var(--border);color:var(--text2);background:var(--surface);cursor:pointer;white-space:nowrap;flex-shrink:0;transition:all .2s ease}
+.tone-sug .ts-alt:hover{border-color:var(--blue);color:var(--blue);background:var(--blue-soft);transform:translateY(-1px)}
+/* Tone level comparison */
+.tone-sug .ts-compare{display:flex;gap:4px;margin-top:8px;overflow-x:auto;padding-bottom:2px}
+.tone-sug .ts-cmp{padding:5px 10px;border-radius:20px;font-size:10px;border:1px solid var(--border-light);cursor:pointer;white-space:nowrap;flex-shrink:0;transition:all .2s ease;background:var(--surface)}
+.tone-sug .ts-cmp:hover{border-color:var(--blue);background:var(--blue-soft);transform:translateY(-1px)}
+.tone-sug .ts-cmp.active{border-color:var(--blue);background:var(--blue);color:#fff}
+/* Typing animation on apply */
+@keyframes typeApply{from{opacity:0;transform:translateX(-4px)}to{opacity:1;transform:none}}
+.inp-typing{animation:typeApply .3s ease}
 
 .e-rec{display:none;padding:6px 20px;gap:6px;align-items:center;border-bottom:1px solid var(--border-light);background:var(--surface2)}
 .e-rec.show{display:flex;animation:fadeIn .15s}
@@ -1212,10 +1225,12 @@ function hideERec(){document.getElementById('eRec')?.classList.remove('show')}
 
 function onSlider(){
   document.getElementById('fLevel').textContent=['','😊','🙂','📝','🏢','🎩'][document.getElementById('fSlider').value];
-  const v=document.getElementById('inp')?.value.trim();
+  // Use original raw input if available, so slider changes re-transform from the original
+  const v=lastToneRaw||document.getElementById('inp')?.value.trim();
   if(v)updateTone(v);
 }
 
+let lastToneRaw='';
 function updateTone(raw){
   const ts=document.getElementById('toneSug');if(!ts)return;
   const lv=parseInt(document.getElementById('fSlider')?.value||3);
@@ -1229,25 +1244,47 @@ function updateTone(raw){
   const seen=new Set([main]);
   const lvIcons=['😊','🙂','📝','🏢','🎩'];
   const lvLabels=eng?['casual','friendly','polite','formal','very formal']:['편안','친근','보통','정중','매우 정중'];
+  lastToneRaw=raw;
+
+  // Build tone level strip — all 5 levels with current highlighted
   let cmpH='<div class="ts-compare">';
-  for(let i=0;i<5;i++){if(i===idx)continue;const v=all5[i];if(seen.has(v))continue;seen.add(v);
-    cmpH+=`<div class="ts-cmp" style="color:${i<idx?'var(--green)':'var(--blue)'}" data-v="${v.replace(/"/g,'&quot;')}" onclick="useTone(this.dataset.v)">${lvIcons[i]} ${v.slice(0,28)}${v.length>28?'…':''}</div>`}
-  cmpH+='</div>';if(seen.size<=1)cmpH='';
-  if(main===raw&&!cmpH){ts.classList.remove('show');return}
+  for(let i=0;i<5;i++){
+    const v=all5[i];if(seen.has(v)&&i!==idx)continue;seen.add(v);
+    const isActive=i===idx;
+    cmpH+=`<div class="ts-cmp${isActive?' active':''}" data-v="${v.replace(/"/g,'&quot;')}" onclick="${isActive?'':'useTone(this.dataset.v);'}document.getElementById('fSlider').value=${i+1};onSlider()">${lvIcons[i]} ${lvLabels[i]}</div>`;
+  }
+  cmpH+='</div>';
+
+  if(main===raw&&seen.size<=2){ts.classList.remove('show');return}
   const dismiss='<span class="ts-close" onclick="this.parentElement.classList.remove(\'show\')">×</span>';
+
+  // Before → After preview
+  const previewH=main!==raw?`<div class="ts-preview"><span class="ts-before">${raw}</span><span class="ts-arrow">→</span><span class="ts-after">${main}</span></div>`:'';
+
   if(main===raw){
-    ts.innerHTML=`${dismiss}<div class="ts-label">✨ ${matched.i} · ${lvLabels[idx]}</div><div style="font-size:11px;color:var(--text3);margin-bottom:2px">다른 톤으로 바꿔보세요</div>${cmpH}`;
+    ts.innerHTML=`${dismiss}<div class="ts-label">✨ 톤 레벨: ${lvLabels[idx]}</div>${cmpH}`;
   } else {
-    ts.innerHTML=`${dismiss}<div class="ts-label">✨ ${matched.i} · ${lvLabels[idx]}</div><div class="ts-main" data-v="${main.replace(/"/g,'&quot;')}" onclick="useTone(this.dataset.v)"><span>${main}</span><span class="ts-hint">적용</span></div>${alts.length?`<div class="ts-alts">${alts.map(a=>`<div class="ts-alt" data-v="${a.replace(/"/g,'&quot;')}" onclick="useTone(this.dataset.v)">${a}</div>`).join('')}</div>`:''}${cmpH}`;
+    ts.innerHTML=`${dismiss}<div class="ts-label">✨ 톤 레벨: ${lvLabels[idx]}</div>${previewH}<div class="ts-main" data-v="${main.replace(/"/g,'&quot;')}" onclick="useTone(this.dataset.v)"><span>${main}</span><span class="ts-hint">클릭하여 적용</span></div>${alts.length?`<div class="ts-alts">${alts.map(a=>`<div class="ts-alt" data-v="${a.replace(/"/g,'&quot;')}" onclick="useTone(this.dataset.v)">${a}</div>`).join('')}</div>`:''}${cmpH}`;
   }
   ts.classList.add('show');
 }
 function useTone(v){
   logFeatureUse('tone');
   if(curChat)curChat._toneUsed=true;
-  document.getElementById('inp').value=v;hideTone();
+  const inp=document.getElementById('inp');
+  // Typing animation effect
+  inp.value='';
+  inp.classList.add('inp-typing');
+  let i=0;
+  const typeInterval=setInterval(()=>{
+    if(i<v.length){inp.value+=v[i];i++}
+    else{clearInterval(typeInterval);inp.classList.remove('inp-typing')}
+  },20);
+  hideTone();
   document.getElementById('warn')?.classList.remove('show');
-  document.getElementById('inp').focus();
+  inp.focus();
+  // Re-show tone panel after typing completes so user can continue adjusting
+  setTimeout(()=>{if(inp.value.trim())updateTone(inp.value.trim())},v.length*20+200);
 }
 
 function doSend(){
