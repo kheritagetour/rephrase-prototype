@@ -163,8 +163,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Pretendard','Noto San
 .msg-wrap.other .bubble{background:var(--other);color:var(--text);border-bottom-left-radius:4px;box-shadow:var(--shadow-sm)}
 .bubble .b-time{font-size:8px;opacity:.4;text-align:right;margin-top:3px}
 .bubble.emoji-std{font-size:13px}
-.e-click{cursor:pointer;border-radius:3px;transition:var(--transition)}
+.e-click{cursor:pointer;border-radius:3px;transition:var(--transition);position:relative}
 .e-click:hover{background:rgba(79,108,255,.12)}
+.e-click .e-hover-tip{display:none;position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:var(--text);color:#fff;font-size:9px;padding:4px 8px;border-radius:5px;white-space:nowrap;pointer-events:none;z-index:15;font-weight:500}
+.e-click .e-hover-tip::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:4px solid transparent;border-top-color:var(--text)}
+.e-click:hover .e-hover-tip{display:block;animation:fadeIn .15s}
 .e-hint{display:inline-block;font-size:9px;color:var(--blue);margin-top:4px;cursor:pointer;padding:2px 8px;background:var(--blue-soft);border-radius:6px;transition:var(--transition)}
 .e-hint:hover{background:#dde3ff}
 
@@ -189,11 +192,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Pretendard','Noto San
 .rx-add:hover{background:rgba(0,0,0,.06)}
 
 .msg-wrap.other{position:relative}
-.qrx{display:none;position:absolute;top:-4px;right:0;background:var(--surface);border-radius:14px;padding:2px 3px;box-shadow:var(--shadow);gap:1px;z-index:10;transform:translateX(calc(100% + 4px))}
-.msg-wrap.other:hover .qrx{display:flex}
-@media(max-width:900px){.qrx{transform:none;right:0;top:-28px}}
-.qrx button{width:24px;height:24px;border:none;background:none;font-size:14px;cursor:pointer;border-radius:50%;transition:var(--transition)}
-.qrx button:hover{background:var(--surface2);transform:scale(1.15)}
+.qrx{display:none;position:absolute;top:-6px;right:-4px;background:var(--surface);border-radius:14px;padding:3px 4px;box-shadow:var(--shadow);gap:2px;z-index:10;transform:translateX(calc(100% + 2px))}
+.msg-wrap.other:hover .qrx,.qrx:hover{display:flex}
+/* Invisible bridge so mouse can travel from bubble to qrx without losing hover */
+.msg-wrap.other .bubble::after{content:'';position:absolute;top:-8px;right:-20px;width:20px;height:calc(100% + 16px);z-index:9}
+@media(max-width:900px){.qrx{transform:none;right:0;top:-32px}}
+.qrx button{width:28px;height:28px;border:none;background:none;font-size:15px;cursor:pointer;border-radius:50%;transition:var(--transition)}
+.qrx button:hover{background:var(--surface2);transform:scale(1.2)}
 
 /* ═══ COMPOSER ═══ */
 .composer{background:var(--surface);border-top:1px solid var(--border)}
@@ -335,9 +340,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Pretendard','Noto San
     <div class="consent-box">
       <h4>연구 참여 동의서</h4>
       <p>본 테스트는 KAIST 문화기술대학원 GCT50005 HCI 수업의 Re:Phrase 프로젝트 사용성 평가입니다.</p>
-      <p><strong>목적:</strong> Re:Phrase 시스템이 메시징 환경에서 이모지 해석, 톤 조절, 렌더링 미리보기, 업무 상태 표시 기능을 통해 커뮤니케이션 마찰을 줄이는지 평가합니다.</p>
-      <p><strong>소요 시간:</strong> 약 20-30분 (캘리브레이션 3분 + 태스크 4개 + 사후 설문)</p>
-      <p><strong>수집 데이터:</strong> 키 입력 횟수, 작업 완료 시간, 텍스트 수정 횟수, 망설임 구간(3초 이상 비활동), 7점 Likert 척도 응답</p>
+      <p><strong>목적:</strong> 본 연구는 새로운 메시징 인터페이스(Re:Phrase)의 전반적인 사용성과 사용자 경험을 평가하기 위해 진행됩니다.</p>
+      <p><strong>소요 시간:</strong> 약 20-30분 (연습 3분 + 시나리오 4개 + 사후 설문)</p>
+      <p><strong>수집 데이터:</strong> 인터페이스 사용 패턴, 작업 수행 시간, 설문 응답 등이 기록됩니다.</p>
       <p><strong>개인정보:</strong> 참여자 ID만 기록되며, 개인 식별 정보는 수집하지 않습니다. 모든 데이터는 연구 목적으로만 사용됩니다.</p>
       <p><strong>자발적 참여:</strong> 참여는 자발적이며, 언제든지 중단할 수 있습니다.</p>
     </div>
@@ -513,13 +518,12 @@ const TE=[
 // ══════════════════════════════════════
 const TASKS=[
   { id:'t1',
-    title:'이모지 해석 확인',
-    titleEn:'Pragmatic Decoding',
-    func:'F1',
+    title:'시나리오 1',
+    titleEn:'교수님 메시지 답장',
     brief:{
-      scenario:'밤 10시 30분, 출퇴근 지하철 안에서 지도교수님으로부터 메시지를 받았습니다. 교수님이 보낸 이모지의 의미가 불확실합니다.',
-      goal:'교수님이 보낸 <strong>애매한 이모지의 맥락별 해석 분포</strong>를 확인하고, 어떤 뜻인지 파악해보세요.',
-      steps:['메시지 속 이모지를 클릭하여 해석 스펙트럼을 확인하세요','긍정/중립/부정 분포를 읽고 맥락을 파악하세요','해석을 확인한 후 적절한 답장을 작성하여 전송하세요']
+      scenario:'밤 10시 30분, 퇴근길 지하철 안에서 지도교수님으로부터 메시지를 받았습니다. 교수님이 마지막에 보낸 이모지의 의미가 잘 모르겠습니다.',
+      goal:'교수님의 메시지를 읽고 의미를 파악한 뒤, <strong>적절한 답장을 작성하여 전송</strong>해주세요.',
+      steps:['교수님이 보낸 메시지를 주의 깊게 읽어보세요','인터페이스에서 도움이 될 만한 기능이 있다면 자유롭게 사용해보세요','적절한 답장을 작성하여 전송하세요']
     },
     chat:{id:'t1_prof',name:'김교수님',av:'김',col:'#6366f1',type:'work',formal:true,fLv:5,cultural:false,
       msgs:[
@@ -528,15 +532,15 @@ const TASKS=[
         {s:'김교수님',t:'👀',tm:'22:30'},
       ]},
     completionCheck:c=>c.msgs.some(m=>m.s==='me')&&c._tooltipViewed,
+    nudge:{delay:20000,msg:'💡 메시지 속 이모지를 눌러보면 도움이 될 수도 있어요.'},
   },
   { id:'t2',
-    title:'톤 조절 답장',
-    titleEn:'Tone Modification',
-    func:'F2',
+    title:'시나리오 2',
+    titleEn:'팀장님 긴급 지시 답장',
     brief:{
-      scenario:'이팀장님이 긴급 업무 지시를 보냈습니다. 지금은 퇴근 후 이동 중이라 즉시 처리가 어렵습니다. 짧고 직접적인 답변("지금은 못해요")을 치되, 시스템의 톤 조절 기능을 사용하여 정중하게 바꿔보세요.',
-      goal:'짧고 직접적인 답변을 입력한 뒤, <strong>톤 슬라이더와 제안을 사용</strong>하여 정중한 대안을 선택하고 전송하세요.',
-      steps:['"지금은 못해요" 또는 비슷한 짧은 답변을 입력하세요','편안↔정중 슬라이더를 조절하며 톤 변화를 확인하세요','마음에 드는 정중한 대안을 클릭하여 적용 후 전송하세요']
+      scenario:'이팀장님이 긴급 업무 지시를 보냈습니다. 지금은 퇴근 후 이동 중이라 즉시 처리가 어렵습니다.',
+      goal:'작성한 메시지가 직장 상사에게 보내기에는 너무 가벼워 보입니다. <strong>메시지를 더 예의 바르게 수정하여 전송</strong>해보세요.',
+      steps:['상황에 맞는 답장을 자유롭게 작성해보세요','메시지가 팀장님에게 보내기에 적절한지 확인해보세요','최종 메시지를 전송하세요']
     },
     chat:{id:'t2_boss',name:'이팀장님',av:'이',col:'#ec4899',type:'work',formal:true,fLv:4,cultural:false,
       msgs:[
@@ -545,15 +549,15 @@ const TASKS=[
         {s:'이팀장님',t:'가능하죠? 👍',tm:'21:47'},
       ]},
     completionCheck:c=>c.msgs.some(m=>m.s==='me')&&c._toneUsed,
+    nudge:{delay:25000,msg:'💡 입력창 위쪽에 도움이 되는 기능이 있을 수 있어요.'},
   },
   { id:'t3',
-    title:'이모지 렌더링 미리보기',
-    titleEn:'Cross-Platform Preview',
-    func:'F3',
+    title:'시나리오 3',
+    titleEn:'교수님에게 확인 메시지',
     brief:{
-      scenario:'교수님에게 확인 메시지를 보내려고 합니다. 이모지 하나만 보내면 플랫폼에 따라 크게 확대될 수 있어 의도와 다른 느낌을 줄 수 있습니다.',
-      goal:'이모지를 입력하고 <strong>렌더링 미리보기</strong>로 수신자 화면에서 어떻게 보이는지 확인한 뒤, 경고가 있으면 이를 참고하여 전송하세요.',
-      steps:['🙏 또는 👍 이모지만 입력해보세요','하단 미리보기에서 렌더링 크기를 확인하세요','경고가 표시되면 내용을 읽고, 필요시 텍스트를 추가하여 전송하세요']
+      scenario:'교수님이 보고서를 잘 받았다고 답장해주셨습니다. 간단한 확인 메시지를 보내려고 합니다.',
+      goal:'교수님에게 <strong>간단한 감사/확인 메시지를 보내주세요</strong>. 보내기 전에 상대방에게 어떻게 보일지 확인해보세요.',
+      steps:['교수님에게 보낼 짧은 메시지를 작성해보세요','보내기 전에 화면 하단을 확인해보세요','최종 메시지를 전송하세요']
     },
     chat:{id:'t3_render',name:'김교수님',av:'김',col:'#6366f1',type:'work',formal:true,fLv:5,cultural:false,
       msgs:[
@@ -561,15 +565,15 @@ const TASKS=[
         {s:'김교수님',t:'내일 오전에 피드백 드릴게요. 수고했어요.',tm:'23:51'},
       ]},
     completionCheck:c=>c.msgs.some(m=>m.s==='me')&&c._previewChecked,
+    nudge:{delay:20000,msg:'💡 이모지만 입력해보면 하단에 변화가 있을 수 있어요.'},
   },
   { id:'t4',
-    title:'업무 상태 토큰',
-    titleEn:'Status Annotation',
-    func:'F4',
+    title:'시나리오 4',
+    titleEn:'프로젝트 채널 응답',
     brief:{
-      scenario:'프로젝트 채널에서 팀원들이 업무 진행 상황을 공유하고 있습니다. 긴 답장 대신 상태 토큰으로 빠르게 리액션해주세요.',
-      goal:'메시지에 <strong>상태 토큰(⏳ Pending, ✅ Done 등)</strong>을 달고, 메모를 첨부하여 업무 상태를 명확히 전달하세요.',
-      steps:['토큰 바에서 상태 토큰(⏳, ✅ 등)을 클릭하여 리액션하세요','메시지를 우클릭하거나 + 버튼으로 메모를 추가하세요','상태 토큰이 메시지에 달린 것을 확인하세요']
+      scenario:'프로젝트 채널에서 팀원들이 업무 진행 상황을 공유하고 있습니다. 각 메시지에 현재 진행 상태를 빠르게 알려줘야 합니다.',
+      goal:'팀원들의 메시지에 <strong>현재 업무 진행 상태를 간결하게 응답</strong>해주세요. 긴 답장을 쓸 필요는 없습니다.',
+      steps:['각 팀원의 메시지를 읽어보세요','인터페이스에서 빠르게 응답할 수 있는 방법을 찾아보세요','각 메시지에 현재 상태를 표시하세요']
     },
     chat:{id:'t4_proj',name:'프로젝트 채널',av:'#',col:'#4f6cff',type:'work',formal:false,fLv:3,group:true,cultural:false,
       msgs:[
@@ -579,6 +583,7 @@ const TASKS=[
         {s:'정인턴',t:'디자인 시안 v2 올렸습니다. 리뷰 부탁드립니다.',tm:'16:35',rx:[{e:'🔥',c:1}]},
       ]},
     completionCheck:c=>{const hasToken=c.msgs.some(m=>m.rx?.some(r=>['⏳','✅','🚫','⚠️'].includes(r.e)));const hasNote=c.msgs.some(m=>m.rx?.some(r=>r.note&&r.note.length>0));return hasToken&&hasNote},
+    nudge:{delay:20000,msg:'💡 입력창 아래에 있는 버튼들을 살펴보세요.'},
   },
 ];
 
@@ -590,6 +595,7 @@ let curPhase=0;
 let curTaskIdx=-1;
 let curChat=null;
 let lt=null,noteIdx=null,noteEmoji='👍',replyTimer=null;
+let nudgeTimer=null;
 const recentEmoji={work:[],personal:[]};
 
 // Logging
@@ -764,8 +770,8 @@ function showTaskBrief(idx){
   curPhase=2;
   const task=TASKS[idx];
   document.getElementById('briefContent').innerHTML=`
-    <h2>Task ${idx+1} / 4</h2>
-    <p class="sub">${task.title} <span style="color:var(--text3);font-size:12px">(${task.titleEn} — ${task.func})</span></p>
+    <h2>${task.title}</h2>
+    <p class="sub">${task.titleEn}</p>
     <div class="brief-card">
       <div class="bc-num">${idx+1}</div>
       <h3>${task.title}</h3>
@@ -793,10 +799,20 @@ function startTask(idx){
   showPhase('app');
   renderTaskNav();
   openChat(curChat);
+  // Nudge: if user hasn't discovered feature after delay, show gentle hint
+  if(nudgeTimer)clearTimeout(nudgeTimer);
+  if(task.nudge){
+    nudgeTimer=setTimeout(()=>{
+      const nb=document.getElementById('nudgeBar');
+      const nm=document.getElementById('nudgeMsg');
+      if(nb&&nm){nm.textContent=task.nudge.msg;nb.style.display='flex'}
+    },task.nudge.delay);
+  }
 }
 
 // ── Complete Task ──
 function completeTask(){
+  if(nudgeTimer){clearTimeout(nudgeTimer);nudgeTimer=null}
   endTaskLog();
   curPhase=4;
   showLikert(curTaskIdx);
@@ -838,7 +854,7 @@ const MODULE_Q={
   ],
 };
 
-const MODULE_NAMES={0:'Module B — 이모지 해석 스펙트럼',1:'Module A — 맥락 인식 어조 조정',2:'Module D — 크로스플랫폼 이모지 미리보기',3:'Module C — 업무 진행 상태 토큰'};
+const MODULE_NAMES={0:'시나리오 1 추가 문항',1:'시나리오 2 추가 문항',2:'시나리오 3 추가 문항',3:'시나리오 4 추가 문항'};
 
 // ── Likert ──
 function showLikert(idx){
@@ -862,8 +878,8 @@ function showLikert(idx){
 
   document.getElementById('likertContent').innerHTML=`
     <div style="max-height:85vh;overflow-y:auto;padding-right:8px">
-      <h2>Task ${idx+1} 평가</h2>
-      <p class="sub">${task.title} — 방금 경험한 기능에 대해 평가해주세요.</p>
+      <h2>${task.title} 평가</h2>
+      <p class="sub">${task.titleEn} — 방금 경험에 대해 평가해주세요.</p>
       <div class="likert-section">
         <h3 style="color:var(--blue)">공통 문항 (S1–S4)</h3>
         ${commonH}
@@ -967,9 +983,14 @@ function exportLog(){
   a.click();
 }
 function exportCSV(){
-  let csv='Task,CompletionTime_s,Keystrokes,Revisions,HesitationEpisodes,InvocationLatency_s,S_conf,S_intr\n';
+  // Header: performance + all likert keys
+  const allKeys=new Set();
+  LOG.tasks.forEach(t=>{if(t.likert)Object.keys(t.likert).forEach(k=>allKeys.add(k))});
+  const lkCols=[...allKeys].sort();
+  let csv='Task,CompletionTime_s,Keystrokes,Revisions,HesitationEpisodes,InvocationLatency_s,'+lkCols.join(',')+'\n';
   LOG.tasks.forEach((t,i)=>{
-    csv+=`Task${i+1},${t.completionTime.toFixed(1)},${t.keystrokes},${t.revisions},${t.hesitationEpisodes},${t.invocationLatency?t.invocationLatency.toFixed(1):''},${t.likert.conf},${t.likert.intr}\n`;
+    const lk=t.likert||{};
+    csv+=`Task${i+1},${t.completionTime.toFixed(1)},${t.keystrokes},${t.revisions},${t.hesitationEpisodes},${t.invocationLatency?t.invocationLatency.toFixed(1):''},${lkCols.map(k=>lk[k]||'').join(',')}\n`;
   });
   const blob=new Blob([csv],{type:'text/csv'});
   const a=document.createElement('a');
@@ -990,13 +1011,23 @@ function renderTaskNav(){
     else if(i>curTaskIdx)cls+=' locked';
     return `<div class="${cls}">
       <div class="tn-num">${i<curTaskIdx||(i===curTaskIdx&&curPhase>=4)?'✓':(i+1)}</div>
-      <div class="tn-meta"><h4>${t.title}</h4><p>${t.titleEn} (${t.func})</p></div>
+      <div class="tn-meta"><h4>${t.title}</h4><p>${t.titleEn}</p></div>
     </div>`}).join('');
 }
 
 // ══════════════════════════════════════
 // CHAT ENGINE
 // ══════════════════════════════════════
+// ── Platform Detection ──
+function detectPlatform(){
+  const ua=navigator.userAgent||'';
+  if(/iPhone|iPad|iPod/i.test(ua))return{label:'iOS',os:'apple',other:'Android'};
+  if(/Android/i.test(ua))return{label:'Android',os:'android',other:'iOS'};
+  if(/Macintosh|Mac OS/i.test(ua))return{label:'macOS',os:'apple',other:'Windows'};
+  if(/Windows/i.test(ua))return{label:'Windows',os:'windows',other:'macOS'};
+  return{label:'이 기기',os:'unknown',other:'다른 플랫폼'};
+}
+
 function now(){return new Date().toLocaleTimeString('ko-KR',{hour:'numeric',minute:'2-digit'})}
 function pick(a){return a[Math.floor(Math.random()*a.length)]}
 function trackE(e){const t=curChat?.type||'work';const a=recentEmoji[t];const i=a.indexOf(e);if(i>-1)a.splice(i,1);a.unshift(e);if(a.length>6)a.pop()}
@@ -1011,7 +1042,8 @@ function openChat(c){
     <div class="c-hdr"><div class="ch-av" style="background:${c.col}">${c.av}</div><div><h4>${c.name}</h4><div class="c-sub">${isW?'Workspace':'Personal'}${c.formal?' · Formal':''}${c.group?' · Group':''}</div></div>
       <div class="c-chips">${c.formal?'<span class="c-chip formal">Formal</span>':''}<span class="c-chip ctx">${isW?'Work':'Personal'}</span><span class="c-chip task">Task ${curTaskIdx+1}</span></div>
     </div>
-    <div class="task-banner"><span class="tb-icon">${['🔍','✨','👁','📊'][curTaskIdx]}</span><div class="tb-text">${task.brief.steps.map(s=>'<strong>'+s+'</strong>').join(' → ')}</div><button class="tb-complete" id="taskCompleteBtn" onclick="completeTask()">태스크 완료</button></div>
+    <div class="task-banner"><span class="tb-icon">📋</span><div class="tb-text">${task.brief.goal}</div><button class="tb-complete" id="taskCompleteBtn" onclick="completeTask()">완료</button></div>
+    <div class="nudge-bar" id="nudgeBar" style="display:none;padding:8px 20px;background:var(--blue-soft);border-bottom:1px solid rgba(79,108,255,.2);font-size:11px;color:var(--blue);animation:fadeIn .3s"><span id="nudgeMsg"></span><button onclick="this.parentElement.style.display='none'" style="margin-left:auto;border:none;background:none;color:var(--blue);cursor:pointer;font-size:12px">×</button></div>
     <div class="msg-area" id="msgArea"></div>
     ${CFG.renderPreview?'<div class="rp" id="rp"></div>':''}
     <div class="composer">
@@ -1052,12 +1084,10 @@ function renderMsgs(){
     const me=msg.s==='me';const w=document.createElement('div');
     const se=/^[\p{Emoji_Presentation}\p{Emoji}\uFE0F]{1,4}$/u.test(msg.t.trim())&&msg.t.trim().length<=8;
     w.className=`msg-wrap ${me?'me':'other'}`;
-    const isTask1Highlight=curTaskIdx===0&&!me;
     let html=msg.t.replace(/([\p{Emoji_Presentation}\p{Emoji}\uFE0F]+)/gu,m=>{
-      const hasData=ED[m]||ED_CTX.formal?.[m]||ED_CTX.peer?.[m];
-      if(!hasData)return m;
-      if(isTask1Highlight&&m==='👀')return `<span class="e-click e-highlight" onclick="showTooltip('${m}')">${m}<span class="e-highlight-arrow">클릭하여 해석 확인</span></span>`;
-      return `<span class="e-click" onclick="showTooltip('${m}')">${m}</span>`;
+      const ed=getED(m)||ED[m];
+      if(!ed)return m;
+      return `<span class="e-click" onclick="showTooltip('${m}')">${m}<span class="e-hover-tip">${ed.m} — 클릭하여 상세 보기</span></span>`;
     });
     let rxH='';
     if(msg.rx?.length){rxH='<div class="rx-row">'+msg.rx.map(r=>{
@@ -1128,50 +1158,49 @@ function onInput(){
     logFeatureUse('preview');
     if(curChat)curChat._previewChecked=true;
     const se=/^[\p{Emoji_Presentation}\p{Emoji}\uFE0F]{1,4}$/u.test(v)&&v.length<=8;
+    const plat=detectPlatform();
     if(se){
-      // Single emoji: show dramatic size difference
       rp.innerHTML=`<div style="margin-bottom:8px;font-weight:600;font-size:11px">👁 수신자 화면 미리보기 — 단일 이모지</div>
         <div style="display:flex;gap:20px;align-items:flex-end;margin-bottom:8px">
           <div style="text-align:center;flex:1">
-            <div style="font-size:9px;color:var(--text3);margin-bottom:6px;font-weight:600">iOS (나) — Re:Phrase 적용</div>
+            <div style="font-size:9px;color:var(--text3);margin-bottom:6px;font-weight:600">${plat.label} (나) — Re:Phrase 적용</div>
             <div style="background:var(--green-soft);border:1.5px solid var(--green);border-radius:10px;padding:10px;display:inline-block">
               <span style="font-size:16px">${v}</span>
             </div>
-            <div style="font-size:9px;color:var(--green);margin-top:4px;font-weight:600">✓ 텍스트 크기 (16px)</div>
+            <div style="font-size:9px;color:var(--green);margin-top:4px;font-weight:600">✓ 텍스트 크기</div>
           </div>
           <div style="font-size:20px;color:var(--text3);margin-bottom:16px">→</div>
           <div style="text-align:center;flex:1">
-            <div style="font-size:9px;color:var(--text3);margin-bottom:6px;font-weight:600">Android (수신자) — 기본 렌더링</div>
+            <div style="font-size:9px;color:var(--text3);margin-bottom:6px;font-weight:600">${plat.other} (수신자) — 기본 렌더링</div>
             <div style="background:var(--amber-soft);border:2px solid var(--amber);border-radius:10px;padding:12px;display:inline-block">
               <span style="font-size:48px;line-height:1">${v}</span>
             </div>
-            <div style="font-size:9px;color:var(--red);margin-top:4px;font-weight:700">⚠ 확대 렌더링 (48px)</div>
+            <div style="font-size:9px;color:var(--red);margin-top:4px;font-weight:700">⚠ 확대 렌더링</div>
           </div>
         </div>
         <div style="padding:8px 12px;background:var(--amber-soft);border-radius:8px;border-left:3px solid var(--amber);font-size:11px;color:#92400e;line-height:1.6">
-          ⚠ <strong>단일 이모지</strong>는 수신자 플랫폼에서 <strong>3배 확대</strong>될 수 있습니다.<br>
-          💡 텍스트를 함께 보내면 표준 크기로 표시됩니다 → <span style="cursor:pointer;text-decoration:underline" onclick="document.getElementById('inp').value='${v} 감사합니다';document.getElementById('inp').dispatchEvent(new Event('input'));document.getElementById('inp').focus()">"${v} 감사합니다" 로 변경하기</span>
+          ⚠ <strong>단일 이모지</strong>는 ${plat.other}에서 <strong>확대</strong>되어 의도와 다른 강조를 줄 수 있습니다.<br>
+          💡 텍스트를 함께 보내면 표준 크기 → <span style="cursor:pointer;text-decoration:underline" onclick="document.getElementById('inp').value='${v} 감사합니다';document.getElementById('inp').dispatchEvent(new Event('input'));document.getElementById('inp').focus()">"${v} 감사합니다" 로 변경</span>
         </div>`;
     } else {
-      // Text + emoji: show both sides same standard size
-      rp.innerHTML=`<div style="margin-bottom:8px;font-weight:600;font-size:11px">👁 수신자 화면 미리보기 — 텍스트 포함</div>
+      rp.innerHTML=`<div style="margin-bottom:8px;font-weight:600;font-size:11px">👁 수신자 화면 미리보기</div>
         <div style="display:flex;gap:20px;align-items:center;margin-bottom:6px">
           <div style="text-align:center;flex:1">
-            <div style="font-size:9px;color:var(--text3);margin-bottom:6px;font-weight:600">iOS (나)</div>
+            <div style="font-size:9px;color:var(--text3);margin-bottom:6px;font-weight:600">${plat.label} (나)</div>
             <div style="background:var(--green-soft);border:1.5px solid var(--green);border-radius:10px;padding:8px 12px;display:inline-block">
               <span style="font-size:13px">${v}</span>
             </div>
           </div>
           <div style="font-size:20px;color:var(--text3)">→</div>
           <div style="text-align:center;flex:1">
-            <div style="font-size:9px;color:var(--text3);margin-bottom:6px;font-weight:600">Android (수신자)</div>
+            <div style="font-size:9px;color:var(--text3);margin-bottom:6px;font-weight:600">${plat.other} (수신자)</div>
             <div style="background:var(--green-soft);border:1.5px solid var(--green);border-radius:10px;padding:8px 12px;display:inline-block">
               <span style="font-size:13px">${v}</span>
             </div>
           </div>
         </div>
         <div style="padding:6px 10px;background:var(--green-soft);border-radius:8px;border-left:3px solid var(--green);font-size:11px;color:#065f46;line-height:1.5">
-          ✓ 텍스트 포함 시 <strong>양쪽 모두 표준 크기</strong>로 렌더링됩니다. 안전합니다.
+          ✓ 텍스트 포함 — <strong>양쪽 모두 표준 크기</strong>로 렌더링됩니다.
         </div>`;
     }
     rp.classList.add('show');
