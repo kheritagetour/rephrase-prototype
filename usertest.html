@@ -1120,7 +1120,8 @@ function renderMsgs(){
     else if(!me){rxH=`<div class="rx-row"><span class="rx-add" onclick="openNote(${idx})">+</span></div>`}
     let hintH='';
     if(!me){const ems=msg.t.match(/([\p{Emoji_Presentation}\p{Emoji}\uFE0F])/gu);if(ems?.some(e=>{const ed=getED(e);return ed&&(ed.v==='r'||ed.v==='y')})){const e=ems.find(e=>{const ed=getED(e);return ed&&(ed.v==='r'||ed.v==='y')});if(e)hintH=`<span class="e-hint" onclick="showTooltip('${e}')">🔍 이 이모지, 어떤 뜻일까?</span>`}}
-    const qrxH=!me?`<div class="qrx"><button onclick="quickRx(${idx},'👍')">👍</button><button onclick="quickRx(${idx},'❤️')">❤️</button><button onclick="quickRx(${idx},'😂')">😂</button><button onclick="quickRx(${idx},'🙏')">🙏</button><button onclick="openNote(${idx})">+</button></div>`:'';
+    // Hide quick reactions in Task 4 (group/status token test) — only show + for note
+    const qrxH=!me?(curChat.group?`<div class="qrx"><button onclick="openNote(${idx})">+</button></div>`:`<div class="qrx"><button onclick="quickRx(${idx},'👍')">👍</button><button onclick="quickRx(${idx},'❤️')">❤️</button><button onclick="quickRx(${idx},'😂')">😂</button><button onclick="quickRx(${idx},'🙏')">🙏</button><button onclick="openNote(${idx})">+</button></div>`):'';
     w.innerHTML=`${qrxH}${!me&&c.group?`<div class="msg-sender">${msg.s}</div>`:''}<div class="bubble${se&&CFG.emojiSize?' emoji-std':''}">${html}<div class="b-time">${msg.tm}</div></div>${hintH}${rxH}`;
     if(!me){w.addEventListener('contextmenu',e=>{e.preventDefault();openNote(idx)});w.addEventListener('dblclick',()=>openNote(idx))}
     el.appendChild(w);
