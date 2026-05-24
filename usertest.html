@@ -162,7 +162,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Pretendard','Noto San
 .msg-wrap.me .bubble{background:var(--mine);color:#fff;border-bottom-right-radius:4px}
 .msg-wrap.other .bubble{background:var(--other);color:var(--text);border-bottom-left-radius:4px;box-shadow:var(--shadow-sm)}
 .bubble .b-time{font-size:8px;opacity:.4;text-align:right;margin-top:3px}
-.bubble.emoji-lg{font-size:40px;line-height:1.2;background:none!important;box-shadow:none!important;padding:4px 6px}
+.bubble.emoji-lg{font-size:42px;line-height:1.2;padding:4px 6px}
+.msg-wrap.me .bubble.emoji-lg{background:transparent!important;color:inherit}
+.msg-wrap.other .bubble.emoji-lg{background:transparent!important;box-shadow:none!important}
 .bubble.emoji-std{font-size:13px}
 .e-click{cursor:pointer;border-radius:3px;transition:var(--transition)}
 .e-click:hover{background:rgba(79,108,255,.12)}
