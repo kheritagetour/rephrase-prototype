@@ -163,11 +163,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Pretendard','Noto San
 .msg-wrap.other .bubble{background:var(--other);color:var(--text);border-bottom-left-radius:4px;box-shadow:var(--shadow-sm)}
 .bubble .b-time{font-size:8px;opacity:.4;text-align:right;margin-top:3px}
 .bubble.emoji-std{font-size:13px}
-.e-click{cursor:pointer;border-radius:3px;transition:var(--transition);position:relative}
+.e-click{cursor:pointer;border-radius:3px;transition:var(--transition)}
 .e-click:hover{background:rgba(79,108,255,.12)}
-.e-click .e-hover-tip{display:none;position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:var(--text);color:#fff;font-size:9px;padding:4px 8px;border-radius:5px;white-space:nowrap;pointer-events:none;z-index:15;font-weight:500}
-.e-click .e-hover-tip::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:4px solid transparent;border-top-color:var(--text)}
-.e-click:hover .e-hover-tip{display:block;animation:fadeIn .15s}
 .e-hint{display:inline-block;font-size:9px;color:var(--blue);margin-top:4px;cursor:pointer;padding:2px 8px;background:var(--blue-soft);border-radius:6px;transition:var(--transition)}
 .e-hint:hover{background:#dde3ff}
 
@@ -1115,7 +1112,7 @@ function renderMsgs(){
     let html=msg.t.replace(/([\p{Emoji_Presentation}\p{Emoji}\uFE0F]+)/gu,m=>{
       const ed=getED(m)||ED[m];
       if(!ed)return m;
-      return `<span class="e-click" onclick="showTooltip('${m}')">${m}<span class="e-hover-tip">${ed.m} — 클릭하여 상세 보기</span></span>`;
+      return `<span class="e-click" onclick="showTooltip('${m}')">${m}</span>`;
     });
     let rxH='';
     if(msg.rx?.length){rxH='<div class="rx-row">'+msg.rx.map(r=>{
@@ -1186,49 +1183,47 @@ function onInput(){
     logFeatureUse('preview');
     if(curChat)curChat._previewChecked=true;
     const se=/^[\p{Emoji_Presentation}\p{Emoji}\uFE0F]{1,4}$/u.test(v)&&v.length<=8;
-    const plat=detectPlatform();
+    // Get emoji codepoint for platform-specific image URLs
+    const emojiCP=v.codePointAt(0)?.toString(16);
     if(se){
-      rp.innerHTML=`<div style="margin-bottom:8px;font-weight:600;font-size:11px">👁 수신자 화면 미리보기 — 단일 이모지</div>
-        <div style="display:flex;gap:20px;align-items:flex-end;margin-bottom:8px">
-          <div style="text-align:center;flex:1">
-            <div style="font-size:9px;color:var(--text3);margin-bottom:6px;font-weight:600">${plat.label} (나) — Re:Phrase 적용</div>
-            <div style="background:var(--green-soft);border:1.5px solid var(--green);border-radius:10px;padding:10px;display:inline-block">
-              <span style="font-size:16px">${v}</span>
+      rp.innerHTML=`<div style="margin-bottom:8px;font-weight:600;font-size:11px">👁 플랫폼별 이모지 미리보기</div>
+        <div style="display:flex;gap:12px;align-items:flex-end;margin-bottom:8px;justify-content:center">
+          <div style="text-align:center">
+            <div style="font-size:9px;color:var(--text3);margin-bottom:4px;font-weight:600">Apple</div>
+            <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:10px;padding:8px 12px;display:inline-block">
+              <img src="https://em-content.zobj.net/source/apple/391/${emojiCP}.png" alt="${v}" style="width:36px;height:36px" onerror="this.outerHTML='<span style=font-size:36px>${v}</span>'">
             </div>
-            <div style="font-size:9px;color:var(--green);margin-top:4px;font-weight:600">✓ 텍스트 크기</div>
           </div>
-          <div style="font-size:20px;color:var(--text3);margin-bottom:16px">→</div>
-          <div style="text-align:center;flex:1">
-            <div style="font-size:9px;color:var(--text3);margin-bottom:6px;font-weight:600">${plat.other} (수신자) — 기본 렌더링</div>
-            <div style="background:var(--amber-soft);border:2px solid var(--amber);border-radius:10px;padding:12px;display:inline-block">
-              <span style="font-size:48px;line-height:1">${v}</span>
+          <div style="text-align:center">
+            <div style="font-size:9px;color:var(--text3);margin-bottom:4px;font-weight:600">Google</div>
+            <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:10px;padding:8px 12px;display:inline-block">
+              <img src="https://em-content.zobj.net/source/google/416/${emojiCP}.png" alt="${v}" style="width:36px;height:36px" onerror="this.outerHTML='<span style=font-size:36px>${v}</span>'">
             </div>
-            <div style="font-size:9px;color:var(--red);margin-top:4px;font-weight:700">⚠ 확대 렌더링</div>
+          </div>
+          <div style="text-align:center">
+            <div style="font-size:9px;color:var(--text3);margin-bottom:4px;font-weight:600">Windows</div>
+            <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:10px;padding:8px 12px;display:inline-block">
+              <img src="https://em-content.zobj.net/source/microsoft/409/${emojiCP}.png" alt="${v}" style="width:36px;height:36px" onerror="this.outerHTML='<span style=font-size:36px>${v}</span>'">
+            </div>
+          </div>
+          <div style="text-align:center">
+            <div style="font-size:9px;color:var(--text3);margin-bottom:4px;font-weight:600">Samsung</div>
+            <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:10px;padding:8px 12px;display:inline-block">
+              <img src="https://em-content.zobj.net/source/samsung/349/${emojiCP}.png" alt="${v}" style="width:36px;height:36px" onerror="this.outerHTML='<span style=font-size:36px>${v}</span>'">
+            </div>
           </div>
         </div>
         <div style="padding:8px 12px;background:var(--amber-soft);border-radius:8px;border-left:3px solid var(--amber);font-size:11px;color:#92400e;line-height:1.6">
-          ⚠ <strong>단일 이모지</strong>는 ${plat.other}에서 <strong>확대</strong>되어 의도와 다른 강조를 줄 수 있습니다.<br>
+          ⚠ <strong>단일 이모지</strong>는 플랫폼에 따라 <strong>그림체가 다르고 확대</strong>되어 의도와 다른 느낌을 줄 수 있습니다.<br>
           💡 텍스트를 함께 보내면 표준 크기 → <span style="cursor:pointer;text-decoration:underline" onclick="document.getElementById('inp').value='${v} 감사합니다';document.getElementById('inp').dispatchEvent(new Event('input'));document.getElementById('inp').focus()">"${v} 감사합니다" 로 변경</span>
         </div>`;
     } else {
-      rp.innerHTML=`<div style="margin-bottom:8px;font-weight:600;font-size:11px">👁 수신자 화면 미리보기</div>
-        <div style="display:flex;gap:20px;align-items:center;margin-bottom:6px">
-          <div style="text-align:center;flex:1">
-            <div style="font-size:9px;color:var(--text3);margin-bottom:6px;font-weight:600">${plat.label} (나)</div>
-            <div style="background:var(--green-soft);border:1.5px solid var(--green);border-radius:10px;padding:8px 12px;display:inline-block">
-              <span style="font-size:13px">${v}</span>
-            </div>
-          </div>
-          <div style="font-size:20px;color:var(--text3)">→</div>
-          <div style="text-align:center;flex:1">
-            <div style="font-size:9px;color:var(--text3);margin-bottom:6px;font-weight:600">${plat.other} (수신자)</div>
-            <div style="background:var(--green-soft);border:1.5px solid var(--green);border-radius:10px;padding:8px 12px;display:inline-block">
-              <span style="font-size:13px">${v}</span>
-            </div>
-          </div>
+      rp.innerHTML=`<div style="margin-bottom:6px;font-weight:600;font-size:11px">👁 수신자 미리보기</div>
+        <div style="display:inline-block;background:var(--green-soft);border:1.5px solid var(--green);border-radius:10px;padding:6px 12px">
+          <span style="font-size:13px">${v}</span>
         </div>
-        <div style="padding:6px 10px;background:var(--green-soft);border-radius:8px;border-left:3px solid var(--green);font-size:11px;color:#065f46;line-height:1.5">
-          ✓ 텍스트 포함 — <strong>양쪽 모두 표준 크기</strong>로 렌더링됩니다.
+        <div style="margin-top:4px;color:var(--green);font-size:10px">
+          ✓ 텍스트 포함 — 표준 크기로 렌더링됩니다.
         </div>`;
     }
     rp.classList.add('show');
@@ -1353,7 +1348,15 @@ function hideRxFloat(){document.getElementById('rxFloat').classList.remove('show
 
 function quickRx(idx,emoji){
   logFeatureUse('token');
-  const msg=curChat.msgs[idx];if(!msg.rx)msg.rx=[];const ex=msg.rx.find(r=>r.e===emoji);if(ex)ex.c++;else msg.rx.push({e:emoji,c:1});renderMsgs();
+  const msg=curChat.msgs[idx];if(!msg.rx)msg.rx=[];
+  const exIdx=msg.rx.findIndex(r=>r.e===emoji&&!r.note);
+  if(exIdx>-1){
+    // Toggle: remove if already exists
+    msg.rx.splice(exIdx,1);
+  } else {
+    msg.rx.push({e:emoji,c:1});
+  }
+  renderMsgs();
 }
 
 function addStatus(e,l){
@@ -1361,9 +1364,13 @@ function addStatus(e,l){
   for(let i=curChat.msgs.length-1;i>=0;i--){
     if(curChat.msgs[i].s!=='me'){
       if(!curChat.msgs[i].rx)curChat.msgs[i].rx=[];
-      const existing=curChat.msgs[i].rx.find(r=>r.e===e);
-      if(existing){existing.c++}
-      else{curChat.msgs[i].rx.push({e,c:1,note:l})}
+      const exIdx=curChat.msgs[i].rx.findIndex(r=>r.e===e&&(!r.note||r.note===l));
+      if(exIdx>-1){
+        // Toggle: remove if same status already exists
+        curChat.msgs[i].rx.splice(exIdx,1);
+      } else {
+        curChat.msgs[i].rx.push({e,c:1,note:l});
+      }
       renderMsgs();break;
     }
   }
