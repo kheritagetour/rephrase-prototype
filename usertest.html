@@ -162,6 +162,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Pretendard','Noto San
 .msg-wrap.me .bubble{background:var(--mine);color:#fff;border-bottom-right-radius:4px}
 .msg-wrap.other .bubble{background:var(--other);color:var(--text);border-bottom-left-radius:4px;box-shadow:var(--shadow-sm)}
 .bubble .b-time{font-size:8px;opacity:.4;text-align:right;margin-top:3px}
+.bubble.emoji-lg{font-size:40px;line-height:1.2;background:none!important;box-shadow:none!important;padding:4px 6px}
 .bubble.emoji-std{font-size:13px}
 .e-click{cursor:pointer;border-radius:3px;transition:var(--transition)}
 .e-click:hover{background:rgba(79,108,255,.12)}
@@ -414,7 +415,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Pretendard','Noto San
    ══════════════════════════════════════════════════════ */
 
 // ── Config ──
-const CFG={emojiSize:true,panelSwitch:true,renderPreview:true,toneAid:true,emojiWarn:true};
+const CFG={emojiSize:false,panelSwitch:true,renderPreview:true,toneAid:true,emojiWarn:true};
 
 // ── Emoji Data ──
 const ED_CTX={
@@ -1122,7 +1123,9 @@ function renderMsgs(){
     if(!me){const ems=msg.t.match(/([\p{Emoji_Presentation}\p{Emoji}\uFE0F])/gu);if(ems?.some(e=>{const ed=getED(e);return ed&&(ed.v==='r'||ed.v==='y')})){const e=ems.find(e=>{const ed=getED(e);return ed&&(ed.v==='r'||ed.v==='y')});if(e)hintH=`<span class="e-hint" onclick="showTooltip('${e}')">🔍 이 이모지, 어떤 뜻일까?</span>`}}
     // Hide quick reactions in Task 4 (group/status token test) — only show + for note
     const qrxH=!me?(curChat.group?`<div class="qrx"><button onclick="openNote(${idx})">+</button></div>`:`<div class="qrx"><button onclick="quickRx(${idx},'👍')">👍</button><button onclick="quickRx(${idx},'❤️')">❤️</button><button onclick="quickRx(${idx},'😂')">😂</button><button onclick="quickRx(${idx},'🙏')">🙏</button><button onclick="openNote(${idx})">+</button></div>`):'';
-    w.innerHTML=`${qrxH}${!me&&c.group?`<div class="msg-sender">${msg.s}</div>`:''}<div class="bubble${se&&CFG.emojiSize?' emoji-std':''}">${html}<div class="b-time">${msg.tm}</div></div>${hintH}${rxH}`;
+    // Single emoji: show large (like KakaoTalk default), unless Re:Phrase emojiSize setting forces standard
+    const emojiClass=se?(CFG.emojiSize?' emoji-std':' emoji-lg'):'';
+    w.innerHTML=`${qrxH}${!me&&c.group?`<div class="msg-sender">${msg.s}</div>`:''}<div class="bubble${emojiClass}">${html}<div class="b-time">${msg.tm}</div></div>${hintH}${rxH}`;
     if(!me){w.addEventListener('contextmenu',e=>{e.preventDefault();openNote(idx)});w.addEventListener('dblclick',()=>openNote(idx))}
     el.appendChild(w);
   });
