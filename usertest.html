@@ -162,9 +162,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Pretendard','Noto San
 .msg-wrap.me .bubble{background:var(--mine);color:#fff;border-bottom-right-radius:4px}
 .msg-wrap.other .bubble{background:var(--other);color:var(--text);border-bottom-left-radius:4px;box-shadow:var(--shadow-sm)}
 .bubble .b-time{font-size:8px;opacity:.4;text-align:right;margin-top:3px}
-.bubble.emoji-lg{font-size:42px!important;line-height:1.2!important;padding:4px 6px!important}
-.msg-wrap.me .bubble.emoji-lg{background:transparent!important;color:inherit!important}
+.bubble.emoji-lg{padding:6px 8px!important;line-height:1!important}
+.msg-wrap.me .bubble.emoji-lg{background:transparent!important}
 .msg-wrap.other .bubble.emoji-lg{background:transparent!important;box-shadow:none!important}
+.bubble.emoji-lg .emoji-img{width:52px;height:52px;vertical-align:middle;cursor:pointer}
 .bubble.emoji-std{font-size:13px}
 .e-click{cursor:pointer;border-radius:3px;transition:var(--transition)}
 .e-click:hover{background:rgba(79,108,255,.12)}
@@ -1056,6 +1057,22 @@ function detectPlatform(){
   return{label:'이 기기',os:'unknown',other:'다른 플랫폼'};
 }
 
+// ── Emoji to PNG image ──
+function emojiToCodepoint(e){
+  const cp=[];
+  for(let i=0;i<e.length;i++){
+    const c=e.codePointAt(i);
+    if(c>0xFFFF)i++; // skip surrogate
+    if(c===0xFE0F)continue; // skip variation selector
+    cp.push(c.toString(16));
+  }
+  return cp.join('-');
+}
+function emojiImg(e,size){
+  const cp=emojiToCodepoint(e);
+  return `<img class="emoji-img" src="https://cdn.jsdelivr.net/gh/twitter/twemoji@latest/assets/72x72/${cp}.png" alt="${e}" style="width:${size}px;height:${size}px" onclick="showTooltip('${e}')" onerror="this.outerHTML='<span style=font-size:${size}px;cursor:pointer onclick=showTooltip(\\x27${e}\\x27)>${e}</span>'">`;
+}
+
 function now(){return new Date().toLocaleTimeString('ko-KR',{hour:'numeric',minute:'2-digit'})}
 function pick(a){return a[Math.floor(Math.random()*a.length)]}
 function trackE(e){const t=curChat?.type||'work';const a=recentEmoji[t];const i=a.indexOf(e);if(i>-1)a.splice(i,1);a.unshift(e);if(a.length>6)a.pop()}
@@ -1112,11 +1129,18 @@ function renderMsgs(){
     const me=msg.s==='me';const w=document.createElement('div');
     const se=/^[\p{Emoji_Presentation}\p{Emoji}\uFE0F]{1,4}$/u.test(msg.t.trim())&&msg.t.trim().length<=8;
     w.className=`msg-wrap ${me?'me':'other'}`;
-    let html=msg.t.replace(/([\p{Emoji_Presentation}\p{Emoji}\uFE0F]+)/gu,m=>{
-      const ed=getED(m)||ED[m];
-      if(!ed)return m;
-      return `<span class="e-click" onclick="showTooltip('${m}')">${m}</span>`;
-    });
+    let html;
+    if(se&&!CFG.emojiSize){
+      // Single emoji → render as large PNG image
+      const rawEmoji=msg.t.trim();
+      html=emojiImg(rawEmoji,52);
+    } else {
+      html=msg.t.replace(/([\p{Emoji_Presentation}\p{Emoji}\uFE0F]+)/gu,m=>{
+        const ed=getED(m)||ED[m];
+        if(!ed)return m;
+        return `<span class="e-click" onclick="showTooltip('${m}')">${m}</span>`;
+      });
+    }
     let rxH='';
     if(msg.rx?.length){rxH='<div class="rx-row">'+msg.rx.map(r=>{
       return`<span class="rx-pill" data-e="${r.e}" onclick="showTooltip('${r.e}')" onmouseenter="showRxFloat(this,'${r.e}','${(r.note||'').replace(/'/g,"\\'")}')" onmouseleave="hideRxFloat()">${r.e}${r.c>1?' '+r.c:''}${r.note?`<span class="rx-note">${r.note}</span>`:''}</span>`}).join('')+`<span class="rx-add" onclick="openNote(${idx})">+</span></div>`}
@@ -1127,7 +1151,6 @@ function renderMsgs(){
     const qrxH=!me?(curChat.group?`<div class="qrx"><button onclick="openNote(${idx})">+</button></div>`:`<div class="qrx"><button onclick="quickRx(${idx},'👍')">👍</button><button onclick="quickRx(${idx},'❤️')">❤️</button><button onclick="quickRx(${idx},'😂')">😂</button><button onclick="quickRx(${idx},'🙏')">🙏</button><button onclick="openNote(${idx})">+</button></div>`):'';
     // Single emoji: show large (like KakaoTalk default), unless Re:Phrase emojiSize setting forces standard
     const emojiClass=se?(CFG.emojiSize?' emoji-std':' emoji-lg'):'';
-    if(se)console.log('[emoji-lg]',msg.t,'class:',emojiClass,'CFG.emojiSize:',CFG.emojiSize);
     w.innerHTML=`${qrxH}${!me&&c.group?`<div class="msg-sender">${msg.s}</div>`:''}<div class="bubble${emojiClass}">${html}<div class="b-time">${msg.tm}</div></div>${hintH}${rxH}`;
     if(!me){w.addEventListener('contextmenu',e=>{e.preventDefault();openNote(idx)});w.addEventListener('dblclick',()=>openNote(idx))}
     el.appendChild(w);
